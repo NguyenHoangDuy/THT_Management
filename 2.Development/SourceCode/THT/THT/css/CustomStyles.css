@@ -1,0 +1,262 @@
+﻿/*Canhlv 20/09/2015*/
+.k-grid-toolbar:first-child, .k-grouping-header+.k-grid-toolbar{
+        border-width: 1px 0 1px !important;
+}
+  .jarviswidget > header {
+        height:25px !important;
+    }
+    header h2 {
+        margin-top: -5px !important;
+    }
+    .smart-form > fieldset{
+        padding-top: 8px;
+    }
+    .smart-style-3 input[type=text], .smart-style-3 input[type=url], .smart-style-3 textarea {
+        box-shadow: none !important;
+    }
+    .jarviswidget{
+      margin-bottom: 0;
+    }
+    .jarviswidget > div {
+        border-width: 0px 0px 0px;
+    }
+    .jarviswidget > .row {
+        padding-left:0;padding-right:0;
+    }
+    .jarviswidget > .row > .col-sm-12{
+        padding-left:0;padding-right:0;
+    }
+    .k-widget, .k-button{border:none!important;}
+    .jarviswidget > .row{
+        padding-top:0px !important;
+    }
+    .k-grid .k-button {
+        padding: 3px 9px 3px 9px;
+    }
+    .k-grid-toolbar:first-child, .k-grouping-header+.k-grid-toolbar{background: none!important;padding-bottom:2px!important;padding-left:1px!important;padding-top:2px!important}
+    .login-info{height:32px !important;}
+
+    .smart-form footer{
+        padding-bottom:7px;
+    }
+    
+    .smart-form fieldset section .divlabel{
+        float: left; width: 120px; margin-left:0;
+    }
+    .smart-form fieldset section .divfile{
+        float: left; width: 240px; margin-right: 0; margin-left: 10px;
+    }
+
+    
+    .daterangepicker .ranges input {
+        font-size: 11px;
+    }
+    .applyBtn {
+        margin-top: 5px;
+        padding: 4px 10px;
+    }
+.cancelBtn {
+    margin-top: 5px;
+    padding: 4px 13px;
+    margin-left: 5px;
+}
+    .daterangepicker .ranges input {
+        border: 1px solid #d5d5d5  ;
+        color: #848484;
+        text-align: center;
+    }
+    .daterangepicker .table-condensed > tbody > tr > td, .table-condensed > tbody > tr > th, .table-condensed > tfoot > tr > td, .table-condensed > tfoot > tr > th, .table-condensed > thead > tr > td, .table-condensed > thead > tr > th {
+        padding: 10px;
+        font-size: 10px;
+    }
+    .daterangepicker_start_input, .input-mini {
+        width: 74px;
+        margin-right: 10px;
+    }
+    .daterangepicker_end_input, .input-mini {
+        width: 74px;
+    }
+    .daterangepicker .input-mini {
+        height: 30px;
+    }
+    .nav > li > a{
+        padding: 5px 10px 5px 10px !important;
+    }
+    .nav-tabs > li.active > a {
+ 
+    -webkit-box-shadow: none !important; 
+    -moz-box-shadow: none !important;
+     box-shadow: none !important; 
+     /*border-top-width: 1px !important;*/ 
+    }
+    .nav-tabs > li{
+        margin-top:-1px !important;
+    }
+    .smart-style-3 nav > ul > li > a > i {
+        color: #5a5a5a !important;
+        /*font-size: 14px !important;*/
+    }
+/*End*/
+.smart-style-3 #header {
+    background-color: #00B8AA;
+    background-image: linear-gradient(to bottom,#00B8AA,#00B8AA);
+}
+
+.smart-style-3 #logo img {
+    width: 232px;
+    height: auto;
+    padding-left: 3px;
+    margin-top: -3px;
+}
+
+.smart-form #logologin img {
+    width: 367px;
+    height: auto;
+    padding-left: 0;
+    margin-top: 0;
+}
+.smart-form .checkbox input, .smart-form .radio input {
+            position: absolute;
+            top: 3px;
+            left: 0;
+            display: block;
+            width: 17px;
+            height: 17px;
+            outline: 0;
+            border-width: 1px;
+            border-style: solid;
+            background: #FFF;
+        }
+
+ .smart-form .col-3search {
+        width: 16%;
+    }
+ .btn_custom{
+    background-color: #428bca;
+    color:white;
+    width: 126px;
+    height: 27px;
+}
+ .ui-tabs .ui-tabs-nav li a {
+    border-radius: 0;
+    -moz-border-radius: 0;
+    background-color: #6fb3e0;
+    border: 1px solid #F5F5F5;
+    border-bottom: 1px solid #ddd;
+    color: #FFF;
+}
+   .smart-form  .btn_customabc{
+    background-color: #428bca;
+    color:white;
+    width: 80;
+    height: 27px;
+}
+ 
+   .nav-tabs > li > a {
+    margin-right: 2px;
+    line-height: 1.42857143;
+    border: 1px solid transparent;
+    border-radius: 2px 2px 0 0;
+    background-color: #6fb3e0;
+    color:#fff;
+}
+
+   .nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-bottom-color: transparent;
+    cursor: default;
+    color:#6fb3e0;
+}
+  .k-window-title {
+    position: absolute;
+    left: .44em;
+    right: .44em;
+    overflow: hidden;
+    cursor: default;
+    text-overflow: ellipsis;
+    color: #6fb3e0;
+}
+  .k-grid-header th.k-header {
+    vertical-align: bottom;
+    text-align:center;
+}
+.k-grid-toolbar:first-child, .k-grouping-header+.k-grid-toolbar
+.smart-form input.input-xs {
+    padding: 2px 3px;
+}
+.smart-form .input input, .smart-form .select select, .smart-form .textarea textarea{
+    padding: 12px 2px;
+}
+.btn-sm {
+    padding: 2px 10px 4px !important;
+}
+.k-header.k-grid-toolbar.k-grid-top {
+    border-top: none !important;
+    background-color: #F5F5F5 !important;
+}
+.btn {    
+   border-radius: 1px !important;
+}
+.smart-form .col {
+        padding-left: 2px !important;
+}
+.select2-container .select2-choice {
+    padding: 0px 0 2px 2px !important;
+}
+
+.btn-success {
+    background-color: rgb(69, 185, 73) !important;
+    border-color: #42AB46 !important;
+}
+.btn-warning {
+    background-color: #EF9B1C !important;
+    border-color: #EA9410 !important;
+}
+.btn-info {
+    background-color: rgb(66, 139, 202) !important;
+    border-color: #259CAF !important;
+}
+.btn-danger {
+    background-color: #E43636 !important;
+    border-color: #CC2A2A !important;
+}
+.btn-default {
+    background-color: rgba(107, 139, 96, 0.77) !important;
+    border-color:rgba(204, 42, 42, 0.12);
+    color: #fff !important;
+}
+.my-footer-popup {
+   float: right;
+    width: 100%;
+    background-color: #f3f3f3;
+    padding: 3px 8px 6px 3px;
+    /* padding-left: 5px; */
+    /* padding-bottom: 6px; */
+    /* padding-right: 8px; */
+    /* padding-top: 3px; */
+    margin-right: -5px;  
+    margin-bottom: -5px;
+}
+.select2-container-multi .select2-choices {
+     padding: 1px ;
+}
+.nav ul ul {   
+    padding: 3px 0 !important;
+}
+.smart-style-3 nav > ul > li > a {
+    padding: 8px 10px 9px 11px  !important;
+}
+.breadcrumb {
+    margin-bottom: 2px;
+}
+.smart-style-3 nav > ul > li > a b {
+    top: 7px !important;
+}
+.k-picker-wrap.k-state-default{
+    padding-top: 2px !important;
+}
+.smart-form .label 
+{
+    margin-top: 3px;
+}
