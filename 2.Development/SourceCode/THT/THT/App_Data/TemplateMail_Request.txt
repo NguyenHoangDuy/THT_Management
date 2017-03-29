@@ -1,0 +1,15 @@
+﻿<p>Dear all,</p>
+<p>Hiện tại người dùng có gửi cho bạn yêu cầu thêm một số thông số về [@Material] như bên dưới:</p>
+<table style="height: 57px; width: 242px;" border="2">
+<tbody>
+<tr>
+<th style="width: 150px;">Thông số kỹ thuật</th>
+<th style="width: 100px;"> Giá trị</th>
+</tr>
+<tr>
+[@BodyTable]
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<p><em>(Đ&acirc;y l&agrave; eMail tự động vui l&ograve;ng kh&ocirc;ng replay)</em></p>

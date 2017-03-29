@@ -1,0 +1,16 @@
+﻿<p>Dear all,</p>
+<p>Hiện tại người d&ugrave;ng cần hệ thống cung cấp bộ dịch b&ecirc;n dưới, bạn vui l&ograve;ng v&agrave;o hệ thống để định nghĩa</p>
+<p>Thông số kỹ thuật của [@Material]</p>
+<table style="height: 57px; width: 242px;" border="2">
+<tbody>
+<tr>
+<th style="width: 150px;">Thông số kỹ thuật</th>
+<th style="width: 100px;"> Giá trị</th>
+</tr>
+<tr>
+[@BodyTable]
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<p><em>(Đ&acirc;y l&agrave; eMail tự động vui l&ograve;ng kh&ocirc;ng replay)</em></p>
