@@ -1,0 +1,334 @@
+﻿@using THT.Models;
+@{
+    ViewBag.Title = "Nhóm người dùng";
+}
+
+@Scripts.Render("~/bundles/appAuth_Role")
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+    var listUser = dict.ContainsKey("user") ? (List<Auth_User>)dict["user"] : new List<Auth_User>();
+    var listFunc = dict.ContainsKey("function") ? (List<Utilities_Parameters>)dict["function"] : new List<Utilities_Parameters>();
+}
+@{
+    var listAction = new List<SelectListItem>();
+    listAction.Add(new SelectListItem() { Value = "View", Text = "Xem" });
+    listAction.Add(new SelectListItem() { Value = "Insert", Text = "Thêm" });
+    listAction.Add(new SelectListItem() { Value = "Update", Text = "Cập nhật" });
+    listAction.Add(new SelectListItem() { Value = "Delete", Text = "Xóa" });
+    listAction.Add(new SelectListItem() { Value = "Export", Text = "Xuất Excel" });
+    listAction.Add(new SelectListItem() { Value = "Import", Text = "Nhập Excel" });
+}
+<section>
+    <div>
+        @if (Auth_Action.AssetResult(asset, "Search"))
+        {
+            <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+                <div>
+                    <!-- widget content -->
+                    <div class="widget-body no-padding">
+                        <form class="smart-form">
+                            <fieldset>
+                                <div class="row">
+                                    @if (Auth_Action.AssetResult(asset, "RoleID"))
+                                    {
+                                        <section class="col col-3">
+                                            <label class="input" style="margin-top: -4px">
+                                                <input type="text" class="input-xs" id="txtRoleID" placeholder="Mã, tên nhóm">
+                                            </label>
+                                        </section>
+                                    }
+                                    @if (Auth_Action.AssetResult(asset, "IsActive"))
+                                    {
+                                        <section class="col col-3">
+                                            <label class="select" style="margin-top: -4px">
+                                                @Html.DropDownList("selectIsActive_search", new SelectList(listActiveStatus, "StatusValue", "StatusName"), "-- Chọn trạng thái --")
+                                            </label>
+                                        </section>
+                                    }
+                                    <section class="col col-3search" style="margin-top: -4px">
+                                        <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="doSearch()">
+                                            <i class="fa fa-search"></i> Tìm kiếm
+                                        </a>
+                                        @*<a class="k-button k-button-icontext btn_customSearch" href="javascript:void(0);" onclick="doSearch()">Tìm kiếm</a>*@
+                                    </section>
+                                </div>
+                            </fieldset>
+                        </form>
+
+                    </div>
+                    <!-- end widget content -->
+
+                </div>
+                <!-- end widget div -->
+
+            </div>
+        }
+        <div class="jarviswidget bordered">         
+            <div class="row">
+                <!-- NEW COL START -->
+                <article class="col-sm-12">
+                    <div class="widget-body">
+                        @(Html.Kendo().Grid<THT.Models.Auth_Role>()
+                    .Name("grid")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.RoleID).HeaderTemplate("<input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAll'  onClick='checkAllHeader(this)' />").ClientTemplate("<input style='text-align:center' class='checkrowid' type='checkbox' id='#=RoleID#'  />").Width(30).Filterable(false).Sortable(false);
+                        if (asset.ContainsKey("Update") && asset["Update"])
+                        {
+                            columns.Bound(p => p.RoleID).HtmlAttributes(new { data_id = "#=RoleID#", onclick = "onOpenPopup(1,this)", @style = "text-align:right;color:\\#428bca;cursor:pointer" }).Title("Mã nhóm").Width(80);
+                        }
+                        else
+                        {
+                            columns.Bound(p => p.RoleID).Title("Mã nhóm").Width(80);
+                        }
+                        columns.Bound(p => p.RoleName).Title("Tên nhóm").Width(150);
+                        columns.Bound(p => p.Note).Title("Ghi chú").Width(200);
+                        columns.Bound(p => p.IsActive).Title("Trạng thái").HtmlAttributes(new { data_column = "IsActive", @class = "label-success" }).Width(150);
+                        columns.Bound(p => p.RowCreatedBy).Title("Người tạo").Width(110);
+                        columns.Bound(p => p.RowCreatedAt).Width(110).Format("{0:dd/MM/yyyy HH:mm}").HtmlAttributes(new { style = "text-align:right" }).Title("Ngày tạo").Width(110);
+                        columns.Bound(p => p.RowUpdatedBy).Title("Người cập nhật").Width(110);
+                        columns.Bound(p => p.RowUpdatedAt).Title("Ngày cập nhật").Format("{0:dd/MM/yyyy}").Width(110).ClientTemplate("#if(kendo.toString(RowUpdatedAt,'dd/MM/yyyy') != '01/01/1900'){#" + "#= kendo.toString(RowUpdatedAt,'dd/MM/yyyy HH:mm') #" + "#}#").HtmlAttributes(new { style = "text-align:right" });
+                        //if (asset.ContainsKey("Insert") && asset["Insert"])
+                        //{
+                        //    columns.Bound(p => p.RoleID).HeaderTemplate("Sao chép").ClientTemplate("<a data-id='#=RoleID#' class='k-button k-button-icontext ' onclick='onOpenPopup(2,this)' style ='background: \\#3276b1; color:white' >Sao chép</a>").Width(100);
+                        //}
+                    })
+                    .ToolBar(toolBar =>
+                    {
+                        toolBar.Template(@<text>
+                            <div class="pull-left">
+                                @if (asset.ContainsKey("Insert") && asset["Insert"])
+                                {
+                                    <a class="btn btn-sm btn-success" href="javascript:onOpenPopup(0,this)" id="btnGridAdd">
+                                        <i class="fa fa-plus"></i> Thêm
+                                    </a>
+                                }
+                                @if (asset.ContainsKey("Update") && asset["Update"])
+                                {
+                                    <a class="btn btn-sm btn-warning" href="javascript:UpdateStatus(0)" id="btnGridActive">
+                                        <i class="fa fa-pause-circle-o"></i> Ngưng hoạt động
+                                    </a>
+                                    <a class="btn btn-sm btn-warning" href="javascript:UpdateStatus(1)" id="btnGridActive">
+                                        <i class="fa fa-play-circle-o"></i> Hoạt động
+                                    </a>
+                                }
+                                @*@if (asset.ContainsKey("Export") && asset["Export"])
+                                    {
+                                        <a class="btn btn-sm bg-color-blueLight txt-color-white export" href="@Url.Action("Export", "Auth_Role", new { filter = "~", sort = "~" })" id="btnGridExport">
+                                            <i class="fa fa-file-excel-o"></i> Xuất Excel
+                                        </a>
+                                    }*@
+
+                            </div>
+                        </text>);
+                        
+                    })
+                .Events(events => { events.DataBound("onDatabound"); })
+                .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                .Resizable(r => r.Columns(true))
+                .Navigatable()
+                .Scrollable()
+                .Sortable()
+                .DataSource(dataSource => dataSource
+                .Ajax()
+                .Batch(true)
+                .PageSize(100)
+                //.Sort(sort =>
+                //{
+                //    sort.Add("RoleID").Descending();
+
+                //})
+                .Model(model =>
+                {
+                    model.Id(p => p.RoleID);
+                })
+                .Events(e => { e.RequestEnd("onRequestEnd"); e.RequestStart("onRequestStart"); })
+                .Read(read => read.Action("Read", "Auth_Role"))
+                )
+                        )
+                    </div>
+                </article>
+                <!-- END COL -->
+            </div>
+        </div>
+
+
+    </div>
+    <div id="popup" class="row" style="margin:0 auto;display:none">
+        <div>
+            @using (Html.BeginForm("Create", "Auth_Role", FormMethod.Post, new { @class = "smart-form", id = "formPopup", enctype = "multipart/form-data" }))
+            {
+                @Html.Hidden("RowCreatedAt")
+                @Html.Hidden("RowCreatedBy")
+                @Html.Hidden("IsCopy", 0)
+                //
+                <fieldset style="border: none">
+                    <section>
+                            @*<label class="label" style="width:100px">Mã nhóm:</label>
+                            <label class="input" style="float: left; width: 35%; margin-left: 10px">
+                                @Html.TextBox("RoleID", "", new { @class = "input-xs popup_text_left", placeholder = "Mã nhóm" })
+                            </label>*@
+                        </section>
+                    @*<section style="display:none; float:left;"></section>*@
+                </fieldset>
+                
+                <fieldset style="float: left; width: 350px; border: none">
+                    <section>
+                        <label class="label" style="float: left; width: 100px">Tên nhóm (*)</label>
+                        <label class="input" style="float: left; width: 240px">
+                            @Html.TextBox("RoleName", "", new { @class = "input-xs popup_text_left" })
+                        </label>
+                    </section>
+
+                </fieldset>
+                <fieldset style="float: left; width: 350px; border: none">
+                    <section>
+                        <label class="label" style="float: left; width: 100px">Trạng thái</label>
+                        <label class="input" style="float: left; width: 240px">
+                            @Html.DropDownList("IsActive", new SelectList(listActiveStatus, "StatusValue", "StatusName", 1))
+                        </label>
+                    </section>
+                </fieldset>
+                <fieldset style="float: left; width: 730px; border: none">
+                    <section>
+                        <label class="label" style="float: left; width:100px"> Ghi chú</label>
+                        <label class="input" style="float: left; width: 618px; margin-bottom: 10px; ">
+                            @Html.TextBox("Note", "", new { @class = "input-xs popup_text_left" })
+                        </label>
+                    </section>
+                    <section>
+                        <label class="label" style="float: left; width: 100px">Người dùng</label>
+                        <label class="select" style="float: left; margin-bottom: 10px; ">
+                            @Html.DropDownList("selectUser", new SelectList(listUser, "UserID", "DisplayName"), new { multiple = "multiple" })
+                        </label>
+                    </section>
+                    <section>
+                        <label class="label" style="float: left; width: 100px">Nhóm chức năng</label>
+                        <label class="select" style="float: left; margin-bottom: 10px; ">
+                            @Html.DropDownList("selectFunction", new SelectList(listFunc, "ParamID", "Value", 1), new { multiple = "multiple", onchange = "ChangeFunction()" })
+                        </label>
+
+                    </section>
+                    @*Load danh sach quyen cua nhom*@
+                    <div id="templatecondittion" style="margin-left :-12px"></div>
+                </fieldset>
+
+                //load footer popup
+                <div class="my-footer-popup">
+                    <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="CloseForm()">
+                        <i class="fa fa-refresh"></i>  Hủy
+                    </button>
+                    <button type="submit" id="btnSubmit" class="btn btn-sm btn-info" style="float: right;margin-top:5px;">
+                        <i class="fa fa-save"></i>  Lưu
+                    </button>
+                    <img src="@Url.Content("~/Content/Bootstrap/loading.gif")" class="hide" id="loading" style="margin-top: 17px;" />
+                </div>
+
+            }
+        </div>
+    </div>
+    <div id="popupConfirm" style="display:none">
+        <div>
+            <form class="smart-form">
+                <fieldset>
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-5px">Bạn có chắc chắn muốn ngưng hoạt động?</label>
+                    </div>
+                </fieldset>
+                <div class="my-footer-popup">
+                    <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="onUpdateStatus(2, this)">
+                        <i class="fa fa-refresh"></i>  Hủy
+                    </button>
+                    <button type="button" id="btnOK" class="btn btn-sm btn-info" style="float: right;margin-top:5px;" onclick="onUpdateStatus(0, this)">
+                        <i class="fa fa-check"></i>  Đồng ý
+                    </button>
+                </div>
+                @*<footer style="border:none">
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnConfirm" style="float:left;margin-left:86px;height:24px; background-color:#6fb3e0" onclick="onUpdateStatus(0,this)">Đồng ý</button>
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancle" style="float: left; margin-left: 10px; height: 24px; background-color: #abbac3; " onclick="onUpdateStatus(2, this)">Hủy bỏ</button>
+                </footer>*@
+            </form>
+        </div>
+    </div>
+
+    <div id="popupConfirmActive" style="display:none">
+        <div>
+            <form class="smart-form">
+                <fieldset>
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-5px">Bạn có chắc chắn muốn hoạt động?</label>
+                    </div>
+                </fieldset>
+                <div class="my-footer-popup">
+                    <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="onUpdateStatus(3, this)">
+                        <i class="fa fa-refresh"></i>  Hủy
+                    </button>
+                    <button type="button" id="btnOK" class="btn btn-sm btn-info" style="float: right;margin-top:5px;" onclick="onUpdateStatus(1, this)">
+                        <i class="fa fa-check"></i>  Đồng ý
+                    </button>
+                </div>
+                @*<footer style="border:none">
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnConfirm" style="float:left;margin-left:86px;height:24px; background-color:#6fb3e0" onclick="onUpdateStatus(1,this)">Đồng ý</button>
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancle" style="float: left; margin-left: 10px; height: 24px; background-color: #abbac3; " onclick="onUpdateStatus(3, this)">Hủy bỏ</button>
+                </footer>*@
+            </form>
+        </div>
+    </div>
+</section>
+
+<script type="text/kendo-tmpl" id="templategrid">
+    <div class="widget-body" style="width: 103%; border: 1px solid \\#ccc">
+        @(Html.Kendo().Grid<THT.Models.Asset>()
+    .Name("gridpopup")
+                //.HtmlAttributes(new { @class = "bordered", style = "height:312px;width:764px;" })
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.ParentMenuID).Title("ParentMenuID").Width(150).Hidden();
+        columns.Bound(p => p.MenuName).Title("Quyền").Width(150);
+        columns.Bound(p => p.View).Title("Xem").HeaderTemplate("<label><input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAllView'  onClick='checkAllView(this)' /> Xem</label>").HtmlAttributes(new { @style = "text-align:center" }).HeaderHtmlAttributes(new { @style = "text-align:center" })
+        .ClientTemplate("<input value='\\#=View\\#' id='\\#=MenuID\\#_TTView' class='checkrowid' type='checkbox'  onchange='changeAsset()'/>");
+        columns.Bound(p => p.Insert).Title("Thêm").HeaderTemplate("<label><input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAllInsert'  onClick='checkAllInsert(this)' /> Thêm</label>").HtmlAttributes(new { @style = "text-align:center" }).HeaderHtmlAttributes(new { @style = "text-align:center" })
+            .ClientTemplate("<input value='\\#=Insert\\#' id='\\#=MenuID\\#_TTInsert' class='checkrowid' style='text-align:center;opacity:1;' type='checkbox'  onchange='changeAsset()'/>"); ;
+        columns.Bound(p => p.Update).Title("Cập nhật").HeaderTemplate("<label><input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAllUpdate'  onClick='checkAllUpdate(this)' /> Cập nhật</label>").HtmlAttributes(new { @style = "text-align:center" }).HeaderHtmlAttributes(new { @style = "text-align:center" })
+            .ClientTemplate("<input value='\\#=Update\\#'  id='\\#=MenuID\\#_TTUpdate'  class='checkrowid' style='text-align:center;opacity:1;' type='checkbox'  onchange='changeAsset()'/>"); ;
+        columns.Bound(p => p.Delete).Title("Xóa").HeaderTemplate("<label><input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAllDelete'  onClick='checkAllDelete(this)' /> Xóa</label>").HtmlAttributes(new { @style = "text-align:center" }).HeaderHtmlAttributes(new { @style = "text-align:center" })
+            .ClientTemplate("<input value='\\#=Delete\\#' class='checkrowid' id='\\#=MenuID\\#_TTDelete'  style='text-align:center;opacity:1;' type='checkbox'  onchange='changeAsset()'/>"); ;
+        columns.Bound(p => p.Export).Title("Xuất Excel").HeaderTemplate("<label><input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAllExport'  onClick='checkAllExport(this)' /> Xuất Excel</label>").HtmlAttributes(new { @style = "text-align:center" }).HeaderHtmlAttributes(new { @style = "text-align:center" })
+            .ClientTemplate("<input value='\\#=Export\\#' id='\\#=MenuID\\#_TTExport'  class='checkrowid' style='text-align:center;opacity:1;' type='checkbox'  onchange='changeAsset()'/>"); ;
+        columns.Bound(p => p.Import).Title("Nhập Excel").HeaderTemplate("<label><input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAllImport'  onClick='checkAllImport(this)' /> Nhập Excel</label>").HtmlAttributes(new { @style = "text-align:center" }).HeaderHtmlAttributes(new { @style = "text-align:center" })
+            .ClientTemplate("<input value='\\#=Import\\#'  id='\\#=MenuID\\#_TTImport'  class='checkrowid' style='text-align:center;opacity:1;' type='checkbox'  onchange='changeAsset()'/>");
+        //columns.Bound(p => p.Import).Title("Tất cả").ClientTemplate("<input value='0' class='checkAll' style='text-align:center;opacity:1;' type='checkbox'  onchange='checkAll()'/>");
+    })
+    .Events(events => { events.DataBound("onDataboundCondition"); })
+    .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+    .Resizable(r => r.Columns(true))
+    .Navigatable()
+    .Scrollable()
+                //.Sortable()
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    .Batch(true)
+    .PageSize(100)
+    .Model(model =>
+    {
+        model.Id(p => p.MenuName);
+    })
+    .Events(e =>
+    {
+        e.RequestEnd("onRequestEndDetail")
+            ; e.RequestStart("onRequestStart"); e.Error("error_handlerDetail");
+    })
+    .Read(read => read.Action("ReadRole", "Auth_Role").Data("getRoleID"))
+    ).ToClientTemplate()
+        )
+    </div>
+</script>
+<script>
+    function CloseForm() {
+        $("#popup").data("kendoWindow").close();
+    }
+</script>

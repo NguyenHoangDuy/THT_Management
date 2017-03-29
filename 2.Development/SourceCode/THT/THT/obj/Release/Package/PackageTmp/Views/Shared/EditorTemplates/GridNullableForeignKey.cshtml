@@ -1,0 +1,7 @@
+﻿@model object
+
+@(
+ Html.Kendo().DropDownListFor(m => m)
+        .OptionLabel("- Chọn -")
+        .BindTo((SelectList)ViewData[ViewData.TemplateInfo.GetFullHtmlFieldName("") + "_Data"])
+)

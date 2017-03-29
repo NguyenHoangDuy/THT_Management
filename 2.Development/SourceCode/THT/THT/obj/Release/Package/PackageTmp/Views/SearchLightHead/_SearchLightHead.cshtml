@@ -1,0 +1,901 @@
+﻿@using THT.Models;
+
+@{
+    ViewBag.Title = "Tra cứu và dịch mã trụ đèn";
+}
+
+@*@Scripts.Render("~/Scripts/app/SearchLightHead.js")*@
+<script src="@Url.Content("~/Scripts/jquery.blockUI.js")"></script>
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+    List<String> DisplayName = ViewBag.DisplayName;
+}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+</style>
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+
+    .input-validation-error {
+        border: 1px solid #e80c4d !important;
+    }
+
+    .button-box {
+        display: none;
+        margin-top: 30px;
+        margin-left: 193px;
+        margin-bottom: 50px;
+    }
+
+</style>
+
+<section>
+    <div class="jarviswidget bordered">
+        <div class="row">
+            @using (Html.BeginForm("LightHead", "SearchLightHead", FormMethod.Post, new { @class = "smart-form", id = "formPopup", enctype = "multipart/form-data" }))
+            {
+                <fieldset style=" float: left; width: 100%; padding-left: 0px; padding-right: 0px;">
+                    <section style="float: left; margin-left: 10%;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">Mã tổng hợp:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px; ">
+                                @Html.TextBox("FinalCode", "", new { @class = "input-xs popup_text_right", placeholder = "Mã tổng hợp" , style = "font-weight: bold;color: #00f;" })
+                            </label>
+                        </div>
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">Dịch mã</label>
+                        </div>
+                        <div style="float: left; width: 300px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 300px;">
+                                @Html.TextBox("Description", "", new { @class = "input-xs popup_text_right", placeholder = "Dịch mã", style = "font-weight: bold;color: #00f;" })
+                            </label>
+                        </div>
+                    </section>
+
+                    <section style="float: left; margin-left: 10%;">
+                        <div style="float: left; width: 120px; ">
+                            <label class="label" style="float:right;">Chú thích:</label>
+                        </div>
+                        <div style="float: left; width: 680px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 680px; ">
+                                @Html.TextBox("Parameters", "", new { @class = "input-xs popup_text_right", placeholder = "Chú thích", style = "font-weight: bold;color: #00f;" })
+                            </label>
+                        </div>
+                    </section>
+                    <section style="float: left; margin-left: 10%;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">Khối lượng trụ:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px; ">
+                                @Html.TextBox("Weight", "", new { @class = "input-xs popup_text_right", placeholder = "Khối lượng trụ", style = "font-weight: bold;color: #00f;" })
+                            </label>
+                        </div>
+                    </section>
+
+                </fieldset>
+                <fieldset style="margin-left: 10%;float: left; width: 50%; padding-left: 0px; padding-right: 0px;border:none">
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[0]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("TKGroup", new SelectList(ViewBag.TKGroup, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[1]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("Head", new SelectList(ViewBag.Head, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[2]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("Length", new SelectList(ViewBag.Length, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[3]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("Thickness", new SelectList(ViewBag.Thickness, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[4]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("BottomDiameter", new SelectList(ViewBag.BottomDiameter, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[5]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("TopDiameter", new SelectList(ViewBag.TopDiameter, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[6]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("Size", new SelectList(ViewBag.Size, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[7]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("Empire", new SelectList(ViewBag.Empire, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[8]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("BoltCenter", new SelectList(ViewBag.BoltCenter, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[9]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("BoltSize", new SelectList(ViewBag.BoltSize, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[10]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("EpMo", new SelectList(ViewBag.EpMo, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+                </fieldset>
+                <!--Right-->
+                <fieldset style="float: left; width: 40%; padding-left: 0px; padding-right: 0px;border:none">
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[11]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("HeadHeight", new SelectList(ViewBag.HeadHeight, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[12]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("HeadSize", new SelectList(ViewBag.HeadSize, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 150px; margin-left:-30px;">
+                            <label class="label" style="float:right;">@DisplayName[13]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("TendonSize", new SelectList(ViewBag.TendonSize, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 150px; margin-left:-30px;">
+                            <label class="label" style="float:right;">@DisplayName[14]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("TendonNumber", new SelectList(ViewBag.TendonNumber, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[15]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @*@Html.DropDownList("TubeSize", new SelectList(ViewBag.TubeSize, "Id", "Name"), "-- Chọn giá trị --", new { onchange = "ClearValidateTubeSize(this)" })*@
+                                @Html.DropDownList("TubeSize", new SelectList(ViewBag.TubeSize, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[21]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @*@Html.DropDownList("SilverLining", new SelectList(ViewBag.SilverLining, "Id", "Name"), "-- Chọn giá trị --", new { onchange = "ClearValidateSilverLining(this)" })*@
+                                @Html.DropDownList("SilverLining", new SelectList(ViewBag.SilverLining, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[16]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("RodSize", new SelectList(ViewBag.RodSize, "Id", "Name"), "-- Chọn giá trị --", new { onchange = "ClearValidateRodSize(this)" })
+                                @*@Html.DropDownList("RodSize", new SelectList(ViewBag.RodSize, "Id", "Name"), "-- Chọn giá trị --")*@
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;" id="dvRodSize">
+                        <div style="float: left; width: 180px; margin-left:-60px;">
+                            <label class="label" style="float:right;">Khối lượng cộng thêm liền cần:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.TextBox("txtValue", (string)ViewBag.txtValue, new { @class = "input-xs popup_text_right allownumericwithdecimal", })
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[17]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("Hill", new SelectList(ViewBag.Hill, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[18]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("Hinge", new SelectList(ViewBag.Hinge, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[19]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("MuzzleHead", new SelectList(ViewBag.MuzzleHead, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;">@DisplayName[20]:</label>
+                        </div>
+                        <div style="float: left; width: 250px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; width: 250px;">
+                                @Html.DropDownList("PlinthType", new SelectList(ViewBag.PlinthType, "Id", "Name"), "-- Chọn giá trị --")
+                            </label>
+
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+                </fieldset>
+                @*<div class="my-footer-popup" style="background-color: white">
+                        <button type="submit" id="btnSubmit" class="btn btn-sm btn-info" style="float: right; margin-top: 0px;">
+                            <i class="fa fa-search"></i>  Tra Cứu
+                        </button>
+                        <img src="@Url.Content("~/Content/Bootstrap/loading.gif")" class="hide" id="loading" style="margin-top: 17px;" />
+                    </div>*@
+
+                <div class="button-box" style="display: block; text-align: center; margin-left: 0; ">
+                    <span class="btnInput">
+                        <button type="submit" id="btnSubmit" class="btn btn-sm btn-info">
+                            <i class="fa fa-search"></i>  Tra Cứu
+                        </button>
+                    </span>
+                </div>
+            }
+        </div>
+    </div>
+
+    @*<div id="popupConfirm" style="display:none">
+            <div>
+                <form class="smart-form">
+                    <fieldset>
+                        <div class="divlabel" style="width:100px;">
+                            <label class="label" style="float:left;margin-top:-14px">Bộ dịch này không tồn tại, Bạn có muốn gửi thông báo đến ban quản trị không?</label>
+                        </div>
+                    </fieldset>
+                    <footer style="border:none">
+                        <button type="button" class="k-button k-button-icontext btn_custom" id="btnApprove" style="float: left; margin-left: 86px; height: 24px; background-color: \\#6fb3e0" onclick="Confirm(0, this)">Đồng ý</button>
+                        <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancel" style="float: left; margin-left: 10px; height: 24px; background-color: \\#abbac3; " onclick="Confirm(1, this)">Hủy bỏ</button>
+                    </footer>
+                </form>
+            </div>
+        </div>*@
+
+
+
+    <div id="popupConfirm" style="display:none">
+        <div>
+            <form class="smart-form" id="formPopup">
+                <fieldset>
+                    <div class="divlabel" style="width:150px;">
+                        <label class="label" style="float:left;margin-top:-5px">Bộ dịch này không tồn tại, Bạn có muốn gửi thông báo đến ban quản trị không?</label>
+                    </div>
+                </fieldset>
+                <div class="my-footer-popup">
+                    <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="Confirm(0,this)">
+                        <i class="fa fa-refresh"></i>  Hủy
+                    </button>
+                    <button type="button" id="btnOK" class="btn btn-sm btn-info" style="float: right;margin-top:5px;" onclick="Confirm(1,this)">
+                        <i class="fa fa-check"></i>  Đồng ý
+                    </button>
+                </div>
+                @*<footer style="border:none">
+                        <button type="button" class="k-button k-button-icontext btn_custom" id="btnConfirm" style="float:left;margin-left:86px;height:24px; background-color:#6fb3e0" onclick="onUpdateStatus(0,this)">Đồng ý</button>
+                        <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancle" style="float: left; margin-left: 10px; height: 24px; background-color: #abbac3; " onclick="onUpdateStatus(1, this)">Hủy bỏ</button>
+                    </footer>*@
+            </form>
+        </div>
+    </div>
+
+</section>
+
+
+<script>
+    var numHeight = 230;
+    var keyAction;
+    var indexTabstripActive = -1;
+    var contentTab;
+
+    $(document).ready(function () {
+
+        $("ul#menuLeft").find('#ul_root_3').addClass('open');
+        $("ul#menuLeft").find('#ul_root_3').css('display', 'block');
+
+        resetMenu();
+        $("#menu_SearchLightHead").parent().addClass('active');
+
+        $("#formPopup").find('fieldset:eq(0)').hide();
+        $('#dvRodSize').hide();
+
+        var cboRodSize = $("#RodSize");
+        var i = cboRodSize[0].selectedIndex;
+        var valueText = $("#RodSize  option:selected").text();
+        var id = $("#RodSize  option:selected").val();
+
+        if (id == "" || locdau(valueText) == "khong")
+            $('#txtValue').val("0");
+        if (locdau(valueText) != "khong" && id != "") {
+            $('#txtValue').val("");
+            $('#dvRodSize').show();
+        }
+
+        $("#TKGroup").select2();
+        $("#s2id_TKGroup").css('width', '250px');
+
+        $("#Head").select2();
+        $("#s2id_Head").css('width', '250px');
+
+        $("#Length").select2();
+        $("#s2id_Length").css('width', '250px');
+
+        $("#Thickness").select2();
+        $("#s2id_Thickness").css('width', '250px');
+
+        $("#BottomDiameter").select2();
+        $("#s2id_BottomDiameter").css('width', '250px');
+
+        $("#TopDiameter").select2();
+        $("#s2id_TopDiameter").css('width', '250px');
+
+        $("#Size").select2();
+        $("#s2id_Size").css('width', '250px');
+
+        $("#Empire").select2();
+        $("#s2id_Empire").css('width', '250px');
+
+        $("#BoltCenter").select2();
+        $("#s2id_BoltCenter").css('width', '250px');
+
+        $("#BoltSize").select2();
+        $("#s2id_BoltSize").css('width', '250px');
+
+        $("#EpMo").select2();
+        $("#s2id_EpMo").css('width', '250px');
+
+        $("#HeadHeight").select2();
+        $("#s2id_HeadHeight").css('width', '250px');
+
+        $("#HeadSize").select2();
+        $("#s2id_HeadSize").css('width', '250px');
+
+        $("#TendonSize").select2();
+        $("#s2id_TendonSize").css('width', '250px');
+
+        $("#TendonNumber").select2();
+        $("#s2id_TendonNumber").css('width', '250px');
+
+        $("#TubeSize").select2();
+        $("#s2id_TubeSize").css('width', '250px');
+
+        $("#SilverLining").select2();
+        $("#s2id_SilverLining").css('width', '250px');
+
+        $("#RodSize").select2();
+        $("#s2id_RodSize").css('width', '250px');
+
+        $("#Hill").select2();
+        $("#s2id_Hill").css('width', '250px');
+
+        $("#Hinge").select2();
+        $("#s2id_Hinge").css('width', '250px');
+
+        $("#MuzzleHead").select2();
+        $("#s2id_MuzzleHead").css('width', '250px');
+
+        $("#PlinthType").select2();
+        $("#s2id_PlinthType").css('width', '250px');
+
+
+        $('#popupConfirm').kendoWindow({
+            width: "500px",
+            actions: ["Close"],
+            title: "Cảnh báo",
+            visible: false,
+            resizable: false,
+            close: function (e) {
+                $("#divMaskPopup").hide();
+            }
+        });
+
+        $("#formPopup").validate({
+            // Rules for form validation
+            rules: {
+                TKGroup: {
+                    required: true,
+                },
+                Head: {
+                    required: true,
+                },
+                Length: {
+                    required: true,
+                    // alphanumeric: true
+                },
+                Thickness: {
+                    required: true,
+                },
+                BottomDiameter: {
+                    required: true,
+                },
+                TopDiameter: {
+                    required: true,
+                },
+                Size: {
+                    required: true,
+                },
+                Empire: {
+                    required: true,
+                },
+                BoltCenter: {
+                    required: true,
+                },
+                BoltSize: {
+                    required: true,
+                },
+                EpMo: {
+                    required: true,
+                },
+                HeadHeight: {
+                    required: true,
+                },
+                HeadSize: {
+                    required: true,
+                },
+                TendonSize: {
+                    required: true,
+                },
+                TendonNumber: {
+                    required: true,
+                },
+                TubeSize: {
+                    required: true,
+                },
+                RodSize: {
+                    required: true,
+                },
+                Hill: {
+                    required: true,
+                },
+                Hinge: {
+                    required: true,
+                },
+                MuzzleHead: {
+                    required: true,
+                },
+                PlinthType: {
+                    required: true,
+                },
+                SilverLining: {
+                    required: true,
+                },
+            },
+
+            // Messages for form validation required: "Thông tin bắt buộc",
+            messages: {
+                TKGroup: {
+                    required: "Thông tin bắt buộc",
+                },
+                Head: {
+                    required: "Thông tin bắt buộc",
+                },
+                Length: {
+                    required: "Thông tin bắt buộc",
+                    // alphanumeric: true
+                },
+                Thickness: {
+                    required: "Thông tin bắt buộc",
+                },
+                BottomDiameter: {
+                    required: "Thông tin bắt buộc",
+                },
+                TopDiameter: {
+                    required: "Thông tin bắt buộc",
+                },
+                Size: {
+                    required: "Thông tin bắt buộc",
+                },
+                Empire: {
+                    required: "Thông tin bắt buộc",
+                },
+                BoltCenter: {
+                    required: "Thông tin bắt buộc",
+                },
+                BoltSize: {
+                    required: "Thông tin bắt buộc",
+                },
+                EpMo: {
+                    required: "Thông tin bắt buộc",
+                },
+                HeadHeight: {
+                    required: "Thông tin bắt buộc",
+                },
+                HeadSize: {
+                    required: "Thông tin bắt buộc",
+                },
+                TendonSize: {
+                    required: "Thông tin bắt buộc",
+                },
+                TendonNumber: {
+                    required: "Thông tin bắt buộc",
+                },
+                TubeSize: {
+                    required: "Thông tin bắt buộc",
+                },
+                RodSize: {
+                    required: "Thông tin bắt buộc",
+                },
+                Hill: {
+                    required: "Thông tin bắt buộc",
+                },
+                Hinge: {
+                    required: "Thông tin bắt buộc",
+                },
+                MuzzleHead: {
+                    required: "Thông tin bắt buộc",
+                },
+                PlinthType: {
+                    required: "Thông tin bắt buộc",
+                },
+                SilverLining: {
+                    required: "Thông tin bắt buộc",
+                },
+            },
+            errorPlacement: function (error, element) {
+                error.insertAfter(element);
+            },
+            submitHandler: function (form) {
+                $(form).ajaxSubmit({
+                    //clearForm: true,//To clear form after ajax submitting
+                    beforeSend: function () { $("#loading").removeClass('hide'); },
+                    success: function (data) {
+                        if (data.success) {
+                            $("#formPopup").find('fieldset:eq(0)').show();
+                            $('#FinalCode').val(data.FinalCode);
+                            $('#Description').val(data.Description);
+                            $('#Parameters').val(data.Parameters);
+                            $('#Weight').val(data.Weight);
+
+                        }
+                        else {
+                            $("#divMaskPopup").show();
+                            var popup = $('#popupConfirm').data("kendoWindow");
+                            popup.center().open();
+                            $(".k-window span.k-i-close").click(function () {
+                                eventHotKey = false;
+                                $("#divMaskPopup").hide();
+                            });
+                            //alertBox("Báo lỗi! ", data.message, false, 3000);
+                            //$("#loading").addClass('hide');
+                            //console.log(data.message);
+                        }
+                    }
+                });
+                return false;
+            }
+        });
+    });
+
+
+    function alertBox(title, content, flag, timeout) {
+        //var icon = flag ? "fa-thumbs-up" : "fa-thumbs-down";
+        $.smallBox({
+            title: title,
+            content: content,
+            color: flag ? "#e0efd8" : "#f2dedf",
+            //iconSmall: "fa " + icon + " bounce animated",
+            timeout: timeout
+        });
+    }
+
+    function Confirm(key, obj) {
+        if (key == 1) {
+            $('#popupConfirm').data("kendoWindow").close();
+            $.post(r + "/SearchLightHead/LightHead_SendMail", function (data) {
+                if (data.success) {
+                    alertBox("Thành công!", " Gửi mail thành công", true, 3000);
+                }
+                else {
+                    alertBox("Báo lỗi! ", data.message, false, 3000);
+                }
+            });
+        }
+        else {
+            $('#popupConfirm').data("kendoWindow").close();
+            return false;
+        }
+
+    }
+
+    function locdau(str1) {
+        var str = str1.toLowerCase();
+        str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+        str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+        str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+        str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+        str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+        str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+        str = str.replace(/đ/g, "d");
+        return str;
+    }
+
+    function ClearValidateTubeSize(sender) {
+        if (sender.Value != "") {
+
+
+            var cboSilverLining = $("#cboSilverLining");
+            var i = cboSilverLining[0].selectedIndex;
+
+            var cboTubeSize = $("#cboTubeSize");
+            var j = cboTubeSize[0].selectedIndex;
+
+            if (i == 0 && j == 0) {
+                $("#RodSize").removeClass("invalid");
+                $("#TubeSize").removeClass("invalid");
+                $("#cboSilverLining").removeClass("invalid");
+                return;
+            }
+
+            if (j == 0) {
+                $("#cboTubeSize").removeClass("invalid");
+            }
+
+            var valueText = $("#cboSilverLining  option:selected").text();
+            if (i != 0 && locdau(valueText) == 'khong') {
+                $("#cboSilverLining").removeClass("invalid");
+                $("#RodSize").removeClass("invalid");
+            }
+            return;
+        }
+    }
+
+    function ClearValidateSilverLining(sender) {
+        if (sender.Value != "") {
+
+            var cboTubeSize = $("#cboTubeSize");
+            var i = cboTubeSize[0].selectedIndex;
+
+            var cboSilverLining = $("#cboSilverLining");
+            var j = cboSilverLining[0].selectedIndex;
+
+            if (i == 0 && j == 0) {
+                $("#RodSize").removeClass("invalid");
+                $("#cboTubeSize").removeClass("invalid");
+                $("#cboSilverLining").removeClass("invalid");
+                return;
+            }
+
+            if (j == 0) {
+                $("#cboSilverLining").removeClass("invalid");
+            }
+
+            var valueText = $("#cboTubeSize option:selected").text();
+            if (i != 0 && locdau(valueText) == 'khong') {
+                $("#cboTubeSize").removeClass("invalid");
+                $("#RodSize").removeClass("invalid");
+            }
+            return;
+        }
+    }
+
+    function ClearValidateRodSize(sender) {
+        if (sender.Value != "") {
+            var cboRodSize = $("#RodSize");
+            var i = cboRodSize[0].selectedIndex;
+            var valueText = $("#RodSize option:selected").text();
+            var id = $("#RodSize option:selected").val();
+
+            $('#dvRodSize').hide();
+            if (id == "" || locdau(valueText) == "khong")
+                $('#txtValue').val("0");
+            if (locdau(valueText) != "khong" && id != "") {
+                $('#txtValue').val("");
+                $('#dvRodSize').show();
+            }
+
+            //if (i == 0) {
+            //    $("#RodSize").removeClass("input-validation-error");
+            //    $("#cboTubeSize").removeClass("input-validation-error");
+            //    $("#cboSilverLining").removeClass("input-validation-error");
+            //    return;
+            //}
+
+            //if (locdau(valueText) == "khong") {
+            //    $("#RodSize").removeClass("input-validation-error");
+            //    $("#cboTubeSize").removeClass("input-validation-error");
+            //    $("#cboSilverLining").removeClass("input-validation-error");
+            //}
+            return;
+        }
+    }
+
+    $(".allownumericwithdecimal").on("keypress keyup blur", function (event) {
+        $(this).val($(this).val().replace(/[^0-9\.]/g, ''));
+        if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
+            event.preventDefault();
+        }
+    });
+
+    $("#btnSubmit").click(function () {
+        //$("#txtValue").removeClass("input-validation-error");
+
+        var TubeSize = $("#TubeSize option:selected").text();
+        var SilverLining = $("#SilverLining option:selected").text();
+        var RodSize = $("#RodSize option:selected").text();
+
+        if ($("#TubeSize").val() != "" && $("#SilverLining").val() != "" && $("#RodSize").val() != "") {
+            if ((locdau(TubeSize) != "khong" || locdau(SilverLining) != "khong") && locdau(RodSize) != "khong") {
+                alertBox("Báo lỗi! ", "Có ống lót hoặc bạc lót, vui lòng không chọn liền cần.", false, 3000);
+                return false;
+            }
+        }
+
+        if ($('#dvRodSize').is(':hidden'))
+            return true;
+
+        if ($("#txtValue").val() == "") {
+            //$("#txtValue").addClass("input-validation-error");
+            alertBox("Báo lỗi! ", "Vui lòng nhập", false, 3000);
+            return false;
+        }
+        return true;
+    });
+</script>

@@ -1,0 +1,111 @@
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\TemplateSmartAdmin.dll.config
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\TemplateSmartAdmin.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\TemplateSmartAdmin.pdb
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\Antlr3.Runtime.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\EPPlus.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\log4net.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\Microsoft.Web.Infrastructure.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\Newtonsoft.Json.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.Common.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.Interfaces.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.OrmLite.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.OrmLite.SqlServer.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.Redis.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.ServiceInterface.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.Text.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Helpers.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Mvc.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Optimization.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Razor.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.WebPages.Deployment.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.WebPages.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.WebPages.Razor.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\WebGrease.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\Antlr3.Runtime.pdb
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\Kendo.Mvc.xml
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\log4net.xml
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\Newtonsoft.Json.xml
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Helpers.xml
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Mvc.xml
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Optimization.xml
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Razor.xml
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.WebPages.xml
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.WebPages.Deployment.xml
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.WebPages.Razor.xml
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\bg-BG\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\cs-CZ\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\da-DK\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\de-DE\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\es-ES\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\fr-FR\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\it-IT\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\nl-NL\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\pl-PL\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\pt-BR\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\pt-PT\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ro-RO\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ru-RU\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\sv-SE\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\tr-TR\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\uk-UA\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\zh-CN\Kendo.Mvc.resources.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\obj\Release\TemplateSmartAdmin.dll
+F:\cong viec\twin\projects\HongHanh\DMS\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\obj\Release\TemplateSmartAdmin.pdb
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\TemplateSmartAdmin.dll.config
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\TemplateSmartAdmin.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\TemplateSmartAdmin.pdb
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\Antlr3.Runtime.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\CrystalDecisions.CrystalReports.Engine.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\CrystalDecisions.ReportSource.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\CrystalDecisions.Shared.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\EPPlus.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\log4net.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\Microsoft.Web.Infrastructure.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\Newtonsoft.Json.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.Common.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.Interfaces.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.OrmLite.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.OrmLite.SqlServer.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.Redis.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.ServiceInterface.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ServiceStack.Text.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Helpers.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Mvc.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Optimization.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Razor.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.WebPages.Deployment.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.WebPages.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.WebPages.Razor.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\WebGrease.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\Antlr3.Runtime.pdb
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\Kendo.Mvc.xml
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\log4net.xml
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\Newtonsoft.Json.xml
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Helpers.xml
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Mvc.xml
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Optimization.xml
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.Razor.xml
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.WebPages.xml
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.WebPages.Deployment.xml
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\System.Web.WebPages.Razor.xml
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\bg-BG\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\cs-CZ\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\da-DK\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\de-DE\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\es-ES\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\fr-FR\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\it-IT\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\nl-NL\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\pl-PL\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\pt-BR\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\pt-PT\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ro-RO\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\ru-RU\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\sv-SE\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\tr-TR\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\uk-UA\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\bin\zh-CN\Kendo.Mvc.resources.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\obj\Release\TemplateSmartAdmin.dll
+E:\working\TWIN\MBVPortal\trunk\TSA_Default\2. Development\SourceCode\TemplateSmartAdmin\TemplateSmartAdmin\obj\Release\TemplateSmartAdmin.pdb

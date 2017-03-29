@@ -1,0 +1,669 @@
+﻿@using THT.Models;
+@{
+    ViewBag.Title = "Thông báo";
+}
+
+
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+    var listRole = dict.ContainsKey("listrole") ? (List<Auth_Role>)dict["listrole"] : new List<Auth_Role>();
+
+    var listType = new List<SelectListItem>();
+    listType.Add(new SelectListItem() { Value = "HOT", Text = "Hot" });
+    listType.Add(new SelectListItem() { Value = "KHONGHOT", Text = "Không hot" });
+
+
+}
+<script src="~/js/plugin/ckeditor/ckeditor.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<style>
+    label.input.state-error {
+        background: #fff !important;
+    }
+</style>
+<section>
+    @*<div class="bordered">*@
+    @if (Auth_Action.AssetResult(asset, "Search"))
+    {
+        <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+            @*<header>
+                    <h2 style="color:#6fb3e0">Thông tin công ty</h2>
+                </header>*@
+            <div>
+                <div class="widget-body no-padding">
+                    <form class="smart-form">
+                        <fieldset>
+                            <div class="row">
+                                <section class="col col-3">
+                                    <label class="input" style="margin-top: -4px">
+                                        <input type="text" class="input-xs" id="txtInfo" placeholder="Tiêu đề">
+                                    </label>
+                                </section>
+                                @*<section class="col col-3search">
+                                        <label class="select" style="margin-top: -4px">
+                                            @Html.DropDownList("selectStatus_search", new SelectList(listActiveStatus, "StatusValue", "StatusName"), "-- Chọn trạng thái --")
+                                        </label>
+                                    </section>*@
+                                <section class="col col-3search" style="margin-top: -4px">
+                                    <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="doSearch()">
+                                        <i class="fa fa-search"></i> Tìm kiếm
+                                    </a>
+                                </section>
+                            </div>
+                        </fieldset>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    }
+    <div class="jarviswidget bordered">
+        <div class="row">
+            <!-- NEW COL START -->
+            <article class="col-sm-12">
+                <div class="widget-body">
+                    @(Html.Kendo().Grid<THT.Models.General_Notification>()
+                    .Name("grid")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.Id).HeaderTemplate("<input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAll'  onClick='checkAllHeader(this)' />").ClientTemplate("<input style='text-align:center' class='checkrowid' type='checkbox' id='#=Id#'  />").Width(30).Filterable(false).Sortable(false);
+                        if (asset.ContainsKey("Update") && asset["Update"])
+                        {
+                            columns.Bound(p => p.Id).HtmlAttributes(new { data_id = "#=Id#", onclick = "onOpenPopup(1,#=Id#)", @style = "color:\\#428bca;cursor:pointer;text-decoration:underline" }).Title("Mã thông báo").Width(90);
+                        }
+                        else
+                        {
+                            columns.Bound(p => p.Id).Title("Mã thông báo").Width(90);
+                        }
+
+                        columns.Bound(p => p.Title).Title("Tiêu đề").Width(120);
+                
+                        //columns.Bound(p => p.Type).Title("Loại").Width(150);
+                        columns.Bound(p => p.Orders).Title("Thứ tự tin").Width(150);
+                        columns.Bound(p => p.StartDate).Width(110).Format("{0:dd/MM/yyyy HH:mm}").HtmlAttributes(new { style = "text-align:right" }).Title("Ngày bắt đầu").Width(110);
+                        columns.Bound(p => p.EndDate).Width(110).Format("{0:dd/MM/yyyy HH:mm}").HtmlAttributes(new { style = "text-align:right" }).Title("Ngày kết thúc").Width(110);
+                        columns.Bound(p => p.Status).Title("Trạng thái").HtmlAttributes(new { data_column = "IsActive" }).Width(100);
+                        columns.Bound(p => p.CreatedBy).Title("Người tạo").Width(110);
+                        columns.Bound(p => p.CreatedAt).Width(110).Format("{0:dd/MM/yyyy HH:mm}").HtmlAttributes(new { style = "text-align:right" }).Title("Ngày tạo").Width(110);
+                        columns.Bound(p => p.UpdatedBy).Title("Người cập nhật").Width(110);
+                        columns.Bound(p => p.UpdatedAt).Title("Ngày cập nhật").Format("{0:dd/MM/yyyy}").Width(110).ClientTemplate("#if(kendo.toString(UpdatedAt,'dd/MM/yyyy') != '01/01/1900'){#" + "#= kendo.toString(UpdatedAt,'dd/MM/yyyy HH:mm') #" + "#}#").HtmlAttributes(new { style = "text-align:right" });
+                    })
+                    .ToolBar(toolBar =>
+                    {
+                    toolBar.Template(@<text>
+                        <div class="pull-left">
+                            @if (asset.ContainsKey("Insert") && asset["Insert"])
+                            {
+                                <a class="btn btn-sm btn-success" href="javascript:onOpenPopup(0,this)" id="btnGridAdd">
+                                    <i class="fa fa-plus"></i> Thêm
+                                </a>
+                            }
+                            @if (asset.ContainsKey("Update") && asset["Update"])
+                            {
+                                <a class="btn btn-sm btn-warning" href="javascript:changeActive()" id="btnGridActive">
+                                    <i class="fa fa-play-circle-o"></i> Hoạt động
+                                </a>
+                                <a class="btn btn-sm btn-warning" href="javascript:changeInActive()" id="btnGriInActive">
+                                    <i class="fa fa-pause-circle-o"></i> Ngưng hoạt động
+                                </a>   
+                            }
+
+                        </div>
+
+                    </text>);
+                    })
+                    .Events(events => { events.DataBound("onDatabound"); })
+                    .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                    .Resizable(r => r.Columns(true))
+                    .Navigatable()
+                    .Scrollable()
+                    .Sortable()
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Batch(true)
+                        .PageSize(100)
+                        .Model(model =>
+                        {
+                            model.Id(p => p.Id);
+                        })
+                        .Events(e => { e.RequestEnd("onRequestEnd"); e.RequestStart("onRequestStart"); })
+                        .Read(read => read.Action("Read", "GeneralNotification"))
+                    )
+                    )
+                </div>
+            </article>
+            <!-- END COL -->
+
+        </div>
+    </div>
+
+</section>
+
+<div id="popup" class="row" style="margin:0 auto;display:none">
+    @*<div class="bordered">*@
+    @using (Html.BeginForm("Create", "GeneralNotification", FormMethod.Post, new { @class = "smart-form", id = "formCreate", enctype = "multipart/form-data" }))
+    {
+        @Html.Hidden("Id");
+        @Html.Hidden("CreatedAt");
+        @Html.Hidden("CreatedBy");
+        @Html.Hidden("HTMLBody");
+        <fieldset style="float: left;padding: 0px; padding-top:10px; " id="div1">
+            <div>
+
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right;"> Tiêu đề</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                            @Html.TextBox("Title", "", new { @class = "input-xs popup_text_right" })
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+            </div>
+            <div>
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="Type" style="float:right;"> Loại tin</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                            @Html.DropDownList("Type", new SelectList(listType, "Value", "Text"))
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right;"> Ngày bắt đầu</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                            @Html.TextBox("StartDate", "", new { @class = "input-xs popup_text_left datepicker", data_dateformat = "dd/mm/yy", placeholder = "Ngày bắt đầu" })
+
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right;"> Ngày kết thúc</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                            @Html.TextBox("EndDate", "", new { @class = "input-xs popup_text_left datepicker", data_dateformat = "dd/mm/yy", placeholder = "Ngày kết thúc" })
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right">Thứ tự tin (*)</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                            @*<input type="number" id="Orders" name="Orders" />*@
+                            @Html.TextBox("Orders", "", new { @class = "input-xs popup_text_right" })
+                        </label>
+                    </div>
+                </section>
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right">Trạng thái (*)</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                            @Html.DropDownList("Status", new SelectList(listActiveStatus, "StatusValue", "StatusName", 1))
+
+                        </label>
+                    </div>
+                </section>
+                <section style="float:left;">
+
+                    <div style="float: right; width: 100%;">
+                        <textarea id="HTMLContentView" name="HTMLContentView" rows="10" cols="80"></textarea>
+                    </div>
+                    <div style="clear:both"></div>
+                </section>
+            </div>
+        </fieldset>
+
+        <div class="my-footer-popup">
+            <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="ResetForm()">
+                <i class="fa fa-refresh">
+                </i>  Hủy
+            </button>
+            <button type="submit" id="btnSubmit" class="btn btn-sm btn-info" style="float: right;margin-top:5px;">
+                <i class="fa fa-save"></i>  Lưu
+            </button>
+            <img src="@Url.Content("~/Content/Bootstrap/loading.gif")" class="hide" id="loading" style="margin-top: 17px;" />
+        </div>
+
+    }
+</div>
+<div id="popupActive" style="display:none">
+    <div>
+        <form class="smart-form">
+            <fieldset>
+                <div class="divlabel" style="width:100px;">
+                    <label class="label" style="float:left;margin-top:-5px">Bạn có chắc chắn cập nhật trạng thái hoạt động ?</label>
+                </div>
+                <input type="hidden" id="username" />
+            </fieldset>
+            <div class="my-footer-popup">
+                <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="onUpdateActive(0)">
+                    <i class="fa fa-refresh"></i>  Hủy
+                </button>
+                <button type="button" id="btnOK" class="btn btn-sm btn-info" style="float: right;margin-top:5px;" onclick="onUpdateActive(1)">
+                    <i class="fa fa-check"></i>  Đồng ý
+                </button>
+            </div>
+            @*<footer style="border:none">
+                <button type="button" class="k-button k-button-icontext btn_custom" id="btnInActive" style="float:left;margin-left:86px;height:24px; background-color:#6fb3e0" onclick="onUpdateActive(1)"><i class="fa fa-check"></i> Đồng ý</button>
+                <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancle" style="float: left; margin-left: 10px; height: 24px; background-color: #abbac3; " onclick="onUpdateActive(0)"><i class="fa fa-refresh"></i> Hủy bỏ</button>
+            </footer>*@
+        </form>
+    </div>
+</div>
+<div id="popupInActive" style="display:none">
+    <div>
+        <form class="smart-form">
+            <fieldset>
+                <div class="divlabel" style="width:100px;">
+                    <label class="label" style="float:left;margin-top:-5px">Bạn có chắc chắn ngưng hoạt động?</label>
+                </div>
+                <input type="hidden" id="username" />
+            </fieldset>
+            <div class="my-footer-popup">
+                <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="onUpdateInActive(0)">
+                    <i class="fa fa-refresh"></i>  Hủy
+                </button>
+                <button type="button" id="btnOK" class="btn btn-sm btn-info" style="float: right;margin-top:5px;" onclick="onUpdateInActive(1)">
+                    <i class="fa fa-check"></i>  Đồng ý
+                </button>
+            </div>
+            @*<footer style="border:none">
+                <button type="button" class="k-button k-button-icontext btn_custom" id="btnInActive" style="float:left;margin-left:86px;height:24px; background-color:#6fb3e0" onclick="onUpdateInActive(1)"><i class="fa fa-check"></i> Đồng ý</button>
+                <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancle" style="float: left; margin-left: 10px; height: 24px; background-color: #abbac3; " onclick="onUpdateInActive(0)"><i class="fa fa-refresh"></i> Hủy bỏ</button>
+            </footer>*@
+        </form>
+    </div>
+</div>
+
+
+<script src="~/js/plugin/ckeditor/ckeditor.js"></script>
+<script>
+    $(document).ready(function () {
+
+        $("ul#menuLeft").find('#ul_root_2').addClass('open');
+        $("ul#menuLeft").find('#ul_root_2').css('display', 'block');
+        $("#menu_GeneralNotification").parent().addClass('active');
+
+        $("#Type").select2();
+        $("#s2id_Type").css('width', '100%');
+        $("#Status").select2();
+        $("#s2id_Status").css('width', '100%');
+
+        $('#popup').kendoWindow({
+            width: "940px",
+            actions: ["Close"],
+            visible: false,
+            resizable: false,
+            //open: function (e) {
+            //    this.wrapper.css({ top: $('#header').height() });
+            //}
+        });
+        $('#popupActive').kendoWindow({
+            width: "410px",
+            actions: ["Close"],
+            title : "Cảnh báo",
+            visible: false,
+            resizable: false,
+            //open: function (e) {
+            //    this.wrapper.css({ top: $('#header').height() });
+            //}
+        });
+        $('#popupInActive').kendoWindow({
+            width: "410px",
+            actions: ["Close"],
+            title: "Cảnh báo",
+            visible: false,
+            resizable: false,
+            //open: function (e) {
+            //    this.wrapper.css({ top: $('#header').height() });
+            //}
+        });
+        $("#formCreate").validate(
+        {
+            // Rules for form validation
+            rules: {
+                Title: {
+                    required: true,
+                },
+                Type: {
+                    required: true,
+                },
+                StartDate: {
+                    required: true,
+                },
+                EndDate: {
+                    required: true,
+                },
+                Orders: {
+                    required: true,
+                },
+                Description: {
+                    required: true,
+                },
+            },
+            // Messages for form validation
+            messages: {
+                Title: {
+                    required: "Thông tin bắt buộc",
+                },
+                Type: {
+                    required: "Thông tin bắt buộc",
+                },
+                StartDate: {
+                    required: "Thông tin bắt buộc",
+                },
+                EndDate: {
+                    required: "Thông tin bắt buộc",
+                },
+                Orders: {
+                    required: "Thông tin bắt buộc",
+                },
+                Description: {
+                    required: "Thông tin bắt buộc",
+                },
+
+            },
+            // Do not change code below
+            errorPlacement: function (error, element) {
+                //error.insertAfter(element);
+            },
+            submitHandler: function (form) {
+                debugger
+                $(form).ajaxSubmit({
+                    //clearForm: true,//To clear form after ajax submitting
+                    data: '{"HTMLBody":"' + CKEDITOR.instances['HTMLContentView'].getData() + '"}',
+                    beforeSend: function () {
+                        $("#loading").removeClass('hide');
+                    },
+                    success: function (data) {
+                        if (data.success) {
+                            $("#grid").data("kendoGrid").dataSource.read();
+                            alertBox("Thành công! ", "Lưu thành công", true, 3000);
+                        }
+                        else {
+                            $("#loading").addClass('hide');
+                            alertBox("Báo lỗi! ", data.message, false, 3000);
+                        }
+                        $("#loading").addClass('hide');
+                    }
+                });
+                return false;
+            }
+        });
+        $(function () { createEditor('en', 'HTMLContentView') });
+
+    })
+
+    function checkAllHeader(e) {
+        var x = $(e).prop('checked');
+        $('#grid').find(".checkrowid").each(function () {
+            $(this).prop('checked', x);
+        });
+    }
+    function createEditor(languageCode, id) {
+        debugger
+        var htmlContentDivHeight = parseInt($(window).height()) - $('#div1').height() - 530;
+        var editor = CKEDITOR.replace(id, { language: languageCode, height: htmlContentDivHeight });
+        CKEDITOR.instances['HTMLContentView'].on('change', function () {
+            var editor_data = CKEDITOR.instances['HTMLContentView'].getData();
+            //$('#HTMLBody').val(htmlEncode(editor_data));
+            $('#HTMLBody').val(editor_data);
+        });
+    }
+    function onDatabound(e) {
+        resizegrid();
+        var grid = $("#grid").data("kendoGrid");
+
+        // ask the parameterMap to create the request object for you
+        var requestObject = (new kendo.data.transports["aspnetmvc-server"]({ prefix: "" }))
+        .options.parameterMap({
+            page: grid.dataSource.page(),
+            sort: grid.dataSource.sort(),
+            filter: grid.dataSource.filter()
+        });
+        $("#divLoading").hide();
+    }
+    function resizegrid() {
+        var offsetbottom = parseInt($(window).height()) - parseInt($('#grid').offset().top);
+        var gridElement = $("#grid"),
+        dataArea = gridElement.find(".k-grid-content"),
+        otherElements = gridElement.children().not(".k-grid-content"),
+        otherElementsHeight = 0;
+        otherElements.each(function () {
+            otherElementsHeight += $(this).outerHeight();
+        });
+        dataArea.height(offsetbottom - otherElementsHeight - 1);
+    }
+    function onRequestStart(e) {
+        $("#divLoading").show();
+    }
+    function onRequestEnd(e) {
+        if (e.type == "update" || e.type == "create" || e.type == "delete") {
+            if (e.response.Errors == null) {
+                alertBox("Lưu thành công", "", true, 3000);
+            }
+            else {
+                alertBox("Báo lỗi", e.response.Errors.er.errors[0], false, 3000);
+            }
+        }
+        $("#divLoading").hide();
+    }
+    function onOpenPopup(key, obj) {
+        $("#formCreate").find('section em').remove();
+        $("#formCreate").find('section label').removeClass('state-error').removeClass('state-success');
+        idPopup = ".k-window";
+        $("#divMaskPopup").show();
+        var popup = $('#popup').data("kendoWindow");
+        popup.center().open();
+        $(".k-window span.k-i-close").click(function () {
+            eventHotKey = false;
+            $("#divMaskPopup").hide();
+        });
+
+        if (key == 0) {     // Create
+            popup.title('Thêm');
+            $('#formCreate')[0].reset();
+            $("#formCreate").attr("action", "/GeneralNotification/Create");
+            //onRefreshPopup();
+            setTimeout(function () {
+                $("#Title").focus();
+            }, 500);
+        }
+        else {      // Update
+            $.post(r + "/GeneralNotification/GetById", { Id: obj }, function (data) {
+                if (data.success) {
+                    var item = data.data;
+                    $('#Id').val(item.Id);
+                    $('#Title').val(item.Title);
+                    $("#Type option[value='" + item.Type + "']").attr('selected', true);
+                    $("#Type").select2();
+                    $("#s2id_Type").css('width', '100%');
+                    $("#Type").trigger('change');
+                    $("#StartDate").val(dateToString(item.StartDate));
+                    $("#EndDate").val(dateToString(item.EndDate));
+                    $('#Orders').val(item.Orders);
+                    $("#Status option[value='" + item.Status + "']").attr('selected', true);
+                    $("#Status").select2();
+                    $("#s2id_Status").css('width', '100%');
+                    $("#Status").trigger('change');
+                    $('#Description').val(item.Description);
+
+                    //CKEDITOR.instances['HTMLContentView'].setData(htmlDecode(item.HTMLBody));
+                    CKEDITOR.instances['HTMLContentView'].setData(item.HTMLBody);
+                    $("#HTMLBody").val(item.HTMLBody);
+
+                    $("#formCreate").attr("action", "/GeneralNotification/Update");
+
+                }
+                else {
+
+                }
+            })
+
+
+        }
+    }
+    function ResetForm() {
+        $('#popup').data("kendoWindow").close();
+        $("#divMaskPopup").hide();
+    }
+    function htmlEncode(value) {
+        //create a in-memory div, set it's inner text(which jQuery automatically encodes)
+        //then grab the encoded contents back out.  The div never exists on the page.
+        return $('<div/>').text(value).html();
+    }
+    function htmlDecode(value) {
+        return $('<div/>').html(value).text();
+    }
+    function alertBox(title, content, flag, timeout) {
+        //var icon = flag ? "fa-thumbs-up" : "fa-thumbs-down";
+        $.smallBox({
+            title: title,
+            content: content,
+            color: flag ? "#e0efd8" : "#f2dedf",
+            //iconSmall: "fa " + icon + " bounce animated",
+            timeout: timeout
+        });
+    }
+
+    function doSearch() {
+        var grid = $("#grid").data("kendoGrid");
+        var filter = { logic: "and", filters: [] };
+        var text = $("#txtInfo").val();
+        if (text) {
+            var filterOr = { logic: "or", filters: [] };
+           // filterOr.filters.push({ field: "Id", operator: "eq", value: text });
+            filterOr.filters.push({ field: "Title", operator: "contains", value: text });
+
+            filter.filters.push(filterOr);
+        }
+
+        //text = $("#selectStatus_search").val();
+        //if (text) {
+        //    filter.filters.push({ field: "Status", operator: "eq", value: text });
+        //}
+
+        grid.dataSource.filter(filter);
+    }
+
+    $("#txtInfo").keypress(function (e) {
+        if (e.keyCode == 13) {
+            doSearch();
+        }
+    });
+
+    function changeActive(e) {
+        var listrowid = "";
+        $("#grid").find(".checkrowid").each(function () {
+            if ($(this).prop('checked') == true) {
+                listrowid += $(this).attr("id") + '@@@@';
+            }
+        });
+        if (listrowid != "") {
+            $("#divMaskPopup").show();
+            var popup = $('#popupActive').data("kendoWindow");
+            popup.center().open();
+            $(".k-window span.k-i-close").click(function () {
+                eventHotKey = false;
+                $("#divMaskPopup").hide();
+            });
+        }
+        else {
+            alertBox("Báo lỗi", "Vui lòng chọn dữ liệu", false, 3000);
+        }
+
+    }
+    function changeInActive(e) {
+        var listrowid = "";
+        $("#grid").find(".checkrowid").each(function () {
+            if ($(this).prop('checked') == true) {
+                listrowid += $(this).attr("id") + '@@@@';
+            }
+        });
+        if (listrowid != "") {
+            $("#divMaskPopup").show();
+            var popup = $('#popupInActive').data("kendoWindow");
+            popup.center().open();
+            $(".k-window span.k-i-close").click(function () {
+                eventHotKey = false;
+                $("#divMaskPopup").hide();
+            });
+        }
+        else {
+            alertBox("Báo lỗi", "Vui lòng chọn dữ liệu", false, 3000);
+        }
+
+    }
+    function onUpdateActive(i) {
+        if (i == 1) {
+            var listrowid = "";
+            $("#grid").find(".checkrowid").each(function () {
+                if ($(this).prop('checked') == true) {
+                    listrowid += $(this).attr("id") + '@@@@';
+                }
+            });
+            $('#popupActive').data("kendoWindow").close();
+            $.post(r + "/GeneralNotification/UpdateStatusActive", { listUserID: listrowid, action: i }, function (data) {
+                if (data.success) {
+                    alertBox("Thông báo!", "Cập nhật dữ liệu thành công.", true, 3000);
+                    $("#grid").data("kendoGrid").dataSource.read();
+                    $("#divMaskPopup").hide();
+                }
+                else {
+                    alertBox("Báo lỗi!", data.message, false, 3000);
+                }
+            });
+        }
+        else {
+            $('#popupActive').data("kendoWindow").close();
+            $("#divMaskPopup").hide();
+        }
+
+
+    }
+    function onUpdateInActive(i) {
+        if (i == 1) {
+            var listrowid = "";
+            $("#grid").find(".checkrowid").each(function () {
+                if ($(this).prop('checked') == true) {
+                    listrowid += $(this).attr("id") + '@@@@';
+                }
+            });
+            $('#popupInActive').data("kendoWindow").close();
+            $.post(r + "/GeneralNotification/UpdateStatusInActive", { listUserID: listrowid, action: i }, function (data) {
+                if (data.success) {
+                    alertBox("Thông báo!", "Cập nhật dữ liệu thành công.", true, 3000);
+                    $("#grid").data("kendoGrid").dataSource.read();
+                }
+                else {
+                    alertBox("Báo lỗi!", data.message, false, 3000);
+                }
+                $("#divMaskPopup").hide();
+            });
+        }
+        else {
+            $('#popupInActive').data("kendoWindow").close();
+            $("#divMaskPopup").hide();
+        }
+
+
+    }
+</script>

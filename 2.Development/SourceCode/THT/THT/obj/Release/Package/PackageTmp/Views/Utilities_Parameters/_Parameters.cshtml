@@ -1,0 +1,289 @@
+﻿@using THT.Models
+@{
+    ViewBag.Title = "Cấu hình tham số";
+}
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+}
+<script src="@Url.Content("~/Scripts/app/app.js")"></script>
+<script src="@Url.Content("~/Scripts/app/Utilities_Parameters.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.blockUI.js")"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+<div>
+    <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+        @*<header>
+            <h2 style="color:#6fb3e0">Tìm kiếm</h2>
+
+        </header>*@
+        <div>
+            <div class="widget-body no-padding">
+                <form class="smart-form">
+                    <fieldset>
+                        <section class="row">
+                            @*@if (Auth_Action.AssetResult(asset, "ReasonID"))
+                                {*@
+                            <section class="col col-lg-4">
+                                <label class="input" style="margin-top: -4px">
+                                    <input type="text" class="input-xs" id="txtReasonID" placeholder="Nhập loại hoặc giá trị đê tìm kiếm">
+                                </label>
+                            </section>
+                            @*<section class="col col-3search">
+                                    <label class="select">
+                                        @Html.DropDownList("selectIsActive_search", new SelectList(listActiveStatus, "StatusValue", "StatusName"), "-- Chọn trạng thái --")
+                                    </label>
+                                </section>*@
+
+                            <section class="col col-3search" style="margin-top: -4px">
+                                <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="doSearch()">
+                                    <i class="fa fa-search"></i> Tìm kiếm
+                                </a>
+                                @*<a class="k-button k-button-icontext btn_customSearch" href="javascript:void(0);" onclick="doSearch()">Tìm kiếm</a>*@
+                            </section>
+                            @*<section class="col col-3search">
+                                <a class="k-button k-button-icontext btn_customSearch" href="javascript:void(0);" onclick="doSearch()">Tìm kiếm</a>
+                            </section>*@
+                        </section>
+                    </fieldset>
+                </form>
+
+            </div>
+        </div>
+    </div>
+    <div class="jarviswidget bordered">      
+        <div class="row">
+            <!-- NEW COL START -->
+            <article class="col-sm-12">
+                <div class="widget-body">
+                    @(Html.Kendo().Grid<THT.Models.Utilities_Parameters>()
+                    .Name("grid")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.ID).HeaderTemplate("<input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAll'  onClick='checkAll(this)' />").ClientTemplate("<input style='text-align:center' class='checkrowid' type='checkbox' id='#=ID#'  />").Width(30).Filterable(false).Sortable(false);
+                        columns.Bound(p => p.Type).Title("Loại").HtmlAttributes(new { data_column = "Value", style = "text-align:left; background-color: rgb(198, 239, 206);" }).Width(70);
+                        columns.Bound(p => p.ParamID).Title("Mã tham số").HtmlAttributes(new { data_column = "Value", style = "text-align:left; background-color: rgb(198, 239, 206);" }).Width(80);
+                        columns.Bound(p => p.Value).Title("Giá trị").HtmlAttributes(new { data_column = "Value", style = "text-align:left; background-color: rgb(198, 239, 206);" }).Width(180);
+                        columns.Bound(p => p.Descr).Title("Mô tả").HtmlAttributes(new { required = true, @validationMessage = "Vui lòng chọn mã vùng", data_column = "Value", style = "text-align:left; background-color: rgb(198, 239, 206);" }).Width(280);
+                        columns.Bound(p => p.CreatedBy).Title("Người tạo").Width(110);
+                        columns.Bound(p => p.CreatedAt).Width(110).Format("{0:dd/MM/yyyy}").HtmlAttributes(new { style = "text-align:right;" }).Title("Ngày tạo").Width(110);
+                        columns.Bound(p => p.UpdatedBy).Title("Người cập nhật").Width(110);
+                        columns.Bound(o => o.UpdatedAt).Title("Ngày cập nhật").Format("{0:dd/MM/yyyy}").Width(110).ClientTemplate("#if(kendo.toString(UpdatedAt,'dd/MM/yyyy') != '01/01/1900'){#" + "#= kendo.toString(UpdatedAt,'dd/MM/yyyy') #" + "#}#");
+                    })
+                    .ToolBar(toolBar =>
+                        {
+                            toolBar.Template(@<text>
+                        <div class="pull-left">
+                            <div class="pull-left">
+                                @if (asset.ContainsKey("Insert") && asset["Insert"])
+                                {
+                                    <a class="btn btn-sm btn-success" href="javascript:onOpenPopup(0,this)" id="btnGridAdd">
+                                        <i class="fa fa-plus"></i> Thêm
+                                    </a>
+                                }
+                                @if (asset.ContainsKey("Update") && asset["Update"])
+                                {
+                                    <a class="btn btn-sm btn-info"  onclick="Update()"> @*id="btnGridSave"*@
+                                        <i class="fa fa-save"></i> Lưu lại
+                                    </a>
+                                    <a class="btn btn-sm btn-default" id="btnGridCancel">
+                                        <i class="fa fa-refresh"></i> Hủy
+                                    </a>
+                                    <a class="btn btn-sm btn-danger" id="btnGridDelete" onclick="DeleteItem()">
+                                        <i class="fa fa-times"></i> Xóa
+                                    </a>
+                                }
+                                @if (asset.ContainsKey("Export") && asset["Export"])
+                                {
+                                    <a class="btn btn-sm bg-color-blueLight txt-color-white export" href="@Url.Action("Export", "Auth_Role", new { filter = "~", sort = "~" })" id="btnGridExport">
+                                        <i class="fa fa-file-excel-o"></i> Xuất Excel
+                                    </a>
+                                }
+
+                            </div>      
+
+                        </div>
+                            </text>);
+                            //if (asset.ContainsKey("Insert") && asset["Insert"])
+                            //{
+                            //    toolBar.Custom()
+                            //            .Text("Thêm mới")
+                            //            .HtmlAttributes(new { id = "btnInsert", @class = "btn btn-success", @style = "background-color:#87b87f; color:white;", onclick = "onOpenPopupDe(0,this)", @href = "javascript:void(0)" });
+                            //}
+                            //if (asset.ContainsKey("Update") && asset["Update"])
+                            //{
+                            //    toolBar.Custom()
+                            //            .Text("Cập nhật")
+                            //            .HtmlAttributes(new { id = "btnInsert", @class = "btn -btn-primary", @style = "background-color:#428bca; color:white;", onclick = "Update()", @href = "javascript:void(0)" });
+                            //    toolBar.Custom()
+                            //            .Text("Hủy thay đổi")
+                            //            .HtmlAttributes(new { id = "btnInsert", @class = "btn btn-success", @style = "background-color:#a0a0a0; color:white;", onclick = "Cancel()", @href = "javascript:void(0)" });
+                            //}
+                            //if (asset.ContainsKey("Delete") && asset["Delete"])
+                            //{
+                            //    toolBar.Custom()
+                            //    .Text("Xóa")
+                            //    .HtmlAttributes(new { id = "btnInsert", @class = "btn btn-success", @style = "background-color:#d25b47; color:white;", onclick = "DeleteItem()", @href = "javascript:void(0)" });
+                            //}
+                            //if (asset.ContainsKey("Export") && asset["Export"])
+                            //{
+                            //    toolBar.Custom()
+                            //            .Text("Xuất Excel")
+                            //            .HtmlAttributes(new { @class = "btn btn-primary export", @style = "background-color:#428bca; color:white;" }).Url(Url.Action("Export", "Reason", new { filter = "~", sort = "~" }));
+                            //}
+                            //if (asset.ContainsKey("Import") && asset["Import"])
+                            //{
+                            //    toolBar.Custom()
+                            //          .Text("Tải Excel mẫu")
+                            //          .HtmlAttributes(new { @class = "btn btn-primary export", @style = "background-color:#428bca; color:white;" }).Url(Url.Action("Export", "Reason", new { filter = "~", sort = "~" }));
+                            //    toolBar.Custom()
+                            //            .Text("Nhập Excel")
+                            //            .HtmlAttributes(new { @class = "btn btn-primary export", @style = "background-color:#428bca; color:white;" }).Url(Url.Action("Export", "Reason", new { filter = "~", sort = "~" }));
+                            //}
+                        })
+                    .Events(events => { events.DataBound("onDatabound"); })
+                    .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                    .Editable(e => e.Mode(GridEditMode.InCell))
+                    .Resizable(r => r.Columns(true))
+                    .Navigatable()
+                    .Scrollable()
+                    .Sortable()
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Batch(true)
+                        .PageSize(100)
+                        .Sort(sort =>
+                        {
+                            sort.Add("Type").Ascending();
+                        })
+                        .Model(model =>
+                        {
+                            model.Id(p => p.ID);
+                            model.Field(p => p.ID).Editable(false);
+                            model.Field(p => p.CreatedBy).Editable(false);
+                            model.Field(p => p.CreatedAt).Editable(false);
+                            model.Field(p => p.UpdatedBy).Editable(false);
+                            model.Field(p => p.UpdatedAt).Editable(false);
+                        })
+                    .Events(e => { e.RequestStart("onRequestStart"); e.RequestEnd("onRequestEnd"); e.Error("error_handler"); })
+                    .Read(read => read.Action("Read", "Utilities_Parameters"))
+                    .Create(read => read.Action("UpdateDetail", "Utilities_Parameters"))
+                    .Update(read => read.Action("UpdateDetail", "Utilities_Parameters"))
+                        )
+                    )
+                </div>
+            </article>
+            <!-- END COL -->
+
+        </div>
+
+        <div id="popup" class="row" style="margin: 0 auto; display: none">
+            <div class="bordered">
+                @using (Html.BeginForm("Create", "Utilities_Parameters", FormMethod.Post, new { @class = "smart-form", id = "formPopupRe", enctype = "multipart/form-data" }))
+                {
+                    @Html.Hidden("CreatedAt");
+                    @Html.Hidden("CreatedBy");
+                    <fieldset style="float:left;width:370px;padding-left:0;padding-right:0;padding-top:26px">
+                        <section style="display:none; float:left;"></section>
+                        <section style="float:left;">
+                            <div class=" divlabel">
+                                <label class="label" style="float:right">Mã tham số(*)</label>
+                            </div>
+                            <div class="divfile">
+                                <label class="input" style="float:right;width:240px;">
+                                    @Html.TextBox("ParamID", "", new { @class = "input-xs popup_text_left" })
+                                    @*<b class="tooltip tooltip-top-right">Mã lý do</b>*@
+                                </label>
+                                <div style="clear:both"></div>
+                            </div>
+                        </section>
+                        <section style="float:left;">
+                            <div class=" divlabel">
+                                <label class="label" style="float:right">Loại (*)</label>
+                            </div>
+                            <div class="divfile">
+                                <label class="input" style="float:right;width:240px;">
+                                    @Html.TextBox("Type", "", new { @class = "input-xs popup_text_left" })
+                                    @*<b class="tooltip tooltip-top-right">Mã lý do</b>*@
+                                </label>
+                                <div style="clear:both"></div>
+                            </div>
+                        </section>
+                        <section style="float:left;">
+                            <div class=" divlabel">
+                                <label class="label" style="float:right">Giá trị (*)</label>
+                            </div>
+                            <div class="divfile">
+                                <label class="input" style="float:right;width:240px;">
+                                    @Html.TextBox("Value", "", new { @class = "input-xs popup_text_left" })
+                                    @*<b class="tooltip tooltip-top-right">Mã lý do</b>*@
+                                </label>
+                                <div style="clear:both"></div>
+                            </div>
+                        </section>
+                        <section style="float:left;">
+                            <div class="divlabel">
+                                <label class="label" style="float:right">Diễn giải</label>
+                            </div>
+                            <div class="divfile">
+                                <label class="textarea textarea-resizable" style="float: right; width: 240px;">
+                                    @Html.TextArea("Descr", new { @style = "min-height:56px;width:100%;margin-right:91px" })
+                                    @*<b class="tooltip tooltip-top-right">Ghi chú</b>*@
+                                </label>
+                                <div style="clear:both"></div>
+                            </div>
+                        </section>
+                    </fieldset>                  
+                    <div style="clear:both"></div><br />
+                    <footer>
+                        <button type="submit" class="k-button k-button-icontext btn_custom" style="float: left;" id="btnSubmit">Lưu</button>
+                        <img src="@Url.Content("~/Content/Bootstrap/loading.gif")" class="hide" id="loading" style="margin-top: 5px;" />
+                    </footer>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function onRequestEnd(e) {
+        if (e.type == "update" || e.type == "create" || e.type == "delete") {
+            if (!e.response.Errors) {
+                alertBox("Thành công!", "Lưu thành công", true, 3000);   
+            }
+        }
+        $("#divLoading").hide();
+    }
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alertBox("Báo lỗi! ", message, false, 3000);
+        }
+    }
+    $('#btnGridAdd').click(function () {
+        $("#grid").data("kendoGrid").dataSource.insert();
+    })
+
+    $('#btnGridSave').bind('click', function () {
+        if ($('#grid').data('kendoGrid').dataSource.hasChanges() == true) {
+            $('#grid').data('kendoGrid').saveChanges();
+        }
+    })
+
+    $('#btnGridCancel').bind('click', function () {
+        $('#grid').data('kendoGrid').cancelChanges();
+    })
+
+    
+</script>
+
+
+
+

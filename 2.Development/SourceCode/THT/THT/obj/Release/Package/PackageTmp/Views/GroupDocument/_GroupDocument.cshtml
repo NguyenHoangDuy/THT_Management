@@ -1,0 +1,333 @@
+﻿@using THT.Models;
+
+@{
+    ViewBag.Title = "Danh mục nhóm văn bản";
+}
+
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+
+}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+</style>
+
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+</style>
+<section>
+    @*<div class="bordered">*@
+    @if (Auth_Action.AssetResult(asset, "Search"))
+    {
+        <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+            <div>
+                <div class="widget-body no-padding">
+                    <form class="smart-form">
+                        <fieldset>
+                            <div class="row">
+                                <section class="col col-3">
+                                    <label class="input" style="margin-top: -4px">
+                                        <input type="text" class="input-xs" id="txtGroupID" placeholder="Tên nhóm">
+                                    </label>
+                                </section>
+                                <section class="col col-3search" style="margin-top: -4px">
+                                    <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="doSearch()">
+                                        <i class="fa fa-search"></i> Tìm kiếm
+                                    </a>
+                                </section>
+                            </div>
+                        </fieldset>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="jarviswidget bordered">
+        <div class="row">
+            <article class="col-sm-12">
+                <div class="widget-body">
+                    @(Html.Kendo().Grid<THT.Models.GroupDocument>()
+                    .Name("grid")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.ID).Hidden();
+                        //columns.Bound(p => p.ID).HeaderTemplate("<input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAll'  onClick='checkAllHeader(this)' />").ClientTemplate("<input style='text-align:center' class='checkrowid' type='checkbox' id='#=ID#'/>").Width(10).Filterable(false).Sortable(false);
+                        columns.Bound(p => p.GroupID).HeaderTemplate("<input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAll'  onClick='checkAllHeader(this)' />").ClientTemplate("<input style='text-align:center' class='checkrowid' type='checkbox' id='#=GroupID#'  />").Width(30).Filterable(false).Sortable(false);
+                        columns.Bound(p => p.GroupName).Title("Tên nhóm").HtmlAttributes(new { data_column = "GroupName" }).Width(230).HtmlAttributes(new { style = "background-color:rgb(198, 239, 206);" });
+                    })
+                    .ToolBar(toolBar =>
+                        {
+                            toolBar.Template(@<text>
+                                <div class="pull-left">
+                                    @if (asset.ContainsKey("Insert") && asset["Insert"])
+                                    {
+                                        <a class="btn btn-sm btn-success" href="javascript:AddNewRowGrid()" id="btnInsert">
+                                            <i class="fa fa-plus"></i> Thêm dòng
+                                        </a>
+                                        <a class="btn btn-sm btn-info" href="javascript:Update()" id="btnInsertHeader">
+                                            <i class="fa fa-save"></i> Lưu
+                                        </a>
+                                        <a class="btn btn-sm btn-default" href="javascript:Cancel()" id="btnCancel">
+                                            <i class="fa fa-refresh"></i> Hủy thay đổi
+                                        </a>
+                                        <a class="btn btn-sm btn-danger" href="javascript:Delete()" id="btnDelete">
+                                            <i class="fa fa-times"></i> Xóa dòng
+                                        </a>
+                                    }
+                                </div>
+
+                            </text>);
+                        })
+                                                                        .Events(events => { events.DataBound("onDatabound"); })
+                                                                        .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                                                                        .Resizable(r => r.Columns(true))
+                                                                        .Navigatable()
+                                                                        .Scrollable()
+                                                                        //.Filterable(s => s.Enabled(true))
+                            //.Sortable()
+                                                                        .Editable(editable => editable.Mode(GridEditMode.InCell))
+                                                                        .DataSource(dataSource => dataSource
+                                                                            .Ajax()
+                                                                            .Batch(true)
+                                                                            .PageSize(100)
+                                                                            .Model(model =>
+                                                                            {
+                                                                                model.Id(p => p.ID);
+                                                                                model.Field(p => p.GroupID).Editable(false);
+                                                                            })
+                                                                            .Events(e => { e.RequestEnd("onRequestEnd"); e.Error("error_handler"); e.RequestStart("onRequestStart"); })
+                                                                            .Read(read => read.Action("Read", "GroupDocument"))
+                                                                            .Create(create => create.Action("Create", "GroupDocument"))
+                                                                            .Update(update => update.Action("Update", "GroupDocument"))
+                                                                        )
+                    )
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <div id="popupDelete" style="display:none">
+        <div>
+            <form class="smart-form">
+                <fieldset>
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-14px">Bạn có chắc chắn xóa bỏ thông tin này ?</label>
+                    </div>
+                </fieldset>
+                <footer style="border:none">
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnApprove" style="float: left; margin-left: 86px; height: 24px; background-color: \\#6fb3e0" onclick="ConfirmDelele(0, this)">Đồng ý</button>
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancel" style="float: left; margin-left: 10px; height: 24px; background-color: \\#abbac3; " onclick="ConfirmDelele(1, this)">Hủy bỏ</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+    var numHeight = 230;
+    $(document).ready(function () {
+
+        $("ul#menuLeft").find('#ul_root_3').addClass('open');
+        $("ul#menuLeft").find('#ul_root_3').css('display', 'block');
+        $("#menu_GroupDocument").parent().addClass('active');
+
+        resetMenu();
+        $("#menu_GroupDocument").parent().addClass('active');
+
+        $(window).resize(function () {
+            resizeGrid(numHeight);
+        });
+
+        $("#txtGroupID").keypress(function (e) {
+            if (e.keyCode == 13) {
+                doSearch();
+            }
+        });
+
+        $('#popupDelete').kendoWindow({
+            width: "300px",
+            actions: ["Close"],
+            title: "Cảnh báo",
+            visible: false,
+            resizable: false,
+            close: function (e) {
+                $("#divMaskPopup").hide();
+            }
+        });
+    });
+
+    function doSearch() {
+        var grid = $("#grid").data("kendoGrid");
+        var filter = { logic: "and", filters: [] };
+        var text = $("#txtGroupID").val();
+        if (text) {
+            var filterOr = { logic: "or", filters: [] };
+            filterOr.filters.push({ field: "GroupName", operator: "contains", value: text });
+            filter.filters.push(filterOr);
+        }
+
+        grid.dataSource.filter(filter);
+    }
+
+    function resizeGrid() {
+        var offsetbottom = parseInt($(window).height()) - parseInt($('#grid').offset().top);
+        var gridElement = $("#grid"),
+        dataArea = gridElement.find(".k-grid-content"),
+        otherElements = gridElement.children().not(".k-grid-content"),
+        otherElementsHeight = 0;
+        otherElements.each(function () {
+            otherElementsHeight += $(this).outerHeight();
+        });
+        dataArea.height(offsetbottom - otherElementsHeight - 1);
+    }
+
+    function onDatabound(e) {
+        resizeGrid();
+        var grid = $("#grid").data("kendoGrid");
+        var requestObject = (new kendo.data.transports["aspnetmvc-server"]({ prefix: "" }))
+        .options.parameterMap({
+            page: grid.dataSource.page(),
+            sort: grid.dataSource.sort(),
+            filter: grid.dataSource.filter()
+        });
+        var $exportLink = grid.element.find('.export');
+        var href = $exportLink.attr('href');
+        if (href) {
+            href = href.replace(/sort=([^&]*)/, 'sort=' + requestObject.sort || '~');
+            href = href.replace(/filter=([^&]*)/, 'filter=' + (requestObject.filter || '~'));
+            $exportLink.attr('href', href);
+        }
+        //changeStatusGrid('grid', 6);
+        $("#divLoading").hide();
+    }
+
+    function AddNewRowGrid() {
+        var ds = $("#grid").data("kendoGrid").dataSource;
+        ds.insert(0, {
+            GroupID: "",
+            GroupName: ""
+        });
+
+    }
+
+    function Cancel() {
+        $('#grid').data('kendoGrid').cancelChanges();
+    }
+
+    function Update() {
+        if ($('#grid').data('kendoGrid').dataSource.hasChanges() == true) {
+            $('#grid').data('kendoGrid').saveChanges();
+        }
+    }
+
+    function ConfirmDelele(key, obj) {
+        if (listrowid != null && listrowid != "") {
+            //var c = confirm("Bạn có chắc chắn muốn ngưng hoạt động?.");
+            if (key == 0) {
+                $('#popupDelete').data("kendoWindow").close();
+                $.post(r + "/GroupDocument/Delete", { data: listrowid, }, function (data) {
+                    if (data.success) {
+                        alertBox("Thành công!", " Xóa thành công", true, 3000);
+                        $("#grid").data("kendoGrid").dataSource.read();
+                        $('#checkboxcheckAll').prop('checked', false);
+                    }
+                    else {
+                        alertBox("Báo lỗi! ", data.message, false, 3000);
+                        $("#grid").data("kendoGrid").dataSource.read();
+                    }
+                });
+            }
+            else {
+                $('#popupDelete').data("kendoWindow").close();
+                return false;
+            }
+        }
+    }
+
+    var listrowid = "";
+
+    function Delete() {
+        listrowid = "";
+        var flagfail = 0;
+        $("#grid").find(".checkrowid").each(function () {
+            if ($(this).prop('checked') == true) {
+                var currentRow = $(this).closest("tr");
+                var dataItem = $("#grid").data("kendoGrid").dataItem(currentRow);
+                listrowid += $(this).attr("id") + '@@@@';
+            }
+        });
+        if (listrowid != null && listrowid != "") {
+            debugger
+            $("#divMaskPopup").show();
+            var popupDelete = $('#popupDelete').data("kendoWindow");
+            popupDelete.center().open();
+            $(".k-window span.k-i-close").click(function () {
+                eventHotKey = false;
+                $("#divMaskPopup").hide();
+            });
+        }
+        else {
+            alertBox("Báo lỗi! ", "Vui lòng chọn dữ liệu.", false, 3000);
+            flagfail = 0;
+            return;
+        }
+    }
+
+    function checkAllHeader(e) {
+        var x = $(e).prop('checked');
+        $('#grid').find(".checkrowid").each(function () {
+            $(this).prop('checked', x);
+        });
+    }
+
+    function onRequestEnd(e) {
+        if (e.type == "create" && !e.response.Errors) {
+            alertBox("Thành công! ", "Thêm mới thành công", true, 3000);
+        }
+
+        if (e.type == "update" && !e.response.Errors) {
+            alertBox("Thành công! ", "Câp nhật thành công", true, 3000);
+        }
+    }
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alertBox("Báo lỗi! ", message, false, 3000);
+        }
+    }
+
+    function onRequestStart(e) {
+        blockUI(false);
+    }
+    function blockUI(isMark) {
+        if (isMark) {
+            $(document).ajaxStart($.blockUI({ message: '<i class="fa fa-spinner fa-3x fa-lg fa-spin txt-color-blueDark"></i>', theme: false })).ajaxStop($.unblockUI);
+        }
+        else {
+            $(document).ajaxStart($.blockUI({ message: '<i class="fa fa-spinner fa-3x fa-lg fa-spin txt-color-blueDark"></i>', theme: false, overlayCSS: { backgroundColor: 'transparent' } })).ajaxStop($.unblockUI);
+        }
+    }
+
+</script>

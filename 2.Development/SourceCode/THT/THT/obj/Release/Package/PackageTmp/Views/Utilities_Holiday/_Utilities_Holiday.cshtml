@@ -1,0 +1,224 @@
+﻿@using THT.Models;
+@{
+    ViewBag.Title = "Lịch làm việc";
+}
+<script src="@Url.Content("~/Scripts/app/Utilities_Holiday.js")"></script>
+<script src="@Url.Content("~/Scripts/app/app.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.blockUI.js")"></script>
+
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+    //var listRole = dict.ContainsKey("listrole") ? (List<Auth_Role>)dict["listrole"] : new List<Auth_Role>();
+    //var listDistributorGroup = dict.ContainsKey("distributorgroup") ? (List<Master_DistributorGroup>)dict["distributorgroup"] : new List<Master_DistributorGroup>();
+    //var listDistributor = dict.ContainsKey("distributor") ? (List<Master_Distributor>)dict["distributor"] : new List<Master_Distributor>();
+}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+<section>
+    <div>
+        @if (Auth_Action.AssetResult(asset, "Search"))
+        {
+            <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+                <!-- widget options:
+                usage: <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false">
+
+                data-widget-colorbutton="false"
+                data-widget-editbutton="false"
+                data-widget-togglebutton="false"
+                data-widget-deletebutton="false"
+                data-widget-fullscreenbutton="false"
+                data-widget-custombutton="false"
+                data-widget-collapsed="true"
+                data-widget-sortable="false"
+
+                -->
+                @*<header>
+                    <h2 style="color:#6fb3e0">Tìm kiếm</h2>
+                </header>*@
+
+                <!-- widget div-->
+                <div>
+                    <!-- widget content -->
+                    <div class="widget-body no-padding">
+                        <form class="smart-form">
+                            <fieldset>
+                                <div class="row">
+                                    @if (Auth_Action.AssetResult(asset, "Day"))
+                                    {
+                                        <section class="col col-3">
+                                            <label class="select" style="margin-top: -4px">
+                                                <input type="text" class="start_EndDate form-control" id="txtDateToDate" placeholder="Ngày" style="height: 22px;text-indent:4%">
+                                            </label>
+                                        </section>
+                                    }
+                                    @*@if (Auth_Action.AssetResult(asset, "Week")
+                                            && Auth_Action.AssetResult(asset, "Month")
+                                            && Auth_Action.AssetResult(asset, "Year")
+                                            )
+                                        {
+                                            <section class="col col-3">
+                                                <label class="input">
+                                                    <input type="text" class="input-xs" id="txtDate" placeholder="Tuần, tháng, năm">
+                                                </label>
+                                            </section>
+                                        }*@
+
+                                    <section class="col col-3search" style="margin-top: -4px">
+                                        <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="doSearch()">
+                                            <i class="fa fa-search"></i> Tìm kiếm
+                                        </a>
+                                        @*<a class="k-button k-button-icontext btn_customSearch" href="javascript:void(0);" onclick="doSearch()">Tìm kiếm</a>*@
+                                    </section>
+                                </div>
+                            </fieldset>
+                        </form>
+
+                    </div>
+                    <!-- end widget content -->
+
+                </div>
+                <!-- end widget div -->
+
+            </div>
+
+        }
+        <div class="jarviswidget bordered">
+            @*<header>
+                    <h2 style="color:#6fb3e0">Lịch nghỉ</h2>
+                </header>*@
+            <div class="row">
+                <!-- NEW COL START -->
+                <article class="col-sm-12">
+                    <div class="widget-body">
+                        @(Html.Kendo().Grid<THT.Models.Master_Calendar>()
+                    .Name("grid")
+                    .Columns(columns =>
+                    {
+
+                        if (Auth_Action.AssetResult(asset, "Date"))
+                        {
+                            columns.Bound(p => p.Date).Title("Ngày").Format("{0:dd/MM/yyyy}").Width(150).HtmlAttributes(new { @style = "text-align:right; " });
+                        }
+                        if (Auth_Action.AssetResult(asset, "Week"))
+                        {
+                            columns.Bound(p => p.Week).Title("Tuần").Width(150).HtmlAttributes(new { @style = "text-align:right; " });
+                        }
+                        if (Auth_Action.AssetResult(asset, "Month"))
+                        {
+                            columns.Bound(p => p.Month).Title("Tháng").Width(150).HtmlAttributes(new { @style = "text-align:right; " });
+                        }
+                        if (Auth_Action.AssetResult(asset, "Year"))
+                        {
+                            columns.Bound(p => p.Year).Title("Năm").Width(150);
+                        }
+                        if (Auth_Action.AssetResult(asset, "Holiday"))
+                        {
+                            columns.Bound(p => p.Holiday).Title("Ngày lễ").Width(300);
+                        }
+
+
+                    })
+                    .ToolBar(toolBar =>
+                    {
+                        toolBar.Template(@<text>
+                                <div class="pull-left">
+                                    @if (asset.ContainsKey("Update") && asset["Update"])
+                                    {
+                                        <a class="btn btn-sm btn-info"  id="btnGridSave">
+                                            <i class="fa fa-save"></i> Save
+                                        </a>
+                                        <a class="btn btn-sm btn-default"  id="btnGridCancel">
+                                            <i class="fa fa-refresh"></i> Hủy
+                                        </a>
+                                    }
+                                    @if (asset.ContainsKey("Export") && asset["Export"])
+                                    {
+                                        <a class="btn btn-sm bg-color-blueLight txt-color-white export" href="@Url.Action("Export", "Utilities_Holiday", new { filter = "~", sort = "~" })" id="btnGridExport">
+                                            <i class="fa fa-file-excel-o"></i> Xuất Excel
+                                        </a>
+                                    }
+
+                                </div>
+                        </text>);
+                        //if (asset.ContainsKey("Update") && asset["Update"])
+                        //{
+                        //    toolBar.Save().CancelText("Hủy thay đổi").SaveText("Lưu lại");
+                        //}
+                        //if (asset.ContainsKey("Export") && asset["Export"])
+                        //{
+                        //    toolBar.Custom()
+                        //            .Text("Xuất Excel")
+                        //            .HtmlAttributes(new { @class = "export", @style = "background-color:#6fb3e0; color:white;" }).Url(Url.Action("Export", "Utilities_Holiday", new { filter = "~", sort = "~" }));
+                        //}
+                       
+
+                    })
+                    .Editable(editable => editable.Mode(GridEditMode.InCell))
+                    .Events(events => { events.DataBound("onDatabound"); })
+                    .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                    .Resizable(r => r.Columns(true))
+                    .Navigatable()
+                    .Scrollable()
+                    .Sortable()
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Batch(true)
+                        .PageSize(100)
+                        .Model(model =>
+                        {
+                            model.Id(p => p.Date);
+                            model.Field(p => p.Date).Editable(false);
+                            model.Field(p => p.Week).Editable(false);
+                            model.Field(p => p.Month).Editable(false);
+                            model.Field(p => p.Year).Editable(false);
+                        })
+                        .Events(e => { e.RequestEnd("onRequestEnd"); e.RequestStart("onRequestStart"); })
+                        .Read(read => read.Action("Read", "Utilities_Holiday"))
+                        .Update(update => update.Action("Create", "Utilities_Holiday"))
+                    )
+                        )
+                    </div>
+                </article>
+                <!-- END COL -->
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div id="popupImport" style="display: none">
+            <div style="float:left;">
+                <form id="importform" action="@Url.Content("~/Utilities_Holiday/Import")" method="post" enctype="multipart/form-data" style="margin-bottom:0px;">
+                    <input type="file" name="FileUpload" />
+                </form>
+            </div>
+            <div style="float:right;">
+                <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="beginImport()">Import</a>
+            </div>
+            <div style="clear:both"></div>
+            <div id="divImport" hidden>
+                <label>Success : <strong id="totalImport">0</strong></label>
+                <label>Error : <strong id="totalImportError">0</strong></label>
+                <div>
+                    <a class="btn btn-primary btn-sm" id="btnDownloadError" href="javascript:void(0);">Download Error</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    $('#btnGridAdd').click(function () {
+        $("#grid").data("kendoGrid").dataSource.insert();
+    })
+
+    $('#btnGridSave').bind('click', function () {
+        if ($('#grid').data('kendoGrid').dataSource.hasChanges() == true) {
+            $('#grid').data('kendoGrid').saveChanges();
+        }
+    })
+
+    $('#btnGridCancel').bind('click', function () {
+        $('#grid').data('kendoGrid').cancelChanges();
+    })
+</script>

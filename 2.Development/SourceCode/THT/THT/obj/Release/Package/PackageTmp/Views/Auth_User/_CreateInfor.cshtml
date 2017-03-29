@@ -1,0 +1,290 @@
+﻿@using THT.Models;
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var item = dict.ContainsKey("Item") ? (Auth_User)dict["Item"] : new Auth_User();
+    var groupUser = dict.ContainsKey("groupUser") ? (List<Auth_UserInRole>)dict["groupUser"] : new List<Auth_UserInRole>();
+    var listDistrict = dict.ContainsKey("listDistrict") ? (List<Master_Territory>)dict["listDistrict"] : new List<Master_Territory>();
+    var listProvince = dict.ContainsKey("listProvince") ? (List<Master_Territory>)dict["listProvince"] : new List<Master_Territory>();
+    var listRole = dict.ContainsKey("listrole") ? (List<Auth_Role>)dict["listrole"] : new List<Auth_Role>();
+
+}
+<div class="row" id="popupEditInfor" style="margin: 0 auto; display:none">
+    <div class="no-padding">
+        @using (Html.BeginForm("CreateUser", "Auth_User", FormMethod.Post, new { @class = "smart-form", id = "formPopupCreateInfor", enctype = "multipart/form-data" }))
+        {
+            @Html.Hidden("RowCreatedAt");
+            @Html.Hidden("RowCreatedBy");
+            @Html.Hidden("AvatarPath");
+
+            <fieldset style="float:left;width:400px">
+                <section>
+                    <label class="label" style="float: left; width: 150px;">Mã người dùng (*)</label>
+                    <label class="input" style="float:right;width:240px;">
+                        @Html.TextBox("UserID", "", new { @class = "input-xs popup_text_left", placeholder = "Mã người dùng" })
+                        <b class="tooltip tooltip-top-right">Mã người dùng</b>
+                    </label>
+                    <div style="clear:both"></div>
+                </section>
+                <section>
+                    <label class="label" style="float: left; width: 150px;">
+                        <img class="AvatarPathUser img-circle" style="height: 90px;" onerror="imgError(this);" />
+                        <a href="javascript:void(0);" style="position:absolute;" onclick="onDeleteAvatar();">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </label>
+                    <label class="input" style="float:right;width:240px;">
+                        <span>Chọn ảnh</span>
+                        <input type="file" id="ImagePath" name="ImagePath" style="margin-top: 10px;height:37px" onchange="readURLCreateFomr(this);" />
+                    </label>
+                    <div style="clear:both"></div>
+                </section>
+                <section>
+                    <label class="label" style="float: left; width: 150px;">Tên hiển thị (*)</label>
+                    <label class="input" style="float:right;width:240px;">
+                        @Html.TextBox("DisplayName", "", new { @class = "input-xs popup_text_left", placeholder = "Tên hiển thị" })
+                        <b class="tooltip tooltip-top-right">Tên hiển thị</b>
+                    </label>
+                    <div style="clear:both"></div>
+                </section>
+                <section>
+                    <label class="label" style="float: left; width: 150px;">Tên đầy đủ (*)</label>
+                    <label class="input" style="float:right;width:240px;">
+                        @Html.TextBox("FullName", "", new { @class = "input-xs popup_text_left", placeholder = "Tên đầy đủ" })
+                        <b class="tooltip tooltip-top-right">Tên đầy đủ</b>
+                    </label>
+                    <div style="clear:both"></div>
+                </section>
+                <section>
+                    <label class="label" style="float: left; width: 150px;">Ngày sinh(*)</label>
+                    <label class="input" style="float:right;width:240px;">
+                        @Html.TextBox("BirthdayString", "", new { @class = "input-xs popup_text_left datepicker", data_dateformat = "dd/mm/yy", placeholder = "Ngày sinh" })
+
+                        <b class="tooltip tooltip-top-right">Ngày sinh</b>
+                    </label>
+                    <div style="clear:both"></div>
+                </section>
+                @*<section>
+                        <label class="label" style="float: left; width: 150px;">Trạng thái</label>
+                        <label class="select" style="float: right">
+                            <select id="IsActive" name="IsActive" placeholder=" -- Chọn trạng thái --"></select>
+                        </label>
+                        <div style="clear:both"></div>
+                    </section>*@
+            </fieldset>
+            <fieldset id="popupContent" style="float: left; width: 400px; border: none">
+                <section>
+                    <label class="label" style="float: left; width: 150px;">Tỉnh thành</label>
+                    @*<label class="select" style="float: right; width: 240px; ">
+                            <select id="ProvinceID" name="ProvinceID" placeholder=" -- Chọn tỉnh thành --"></select>
+                        </label>*@
+                    <label class="select">
+                        @Html.DropDownList("ProvinceID", new SelectList(listProvince, "TerritoryID", "TerritoryName", item.ProvinceID), "-- Chọn tỉnh/thành --")
+                    </label>
+                    <div style="clear:both"></div>
+                </section>
+                <section>
+                    <label class="label" style="float: left; width: 150px;">Quận huyện</label>
+                    @*<label class="select" style="float: right; width: 240px; ">
+                            <select id="DistrictID" name="DistrictID" placeholder="-- Chọn quận huyện --"></select>
+                        </label>*@
+                    <label class="select">
+                        @Html.DropDownList("DistrictID", new SelectList(listDistrict, "TerritoryID", "TerritoryName", item.DistrictID), "-- Chọn quận/huyện --")
+                    </label>
+                    <div style="clear:both"></div>
+                </section>
+                <section>
+                    <label class="label" style="float:left">Địa chỉ</label>
+                    <label class="input" style="float:right;width:240px;">
+                        @Html.TextBox("Address", "", new { @class = "input-xs popup_text_left", placeholder = "Địa chỉ", style = "margin-left:-10px" })
+                        @*<b class="tooltip tooltip-top-right">Đường</b>*@
+                    </label>
+                    <div style="clear:both"></div>
+                </section>
+                <section>
+                    <label class="label" style="float: left; width: 150px;">Số điện thoại</label>
+                    <label class="input" style="float:right;width:240px;">
+                        @Html.TextBox("Phone", "", new { @class = "input-xs popup_text_right", placeholder = "Số điện thoại", style = "margin-left:-10px" })
+                        @*<b class="tooltip tooltip-top-right">Số điện thoại</b>*@
+                    </label>
+                    <div style="clear:both"></div>
+                </section>
+                <section>
+                    <label class="label" style="float: left; width: 150px;">Email</label>
+                    <label class="input" style="float:right;width:240px;">
+                        @Html.TextBox("Email", "", new { @class = "input-xs popup_text_right", placeholder = "Email", style = "margin-left:-10px" })
+                        @*<b class="tooltip tooltip-top-right">Email</b>*@
+                    </label>
+                    <div style="clear:both"></div>
+                </section>
+                <section>
+                    <label class="label" style="float: left; width: 150px;">Ghi chú</label>
+                    <label class="textarea textarea-resizable" style="float:right;width:240px;">
+                        @Html.TextArea("Note", new { placeholder = "Ghi chú", @style = "min-height:56px;width:100%;margin-right:91px;margin-left:-10px" })
+                        @*<b class="tooltip tooltip-top-right">Ghi chú</b>*@
+                    </label>
+                    <div style="clear:both"></div>
+                </section>
+
+            </fieldset>
+            <fieldset style="float:left;width:856px; border:none; padding-top:0px">
+                <section>
+                    <label class="label" style="float: left; width: 150px;">Nhóm quyền</label>
+                    <label class="select">
+                        @Html.DropDownList("listRolesID", new SelectList(listRole, "RoleID", "RoleName"), new { multiple = "multiple" })
+                        @*<b class="tooltip tooltip-top-right">Nhóm quyền</b>*@
+                    </label>
+                    <div style="clear:both"></div>
+                </section>
+                @*<section>
+                        <label class="label" style="float: left; width: 150px;">Hãng xe</label>
+                        <label class="select">
+                            @Html.DropDownList("listBrandsID", new SelectList(listHangxe, "BrandID", "Model"), new { multiple = "multiple" })
+                        </label>
+                    </section>*@
+            </fieldset>
+            <div class="my-footer-popup">
+                <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px">
+                    <i class="fa fa-refresh"></i>  Hủy
+                </button>
+                <button type="submit" id="btnSubmit" class="btn btn-sm btn-info" style="float: right;margin-top:5px;">
+                    <i class="fa fa-save"></i>  Lưu
+                </button>
+                <img src="@Url.Content("~/Content/Bootstrap/loading.gif")" class="hide" id="loading" style="margin-top: 17px;" />
+            </div>
+            @*<footer>
+                    <button type="submit" id="btnSubmit" class="btn btn-sm btn-info" style="float: left;">
+                        <i class="fa fa-save"></i>  Lưu
+                    </button>
+                    <img src="@Url.Content("~/Content/Bootstrap/loading.gif")" class="hide" id="loading" style="margin-top: 17px;" />
+                </footer>*@
+
+        }
+    </div>
+</div>
+
+<script>
+
+    $("#ProvinceID").select2();
+    $("#s2id_ProvinceID").css('width', '60%');
+    $("#DistrictID").select2();
+    $("#s2id_DistrictID").css('width', '60%');
+
+    $("#listRolesID").select2();
+    $("#s2id_listRolesID").css('width', '658px');
+    $("#s2id_listRolesID").css('margin-left', '10px');
+
+    $("#listBrandsID").select2();
+    $("#s2id_listBrandsID").css('width', '658px');
+    $("#s2id_listBrandsID").css('margin-left', '10px');
+
+    $('#formPopupCreateInfor #BirthdayString').datepicker({
+        dateFormat: 'dd/mm/yy',
+        prevText: '<i class="fa fa-chevron-left"></i>',
+        nextText: '<i class="fa fa-chevron-right"></i>',
+    });
+
+    //$("#formPopupCreateInfor").submit(function (e) {
+    //    var url = e.currentTarget.action; // the script where you handle the form input.
+    //    $.ajax({
+    //        type: "POST",
+    //        url: url,
+    //        data: $("#formPopupCreateInfor").serialize(), // serializes the form's elements.
+    //        success: function (data) {
+    //            alertBox("Thêm mới thành công", "", true, 3000);
+    //            $("#grid").data("kendoGrid").dataSource.read();
+    //            $('#popupEditInfor').data("kendoWindow").close();
+    //        }
+    //    });
+
+    //    e.preventDefault(); // avoid to execute the actual submit of the form.
+    //});
+
+
+    $("#formPopupCreateInfor").validate({
+        // Rules for form validation
+        rules: {
+            UserID: {
+                required: true
+            },
+            DisplayName: {
+                required: true
+            },
+            FullName: {
+                required: true
+            },
+            BirthdayString: {
+                required: true
+            },
+            Email: {
+                email: true
+            },
+
+        },
+
+        // Messages for form validation
+        messages: {
+            UserID: {
+                required: "Thông tin bắt buộc"
+            },
+            DisplayName: {
+                required: "Thông tin bắt buộc"
+            },
+            FullName: {
+                required: "Thông tin bắt buộc"
+            },
+            BirthdayString: {
+                required: "Thông tin bắt buộc"
+            },
+            Email: {
+                email: "Sai Email"
+            }
+        },
+        errorPlacement: function (error, element) {
+            error.insertAfter(element);
+        },
+        submitHandler: function (form) {
+            $(form).ajaxSubmit({
+                //clearForm: true,//To clear form after ajax submitting
+                beforeSend: function () { $("#loading").removeClass('hide'); },
+                success: function (data) {
+                    if (data.success) {
+                        alertBox("Thêm mới thành công", "", true, 3000);
+                        $("#grid").data("kendoGrid").dataSource.read();
+                        $('#popupEditInfor').data("kendoWindow").close();
+                    }
+                    else {
+                        alertBox("Báo lỗi! ", data.message, false, 3000);
+                        $("#loading").addClass('hide');
+                        console.log(data.message);
+                    }
+                }
+            });
+            return false;
+        }
+    });
+
+    function readURLCreateFomr(input) {
+        debugger
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#formPopupCreateInfor .AvatarPathUser')
+                    .attr('src', e.target.result)
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+        else {
+            $('#formPopupCreateInfor .AvatarPathUser')
+                .attr('src', r + "/img/avatars/5.png");
+        }
+    }
+    function CloseUserProfilePopup() {
+        $("#popupEditInfor").data("kendoWindow").close();
+
+    }
+    function onDeleteAvatar() {
+        readURLCreateFomr($('#ImagePath'));
+    }
+
+</script>
