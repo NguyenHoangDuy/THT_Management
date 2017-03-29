@@ -1,0 +1,296 @@
+﻿@using THT.Models;
+
+@{
+    ViewBag.Title = "Cấu hình danh mục";
+}
+
+
+@Scripts.Render("~/Scripts/app/CategoryConfig.js")
+@*@Scripts.Render("~/Scripts/app/app.js")*@
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+
+}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+</style>
+
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+</style>
+<section>
+    @*<div class="bordered">*@
+    @if (Auth_Action.AssetResult(asset, "Search"))
+    {
+        <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+            @*<header>
+                    <h2 style="color:#6fb3e0">Thông tin công ty</h2>
+                </header>*@
+            <div>
+                <div class="widget-body no-padding">
+                    <form class="smart-form">
+                        <fieldset>
+                            <div class="row">
+                                <section class="col col-3">
+                                    <label class="input" style="margin-top: -4px">
+                                        <input type="text" class="input-xs" id="txtCategoryID" placeholder="Mã, tên danh mục">
+                                    </label>
+                                </section>
+                                <section class="col col-3search" style="margin-top: -4px">
+                                    <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="doSearch()">
+                                        <i class="fa fa-search"></i> Tìm kiếm
+                                    </a>
+                                </section>
+                            </div>
+                        </fieldset>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="jarviswidget bordered">
+        <div class="row">
+            <article class="col-sm-12">
+                <div class="widget-body">
+                    @(Html.Kendo().Grid<THT.Models.CategoryConfig>()
+                    .Name("grid")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.CategoryID).HeaderTemplate("<input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAll'  onClick='checkAllHeader(this)' />").ClientTemplate("<input style='text-align:center' class='checkrowid' type='checkbox' id='#=CategoryID#'  />").Width(30).Filterable(false).Sortable(false);
+                        if (asset.ContainsKey("Update") && asset["Update"])
+                        {
+                            columns.Bound(p => p.CategoryID).HtmlAttributes(new { data_id = "#=CategoryID#", onclick = "onOpenPopup(1,this)", @style = "color:\\#428bca;cursor:pointer;text-decoration:underline" }).Title("Mã văn bản").Width(80);
+                        }
+                        else
+                        {
+                            columns.Bound(p => p.CategoryID).Title("Mã loại văn bản").Width(80);
+                        }
+                        columns.Bound(p => p.CategoryName).Title("Tên loại văn bản").HtmlAttributes(new { data_column = "CategoryName" }).Width(120);
+                        columns.ForeignKey(p => p.IsSaved, (System.Collections.IEnumerable)ViewBag.listIsSaved, "ParamID", "Value").Title("Lưu").Width(130);
+                        columns.ForeignKey(p => p.IsExpirated, (System.Collections.IEnumerable)ViewBag.listIsExpirated, "ParamID", "Value").Title("Hết hạn").Width(130);
+                        columns.Bound(p => p.Format).Title("Định dạng số văn bản").Width(110);
+                        columns.ForeignKey(p => p.SideboardID, (System.Collections.IEnumerable)ViewBag.listSideboard, "ParamID", "Value").Title("Vị trí lưu trữ").Width(110);
+                        columns.Bound(p => p.TimeSave).Title("Thời hạn lưu trữ").Width(110);
+                        columns.Bound(p => p.ListGroup).Title("Nhóm văn bản").Width(150);
+                    })
+                    .ToolBar(toolBar =>
+                        {
+                            toolBar.Template(@<text>
+                                <div class="pull-left">
+                                    @if (asset.ContainsKey("Insert") && asset["Insert"])
+                                    {
+                                        <a class="btn btn-sm btn-success" href="javascript:onOpenPopup(0,this)" id="btnInsert">
+                                            <i class="fa fa-plus"></i> Thêm
+                                        </a>
+                                    }
+                                    @*@if (asset.ContainsKey("Update") && asset["Update"])
+                                    {
+                                        <a class="btn btn-sm btn-warning" href="javascript:UpdateStatus(1)" id="btnGridActive">
+                                            <i class="fa fa-play-circle-o"></i> Hoạt động
+                                        </a>
+                                        <a class="btn btn-sm btn-warning" href="javascript:UpdateStatus(0)" id="btnGridActive">
+                                            <i class="fa fa-pause-circle-o"></i> Ngưng hoạt động
+                                        </a>
+                                    }*@
+                                    @if (asset.ContainsKey("Delete") && asset["Delete"])
+                                    {
+                                        <a class="btn btn-sm btn-danger" href="javascript:Delete()" id="btnDelete">
+                                            <i class="fa fa-times"></i> Xóa
+                                        </a>
+                                    }
+                                    @*@if (asset.ContainsKey("Export") && asset["Export"])
+                                        {
+                                            <a class="btn btn-sm bg-color-blueLight txt-color-white export" href="@Url.Action("Export", "Company", new { filter = "~", sort = "~" })" id="btnGridExport">
+                                                <i class="fa fa-file-excel-o"></i> Xuất Excel
+                                            </a>
+                                        }*@
+                                </div>
+
+                            </text>);
+                        })
+                        .Events(events => { events.DataBound("onDatabound"); })
+                        .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                        .Resizable(r => r.Columns(true))
+                        .Navigatable()
+                        .Scrollable()
+                        .Sortable()
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .Batch(true)
+                            .PageSize(100)
+                            .Model(model =>
+                            {
+                                model.Id(p => p.CategoryID);
+                            })
+                            //.Events(e => { e.RequestEnd("onRequestEnd"); e.RequestStart("onRequestStart"); })
+                            .Read(read => read.Action("Read", "CategoryConfig"))
+                        )
+                    )
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <div id="popup" class="row" style="margin:0 auto;display:none">
+        @*<div class="bordered">*@
+        @using (Html.BeginForm("Create", "CategoryConfig", FormMethod.Post, new { @class = "smart-form", id = "formPopup", enctype = "multipart/form-data" }))
+        {
+            @Html.Hidden("CreatedAt");
+            @Html.Hidden("CreatedBy");
+            <fieldset style="float: left; width: 370px; padding-left: 0px; padding-right: 0px;">
+                <section style="display:none; float:left;"></section>
+
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right;">Tên loại văn bản (*)</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.TextBox("CategoryName", "", new { @class = "input-xs popup_text_right", placeholder = "Tên loại văn bản" })
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right;">Nhóm văn bản (*)</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.DropDownList("listGroupDocument", new SelectList(ViewBag.listGroupDocument, "ParamID", "Value"), new { multiple = "multiple" })
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right;">Lưu (*)</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.DropDownList("IsSaved", new SelectList(ViewBag.listIsSaved, "ParamID", "Value"), "-- Chọn giá trị --")
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right;">Hết hạn(*)</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.DropDownList("IsExpirated", new SelectList(ViewBag.listIsExpirated, "ParamID", "Value"), "-- Chọn giá trị --")
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right;">Dữ kiến lưu trữ (*)</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.DropDownList("SideboardID", new SelectList(ViewBag.listSideboard, "ParamID", "Value"), "-- Chọn giá trị --")
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right;">Định dạng mã VB (*)</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.TextBox("Format", "", new { @class = "input-xs popup_text_right", placeholder = "Định dạng số văn bản" })
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right;">Thời hạn lưu trữ (*)</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.TextBox("TimeSave", "", new { @class = "input-xs popup_text_right allownumericwithdecimal", placeholder = "Thời hạn lưu trữ" })
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+
+
+            </fieldset>
+
+            <div class="my-footer-popup">
+                <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="ResetForm()">
+                    <i class="fa fa-refresh"></i>  Hủy
+                </button>
+                <button type="submit" id="btnSubmit" class="btn btn-sm btn-info" style="float: right;margin-top:5px;">
+                    <i class="fa fa-save"></i>  Lưu
+                </button>
+                <img src="@Url.Content("~/Content/Bootstrap/loading.gif")" class="hide" id="loading" style="margin-top: 17px;" />
+            </div>
+        }
+    </div>
+
+    <div id="popupConfirm" style="display:none">
+        <div>
+            <form class="smart-form">
+                <fieldset>
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-5px">Bạn có chắc chắn muốn <span id="txtLabel"></span>?</label>
+                    </div>
+                </fieldset>
+                <div class="my-footer-popup">
+                    <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="onUpdateStatus(0, this)">
+                        <i class="fa fa-refresh"></i>  Hủy
+                    </button>
+                    <button type="button" id="btnOK" class="btn btn-sm btn-info" style="float: right;margin-top:5px;" onclick="onUpdateStatus(1, this)">
+                        <i class="fa fa-check"></i>  Đồng ý
+                    </button>
+                </div>
+                @*<footer style="border:none">
+                        <button type="button" class="k-button k-button-icontext btn_custom" id="btnConfirm" style="float:left;margin-left:86px;height:24px; background-color:#6fb3e0" onclick="onUpdateStatus(0,this)">Đồng ý</button>
+                        <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancle" style="float: left; margin-left: 10px; height: 24px; background-color: #abbac3; " onclick="onUpdateStatus(1, this)">Hủy bỏ</button>
+                    </footer>*@
+            </form>
+        </div>
+    </div>
+
+    <div id="popupDelete" style="display:none">
+        <div>
+            <form class="smart-form">
+                <fieldset>
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-14px">Bạn có chắc chắn xóa bỏ thông tin này ?</label>
+                    </div>
+                </fieldset>
+                <footer style="border:none">
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnApprove" style="float: left; margin-left: 86px; height: 24px; background-color: \\#6fb3e0" onclick="ConfirmDelele(0, this)">Đồng ý</button>
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancel" style="float: left; margin-left: 10px; height: 24px; background-color: \\#abbac3; " onclick="ConfirmDelele(1, this)">Hủy bỏ</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,366 @@
+﻿@using THT.Models;
+@{
+    ViewBag.Title = "Cấu hình gửi mail";
+    <script src="~/js/plugin/ckeditor/ckeditor.js"></script>
+}
+<script src="~/Scripts/app/Utilities_Email.js"></script>
+
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+    //  var listRole = dict.ContainsKey("listrole") ? (List<Auth_Role>)dict["listrole"] : new List<Auth_Role>();
+    var listMailTos = dict.ContainsKey("listMerchant") ? (List<Auth_User>)dict["listMerchant"] : new List<Auth_User>();
+    var listMailCCs = dict.ContainsKey("listTransporter") ? (List<Auth_User>)dict["listTransporter"] : new List<Auth_User>();
+}
+<style>
+    .smart-form .input input {
+        height: 24px;
+    }
+</style>
+<section>
+    <div>
+        @if (Auth_Action.AssetResult(asset, "Search"))
+        {
+            <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+                @*<header>
+                    <h2 style="color:#6fb3e0">Tìm kiếm</h2>
+                </header>*@
+
+                <!-- widget div-->
+                <div>
+                    <!-- widget content -->
+                    <div class="widget-body no-padding">
+                        <form class="smart-form">
+                            <fieldset>
+                                <section class="row">
+
+                                    @if (Auth_Action.AssetResult(asset, "IsActive"))
+                                    {
+                                        <section class="col col-3search">
+                                            <label class="select" style="margin-top: -4px">
+                                                @Html.DropDownList("selectIsActive_search", new SelectList(listActiveStatus, "StatusValue", "StatusName"), "-- Chọn trạng thái --")
+                                            </label>
+                                        </section>
+                                    }
+                                    <section class="col col-3search" style="margin-top: -4px">
+                                        <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="doSearch()">
+                                            <i class="fa fa-search"></i> Tìm kiếm
+                                        </a>
+                                        @*<a class="k-button k-button-icontext btn_customSearch" href="javascript:void(0);" onclick="doSearch()">Tìm kiếm</a>*@
+                                    </section>
+                                    @*<section class="col col-3search">
+                                        <a class="k-button k-button-icontext btn_customSearch" href="javascript:void(0);" onclick="doSearch()">Tìm kiếm</a>
+                                    </section>*@
+                                </section>
+                            </fieldset>
+                        </form>
+
+                    </div>
+                    <!-- end widget content -->
+
+                </div>
+                <!-- end widget div -->
+
+            </div>
+        }
+        <div class="jarviswidget bordered">
+            @*<header>
+                    <h2 style="color:#6fb3e0">Danh sách người dùng</h2>
+                </header>*@
+            <div class="row">
+                <!-- NEW COL START -->
+                <article class="col-sm-12">
+                    <div class="widget-body">
+                        @(Html.Kendo().Grid<THT.Models.Utilities_Email>()
+                    .Name("grid")
+                    .Columns(columns =>
+                    {
+                        if (asset.ContainsKey("Update") && asset["Update"])
+                        {
+                            columns.Bound(p => p.Name).HtmlAttributes(new { data_id = "#=ID#", onclick = "onOpenPopup(1,this)", @style = "color:\\#428bca;cursor:pointer;text-decoration:underline" })
+                                .Title("Mẫu gửi mail").Width(100);
+                        }
+                        else
+                        {
+                            columns.Bound(p => p.ID).Title("ID").Width(100);
+                        }
+                        if (Auth_Action.AssetResult(asset, "UserMail"))
+                        {
+                            columns.Bound(p => p.UserMail).Title("Email").Width(160);
+                        }
+                        if (Auth_Action.AssetResult(asset, "ListMailTos"))
+                        {
+                            columns.Bound(p => p.ListMailTos).Title("DS mail gửi").HtmlAttributes(new { data_column = "ListMailTos" }).Width(130);
+                        }
+                        if (Auth_Action.AssetResult(asset, "ListMailCCs"))
+                        {
+                            columns.Bound(p => p.ListMailCCs).Title("DS mail CC").HtmlAttributes(new { data_column = "ListMailCCs" }).Width(130);
+                        }
+                        if (Auth_Action.AssetResult(asset, "Port"))
+                        {
+                            columns.Bound(p => p.Port).Title("Port").Width(80);
+                        }
+                        if (Auth_Action.AssetResult(asset, "Host"))
+                        {
+                            columns.Bound(p => p.Host).Title("Host").Width(130);
+                        }
+                        if (Auth_Action.AssetResult(asset, "Subject"))
+                        {
+                            columns.Bound(p => p.Subject).Title("Tiêu đề mail").Width(130);
+                        }
+                        if (Auth_Action.AssetResult(asset, "HTMlBody"))
+                        {
+                            columns.Bound(p => p.HTMlBody).Title("Nội dung mail").HtmlAttributes(new { data_column = "HTMlBody" }).Width(130).Hidden();
+                        }
+                        columns.Bound(p => p.CreatedBy).Title("Người tạo").Width(130);
+
+                        columns.Bound(p => p.CreatedAt).Format("{0:dd/MM/yyyy}").HtmlAttributes(new { style = "text-align:right" }).Title("Ngày tạo");
+
+                        //if (asset.ContainsKey("Update") && asset["Update"])
+                        //{
+                        //    columns.Bound(p => p.UserID).HeaderTemplate("Mật khẩu").ClientTemplate("<a data-id='#=UserID#' onclick='onResetPassword(this)' class='k-button k-button-icontext' style ='background: \\#3276b1; color:white'>Khôi phục</a>").Width(100);
+                        //    //columns.Bound(p => p.UserID).HeaderTemplate("Mật khẩu").ClientTemplate("<a data-id='#=UserID#' ,onclick='onResetPassword(this)' class='k-button k-button-icontext btn_custom' style='background:\\#428bca;color:white'>Khôi phục</a>").Width(100);
+                        //}
+                    })
+                    .ToolBar(toolBar =>
+                    {
+                        toolBar.Template(@<text>
+                                <div class="pull-left">
+                                    @if (asset.ContainsKey("Insert") && asset["Insert"])
+                                    {
+                                        <a class="btn btn-sm btn-success" href="javascript:onOpenPopup(0,this)" id="btnGridAdd">
+                                            <i class="fa fa-plus"></i> Thêm
+                                        </a>
+                                    }
+
+                                </div>
+                        </text>);
+                        if (asset.ContainsKey("Insert") && asset["Insert"])
+                        {
+                            toolBar.Custom()
+                                    .Text("Thêm mới")
+                                    .HtmlAttributes(new { id = "btnInsert", @class = "btn btn-success", @style = "background-color:#87b87f; color:white;", onclick = "onOpenPopup(0,this)", @href = "javascript:void(0)" });
+                        }
+
+                        //if (asset.ContainsKey("Export") && asset["Export"])
+                        //{
+                        //    toolBar.Custom()
+                        //            .Text("Xuất Excel")
+                        //            .HtmlAttributes(new { @class = "btn btn-primary export", @style = "background-color:#6fb3e0; color:white;" }).Url(Url.Action("Export", "Auth_User", new { filter = "~", sort = "~" }));
+                        //}
+                        //if (asset.ContainsKey("Import") && asset["Import"])
+                        //{
+                        //    toolBar.Custom()
+                        //            .Text("Nhập Excel")
+                        //            .HtmlAttributes(new { @class = "btn btn-info", @style = "background-color:#9585bf; color:white;", onclick = "openImport()", @href = "javascript:void(0)" });
+                        //}
+
+                    })
+                    .Events(events => { events.DataBound("onDatabound"); })
+                    .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                    .Resizable(r => r.Columns(true))
+                    .Navigatable()
+                    .Scrollable()
+                    .Sortable()
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Batch(true)
+                        .PageSize(100)
+                        .Model(model =>
+                        {
+                            model.Id(p => p.ID);
+                        })
+                        .Events(e => { e.RequestEnd("onRequestEnd"); e.RequestStart("onRequestStart"); })
+                        .Read(read => read.Action("Read", "Utilities_Email"))
+                    )
+                        )
+                    </div>
+                </article>
+                <!-- END COL -->
+
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div id="popupImport" style="display:none">
+            <div style="float:left;">
+                <form id="importform" action="@Url.Content("~//Import")" method="post" enctype="multipart/form-data" style="margin-bottom:0px;">
+                    <input type="file" name="FileUpload" />
+                </form>
+            </div>
+            <div style="float:right;">
+                <a class="k-button k-button-icontext btn_custom" href="javascript:void(0);" onclick="beginImport()">Nhập</a>
+            </div>
+            <div style="clear:both"></div>
+        </div>
+    </div>
+    @*<div id="popup2" class="row" style="margin: 0 auto; display: none">
+            @using (Html.BeginForm("CreateConfig", "Auth_User", FormMethod.Post, new { @class = "smart-form", id = "formPopupMail", enctype = "multipart/form-data" }))
+            {
+                @Html.Hidden("CreatedAt");
+                @Html.Hidden("CreatedBy");
+                <fieldset id="htmlContentDiv" style="float: left; padding-top:0px; clear: both; border-top: none;width:98%">
+                    <section>
+                        <label class="label" style="float:left">Nội dung (*)</label>
+                        <div class="col-md-9" style="float: right; width: 100%;">
+                            <textarea id="HTMLContentView" name="HTMLContentView" rows="10" cols="30"></textarea>
+                        </div>
+                    </section>
+                </fieldset>
+            }
+        </div>*@
+    <div id="popup" class="row" style="margin: 0 auto; display: none">
+        <div>
+            @using (Html.BeginForm("Create", "Utilities_Email", FormMethod.Post, new { @class = "smart-form", id = "formPopupMail", enctype = "multipart/form-data" }))
+            {
+                @Html.Hidden("CreatedAt");
+                @Html.Hidden("CreatedBy");
+                @Html.Hidden("HTMlBody");
+                <fieldset style="float: left; width: 800px; padding: 0px; padding-top:10px; height: 20%; " id="div1">
+                    <div>
+                        <section style="display:none; float:left;"></section>
+                        <section style="float:left;">
+                            <div style="float: left; width: 120px; margin-left:0;">
+                                <label class="label" style="float:right"> Tên (*) </label>
+                            </div>
+                            <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                                <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                                    @Html.TextBox("Name", "", new { @class = "inputs-xs popup_text_right" })
+                                </label>
+                                <div style="clear:both"></div>
+                            </div>
+                        </section>
+                    </div>
+                    <div>
+                        <section style="float:left;">
+                            <div style="float: left; width: 120px; margin-left:0;">
+                                <label class="label" style="float:right">Địa chỉ Mail (*) </label>
+                            </div>
+                            <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                                <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                                    @Html.TextBox("UserMail", "", new { @class = "inputs-xs popup_text_right" })
+                                </label>
+                                <div style="clear:both"></div>
+                            </div>
+                        </section>
+                        <section style="float:left;">
+                            <div style="float: left; width: 120px; margin-left:0;">
+                                <label class="label" style="float:right;"> Mật khẩu (*)</label>
+                            </div>
+                            <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                                <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                                    @Html.TextBox("PasswordMail", "", new { @class = "input-xs popup_text_right" })
+                                </label>
+                                <div style="clear:both"></div>
+                            </div>
+                        </section>
+                        <section style="float:left;">
+                            <div style="float: left; width: 120px; margin-left:0;">
+                                <label class="label" style="float:right">Port (*)</label>
+                            </div>
+                            <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                                <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                                    @Html.TextBox("Port", "", new { @class = "input-xs popup_text_right" })
+                                </label>
+                            </div>
+                        </section>
+                        <section style="float:left;">
+                            <div style="float: left; width: 120px; margin-left:0;">
+                                <label class="label" style="float:right">Host (*)</label>
+                            </div>
+                            <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                                <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                                    @Html.TextBox("Host", "", new { @class = "input-xs popup_text_left" })
+                                </label>
+                            </div>
+                        </section>
+                    </div>
+                </fieldset>
+                @*<fieldset style="float: left; width: 800px; padding: 0px;  height: 20%; border: none; ">
+                    <div>
+                        <section style="float:left;">
+                            <div style="float: left; width: 120px; margin-left:0;">
+                                <label class="label" style="float:right">Port (*)</label>
+                            </div>
+                            <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                                <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                                    @Html.TextBox("Port", "", new { @class = "input-xs popup_text_right" })
+                                </label>
+                            </div>
+                        </section>
+                        
+                    </div>
+
+                </fieldset>*@
+                 <fieldset style="float: left; width: 800px; padding: 0px; height: 60%; border: none">
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float: right;">Gửi đến (*) </label>
+                        </div>
+                        <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; background: #fff0f0; width: 610px;">
+                                @Html.TextBox("ListMailTos", "", new { @class = "input-xs popup_text_right", @style = "width: 610px;", @placeholder = "Các mail cách nhau dấu chấm phẩy ; Ex: vidu@gmail.com; vd2@gmail.com " })                              
+                            </label>
+                        </div>
+                    </section>
+                </fieldset>
+                 <fieldset style="float: left; width: 800px; padding: 0px; height: 60%; border: none">
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float: right;"> CC đến (*) </label>
+                        </div>
+                        <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; background: #fff0f0; width: 610px;">
+                                @Html.TextBox("ListMailCCs", "", new { @class = "input-xs popup_text_right", @style = "width: 610px;", @placeholder = "Các mail cách nhau dấu chấm phẩy ; Ex: vidu@gmail.com; vd2@gmail.com " })
+                            </label>
+                        </div>
+                    </section>
+                </fieldset>
+                <fieldset style="float: left; width: 800px; padding: 0px; height: 60%; border: none">
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float: right;"> Tiêu đề (*) </label>
+                        </div>
+                        <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: left; background: #fff0f0; width: 610px;">
+                                @Html.TextBox("Subject", "", new { @class = "input-mx popup_text_right", @style = "width: 610px;" })
+
+                            </label>
+                        </div>
+                    </section>
+                </fieldset>
+                <fieldset id="htmlContentDiv" style="float: left; padding-top:0px; clear: both; border-top: none;width:90%">
+                    <section style="margin-left: 45px;">
+                        <div style=" float: left; width: 70px; ">
+                            <label class="label" style="float:left"> Nội dung (*)</label>
+                        </div>
+                        <div class="col-md-9" style="float: right; width: 100%;">
+                            <textarea id="HTMLContentView" name="HTMLContentView" rows="10" cols="30"></textarea>
+                        </div>
+                    </section>
+                </fieldset>
+                <div style="clear:both"></div>
+                <div class="my-footer-popup">
+                    <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="CloseForm()">
+                        <i class="fa fa-refresh"></i>  Hủy
+                    </button>
+                    <button type="submit" id="btnSubmit" class="btn btn-sm btn-info" style="float: right;margin-top:5px;">
+                        <i class="fa fa-save"></i>  Lưu
+                    </button>
+                    <img src="@Url.Content("~/Content/Bootstrap/loading.gif")" class="hide" id="loading" style="margin-top: 17px;" />
+                </div>
+                @*<footer>
+                    <button type="submit" class="k-button k-button-icontext btn_custom" style="float: left;">Lưu</button>
+                    <img src="@Url.Content("~/Content/Bootstrap/loading.gif")" class="hide" id="loading" style="margin-top: 17px;" />
+                </footer>*@
+            }
+        </div>
+    </div>
+</section>
+<script>
+    function CloseForm() {
+        $("#popup").data("kendoWindow").close();
+    }
+</script>

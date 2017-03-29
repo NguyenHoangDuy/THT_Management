@@ -1,0 +1,124 @@
+﻿@using THT.Models;
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+
+}
+<script src="@Url.Content("~/Scripts/app/Utilities_Territory.js")"></script>
+<script src="@Url.Content("~/Scripts/app/app.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.blockUI.js")"></script>
+<div>
+    @if (Auth_Action.AssetResult(asset, "Search"))
+    {
+        <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+            @*<header>
+                <h2 style="color:#6fb3e0">Tìm kiếm</h2>
+
+            </header>*@
+            <!-- widget content -->
+            <div class="widget-body no-padding" style="margin: 0">
+                <form class="smart-form">
+                    <fieldset>
+                        <div class="row">
+
+                            @if (Auth_Action.AssetResult(asset, "TerritoryID"))
+                            {
+                                <section class="col col-3">
+                                    <label class="input">
+                                        <input type="text" class="input-xs" id="txtTerritoryIDDistrict" placeholder="Mã, tên quận huyện">
+                                    </label>
+                                </section>
+                                <section class="col col-3">
+                                    <label class="input">
+                                        <input type="text" class="input-xs" id="txtTerritoryIDDistrictParent" placeholder="Tỉnh thành">
+                                    </label>
+                                </section>
+                            }
+
+                            <section class="col col-3search">
+                                <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="doSearchDistrict()">
+                                    <i class="fa fa-search"></i> Tìm kiếm
+                                </a>
+                                @*<a class="k-button k-button-icontext btn_customSearch" href="javascript:void(0);" onclick="doSearch()">Tìm kiếm</a>*@
+                            </section>
+                        </div>
+                    </fieldset>
+                </form>
+
+            </div>
+            <!-- end widget content -->
+
+        </div>
+    }
+    <div class="jarviswidget bordered">
+        @*<header>
+                <h2 style="color:#6fb3e0">Danh sách Quận/Huyện</h2>
+            </header>*@
+
+        <div class="row">
+            <!-- NEW COL START -->
+            <article class="col-sm-12">
+                <div class="widget-body">
+                    @(Html.Kendo().Grid<THT.Models.Master_Territory>()
+                    .Name("gridDistrict")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.TerritoryID).Title("Mã quận huyện").Width(150);
+                        columns.Bound(p => p.TerritoryName).Title("Tên").Width(150);
+                        columns.Bound(p => p.ParentName).Title("Tỉnh thành").Width(150);
+                        columns.Bound(p => p.Title).Title("Loại").Width(150);
+                        columns.Bound(p => p.Note).Title("Ghi chú").Width(200);
+                        columns.Bound(p => p.CreatedBy).Title("Người tạo").Width(110);
+                        columns.Bound(p => p.CreatedAt).Width(110).Format("{0:dd/MM/yyyy}").HtmlAttributes(new { style = "text-align:right" }).Title("Ngày tạo").Width(110);
+                        columns.Bound(p => p.UpdatedBy).Title("Người cập nhật").Width(110);
+                        columns.Bound(o => o.UpdatedAt).Title("Ngày cập nhật").Format("{0:dd/MM/yyyy}").Width(110).ClientTemplate("#if(kendo.toString(UpdatedAt,'dd/MM/yyyy') != '01/01/1900'){#" + "#= kendo.toString(UpdatedAt,'dd/MM/yyyy') #" + "#}#");
+
+                    })
+                    .ToolBar(toolBar =>
+                    {
+                        toolBar.Template(@<text>
+                            <div class="pull-left">
+                            
+                                @if (asset.ContainsKey("Export") && asset["Export"])
+                                {
+                                    <a class="btn btn-sm bg-color-blueLight txt-color-white export" href="@Url.Action("Export_District", "Utilities_Territory", new { filter = "~", sort = "~" })" id="btnGridExport">
+                                        <i class="fa fa-file-excel-o"></i> Xuất Excel
+                                    </a>
+                                }
+
+                            </div>
+                        </text>);
+                        //if (asset.ContainsKey("Export") && asset["Export"])
+                        //{
+                        //    toolBar.Custom()
+                        //            .Text("Xuất Excel")
+                        //            .HtmlAttributes(new { @class = "export", @style = "background-color:#6FB3e0; color:white;" }).Url(Url.Action("Export_District", "Utilities_Territory", new { filter = "~", sort = "~" }));
+                        //}
+
+                    })
+                        .Events(events => { events.DataBound("onDataboundDistrict"); })
+                    .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                    .Resizable(r => r.Columns(true))
+                    .Navigatable()
+                    .Scrollable()
+                    .Sortable()
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Batch(true)
+                        .PageSize(100)
+                        .Model(model =>
+                        {
+                            model.Id(p => p.TerritoryID);
+                        })
+                        .Events(e => { e.RequestEnd("onRequestEnd"); e.RequestStart("onRequestStart"); })
+                                            .Read(read => read.Action("Read_District", "Utilities_Territory"))
+                    )
+                    )
+                </div>
+            </article>
+            <!-- END COL -->
+
+        </div>
+    </div>
+</div>

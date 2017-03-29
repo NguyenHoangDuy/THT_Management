@@ -1,0 +1,9 @@
+﻿@model object
+           
+@(
+ Html.Kendo().DropDownListFor(m => m)
+        .OptionLabel("- Chọn -")
+        .DataTextField("CustomerName")
+        .DataValueField("CustomerID")  
+        .BindTo((SelectList)ViewData[ViewData.TemplateInfo.GetFullHtmlFieldName("") + "_Data"])
+)

@@ -1,0 +1,42 @@
+﻿@using THT.Models;
+@{
+    ViewBag.Title = "Phân cấp vùng miền";
+}
+
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+    
+}
+<script src="@Url.Content("~/Scripts/app/Utilities_Territory.js")"></script>
+<ul id="tabquanlyvung" class="nav nav-tabs bordered padding-12 tab-color-blue background-blue">
+    <li class="active">
+        <a href="#s1" data-toggle="tab">Quận Huyện</a>
+    </li>
+    <li>
+        <a href="#s2" data-toggle="tab" id="btnTinh">Tỉnh Thành</a>
+    </li>
+    @*<li>
+        <a href="#s3" data-toggle="tab" id="btnVung">Vùng miền</a>
+    </li>
+    <li>
+        <a href="#s4" data-toggle="tab" id="btnQuocGia">Quốc gia</a>
+    </li>*@   
+
+</ul>
+
+<div id="tabQlVM" class="tab-content padding-10">
+    <div class="tab-pane fade in active" id="s1">
+        @Html.Partial("_PartialTreeDistrict")
+    </div>
+    <div class="tab-pane fade" id="s2">
+        @Html.Partial("_PartialTreeProvince")
+    </div>
+    @*<div class="tab-pane fade" id="s3">
+        @Html.Partial("_PartialTreeRegion")
+    </div>
+    <div class="tab-pane fade" id="s4">
+        @Html.Partial("_PartialTreeCountry")
+    </div>*@
+</div>

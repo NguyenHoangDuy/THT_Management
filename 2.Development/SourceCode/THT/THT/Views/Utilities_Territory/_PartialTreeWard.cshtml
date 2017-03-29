@@ -1,0 +1,130 @@
+﻿@using THT.Models;
+@{
+    Scripts.Render("~/bundles/appUtilities_Territory");
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+}
+<div>
+    @if (Auth_Action.AssetResult(asset, "Search"))
+    {
+
+        <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+
+            <header>
+                @*<span class="widget-icon"> <i class="fa fa-search"></i> </span>*@
+                <h2 style="color:#6fb3e0">Tìm kiếm</h2>
+
+            </header>
+            <nav style="border-width: 1px 1px 1px 1px; border-style: solid; border-top: none; border-color: #CCC;">
+                <!-- widget content -->
+                <div class="widget-body no-padding" style="margin: 0">
+                    <form class="smart-form">
+                        <fieldset>
+                            <div class="row">
+
+                                @if (Auth_Action.AssetResult(asset, "TerritoryID"))
+                                {
+                                    <section class="col col-3">
+                                        <label class="input">
+                                            <input type="text" class="input-xs" id="txtTerritoryIDWard" placeholder="Mã, tên phường xã">
+                                        </label>
+                                    </section>
+                                    <section class="col col-3">
+                                        <label class="input">
+                                            <input type="text" class="input-xs" id="txtTerritoryIDWardParent" placeholder="Quận huyện">
+                                        </label>
+                                    </section>
+                                }
+
+                                <section class="col col-3search">
+                                    <a class="k-button k-button-icontext btn_customSearch" href="javascript:void(0);" onclick="doSearch()">Tìm kiếm</a>
+                                </section>
+                            </div>
+                        </fieldset>
+                    </form>
+
+                </div>
+                <!-- end widget content -->
+
+            </nav>
+
+        </div>
+    }
+</div>
+<div class="jarviswidget">
+    <header>
+        <h2 style="color:#6fb3e0">Danh sách Phường/Xã</h2>
+    </header>
+
+    <div class="row">
+        <!-- NEW COL START -->
+        <article class="col-sm-12">
+            <div class="widget-body">
+                @(Html.Kendo().Grid<THT.Models.Master_Territory>()
+                    .Name("gridWard")
+                    .Columns(columns =>
+                    {
+
+
+                        if (Auth_Action.AssetResult(asset, "TerritoryID"))
+                        {
+                            columns.Bound(p => p.TerritoryID).Title("Mã phường xã").Width(150);
+                        }
+
+                        if (Auth_Action.AssetResult(asset, "TerritoryName"))
+                        {
+                            columns.Bound(p => p.TerritoryName).Title("Tên").Width(150);
+                        }
+                        if (Auth_Action.AssetResult(asset, "ParentName"))
+                        {
+                            columns.Bound(p => p.ParentName).Title("Quận huyện").Width(150);
+                        }
+                        if (Auth_Action.AssetResult(asset, "Title"))
+                        {
+                            columns.Bound(p => p.Title).Title("Loại").Width(150);
+                        }
+                        if (Auth_Action.AssetResult(asset, "Latitude"))
+                        {
+                            columns.Bound(p => p.Latitude).Title("Kinh độ").HtmlAttributes(new { @style = "text-align:right" }).Width(150);
+                        }
+                        if (Auth_Action.AssetResult(asset, "Longitude"))
+                        {
+                            columns.Bound(p => p.Longitude).Title("Vĩ độ").HtmlAttributes(new { @style = "text-align:right" }).Width(150);
+                        }
+                    })
+                    .ToolBar(toolBar =>
+                        {
+
+                            if (asset.ContainsKey("Export") && asset["Export"])
+                            {
+                                toolBar.Custom()
+                                        .Text("Xuất Excel")
+                                        .HtmlAttributes(new { @class = "export", @style = "background-color:#5B9BD5; color:white;" }).Url(Url.Action("Export_Ward", "Utilities_Territory", new { filter = "~", sort = "~" }));
+                            }
+
+                        })
+                        .Events(events => { events.DataBound("onDataboundWard"); })
+                    .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                    .Resizable(r => r.Columns(true))
+                    .Navigatable()
+                    .Scrollable()
+                    .Sortable()
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Batch(true)
+                        .PageSize(100)
+                        .Model(model =>
+                        {
+                            model.Id(p => p.TerritoryID);
+                        })
+                        .Events(e => { e.RequestEnd("onRequestEnd"); e.RequestStart("onRequestStart"); })
+                                            .Read(read => read.Action("Read_Ward", "Utilities_Territory"))
+                    )
+                )
+            </div>
+        </article>
+        <!-- END COL -->
+
+    </div>
+</div>

@@ -1,0 +1,198 @@
+﻿@using THT.Models;
+@{
+    ViewBag.Title = "Trang chủ";
+}
+@*@Scripts.Render("~/bundles/Home")*@
+
+@{
+    var listConfig_Announcement = ViewData.ContainsKey("listConfig_Announcement") ? (List<Master_Announcement>)ViewData["listConfig_Announcement"] : new List<Master_Announcement>();
+}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+<style>
+    a:hover {
+        color: red;
+    }
+
+    .title {
+        color: #f37c2b;
+        font: 700 20px arial;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .date {
+        color: #CCCCCC;
+        padding-bottom: 10px;
+    }
+
+    .category_content {
+        border-bottom: 1px solid #DCDCDC;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+
+    .title_news {
+        font: 700 16px arial;
+        color: #00B4C1;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+        .title a:hover, .title_news a:hover {
+            color: blue;
+        }
+
+    .block_image_news width_common {
+        width: 100%;
+        float: left;
+    }
+
+    .thumb {
+        margin-left:5px;
+        width: 180px;
+        height: 108px;
+        float: left;
+        cursor: pointer;
+        overflow: hidden;
+        padding-right: 10px;
+        text-align: center;
+    }
+
+    .block_image_news .news_lead {
+        float: none;
+        margin-left: 0;
+        width: auto;
+        font-size: 13px;
+        min-height: 108px;
+        text-align: justify;
+        padding-right: 20px;
+    }
+
+    .thumb img {
+        width: 180px;
+        overflow: hidden;
+        text-align: center;
+    }
+
+
+
+    h5, .h5 {
+        font-size: 14px;
+        text-align: justify;
+    }
+
+    .detail {
+        padding: 0px;
+        line-height: 13px;
+        /* text-rendering: geometricPrecision; */
+        color: rgb(51, 51, 51);
+        font-family: arial;
+        font-size: 13px;
+    }
+
+    .title-article {
+        /*color: #BDBDBD;*/
+        color: #00B4C1;
+        margin-bottom: 5px;
+    }
+
+    .title-article-detail {
+        color: #AFAFAF !important;
+    }
+</style>
+
+<div class="jarviswidget">
+    <div class="row">
+        <div class="col-lg-12" style="padding-left: 0px; padding-right: 0px">
+            <div class="col-lg-7 pull-left">
+                <div style="margin-bottom:10px">
+                    <h4><i class="fa fa fa-bullhorn"></i> Thông báo </></h4>
+                </div>
+                <div class="span12" style="margin-left:-10px">
+                    @(Html.Kendo().ListView<THT.Models.General_Notification>()
+                            .Name("Grid1")
+                            .HtmlAttributes(new { @style = "border:none;overflow:auto;" })
+                            .TagName("div")
+                            .ClientTemplateId("template1")
+                            .DataSource(dataSource =>
+                            {
+                                dataSource.Read(read => read.Action("Announcement_Read", "Home"));
+                                // dataSource.PageSize(50);
+                            })
+                            .Events(events => events.DataBound("dataBound"))
+                    )
+
+                </div>
+
+            </div>
+            <div class="col-lg-5 pull-left" >
+                <div class="span12" style="margin-right: -18px">
+                    <div id="title-general" style="margin-bottom:10px">
+                        <h4><i class="fa fa-bell"></i> Tin tức nội bộ </></h4>
+                    </div>
+                    @foreach (var item in ViewBag.listAnnouncement)
+                    {
+                        <div class="category_content">
+                            <div class="title-article" style="cursor:pointer"><h4><a href="~/Home/DetailAnnouncement/@item.AnnouncementID"> @item.Title</a></h4></div>
+                            <div class="date"> @item.CreatedBy  | @item.CreatedAt </div>
+                            <div class="block_image_news width_common">
+                                <div class="thumb">
+                                    <a href="~/Home/DetailAnnouncement/@item.AnnouncementID"><img src="~/Upload/Images/News/Announcement/@item.Image" /></a>
+
+                                </div>
+                                <div class="news_lead"><p>@item.Description</p></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        </div>
+    </div>
+       
+
+    <script type="text/x-kendo-tmpl" id="template1">
+        <div class="row-fluid">
+            <div class="span12">
+                <div>
+                    <div id="title-article" class="title-article" style="cursor:pointer">
+                        <h4>#:Title#</h4>
+                    </div>
+                    <div class="title-article-detail" style="margin-bottom:5px">
+                        #:kendo.toString(CreatedAt,'dd/MM/yyyy')#  | #:CreatedBy#
+                    </div>
+                    <div>@Html.Raw("#=HTMLBody#")</div>
+                    
+                    <div class="clearfix"></div>
+                    <hr />
+                </div>
+            </div>
+        </div>
+    </script>
+    <script>
+
+        $(document).ready(function () {
+            document.title = "Trang chủ";
+            //hideLoading();
+
+            //var headerH = $('#header').height();
+            //$('#ContentAnnouncement').css({ 'height': $(window).height() - headerH - 20 });
+        });
+
+        function dataBound(e) {
+            resizeGrid();
+        };
+        function resizeGrid() {
+            var offsetbottom = parseInt($(window).height()) - parseInt($('#Grid1').offset().top);
+            var gridElement = $("#Grid1"),
+            dataArea = gridElement.find(".k-grid-content"),
+            otherElements = gridElement.children().not(".k-grid-content"),
+            otherElementsHeight = 0;
+            otherElements.each(function () {
+                otherElementsHeight += $(this).outerHeight();
+            });
+            dataArea.height(offsetbottom - otherElementsHeight - 30);
+        }
+    </script>

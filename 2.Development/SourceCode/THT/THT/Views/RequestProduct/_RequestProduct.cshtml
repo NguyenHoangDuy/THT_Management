@@ -1,0 +1,312 @@
+﻿@using THT.Models;
+
+@{
+    ViewBag.Title = "Yêu cầu thêm mới";
+}
+
+<script src="@Url.Content("~/Scripts/jquery.blockUI.js")"></script>
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+    //var listTypeId = dict.ContainsKey("listTypeId") ? (List<DropListDown>)dict["listTypeId"] : new List<DropListDown>();
+}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+</style>
+
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+</style>
+<section>
+    @*<div class="bordered">*@
+    @if (Auth_Action.AssetResult(asset, "Search"))
+    {
+        <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+            @*<header>
+                    <h2 style="color:#6fb3e0">Thông tin công ty</h2>
+                </header>*@
+            <div>
+                <div class="widget-body no-padding">
+                    <form class="smart-form">
+                        <fieldset>
+                            <div class="row">
+                                <section class="col col-5">
+                                    <label class="label" style="float: left; width: 19% ; color: black;font-weight: bold;">Loại sản phẩm:</label>
+                                    <label class="select" style="margin-top: -4px">
+                                        @*@Html.DropDownList("listCatagory", new SelectList(ViewBag.listProductType, "ParamID", "Value"), new { style = "width: 81%", multiple = "multiple" })*@
+                                        @Html.DropDownList("ProductType", new SelectList(ViewBag.listProductType, "ParamID", "Value", 1), "--Chọn loại sản phẩm--", new { style = "width: 100%", onclick = "changeProductType()" })
+
+                                    </label>
+                                </section>
+                            </div>
+                        </fieldset>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="jarviswidget bordered">
+        <div class="row">
+            <article class="col-sm-12">
+                <div class="widget-body">
+                    @(Html.Kendo().Grid<THT.Models.RequestModel>()
+                    .Name("grid")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.Id).HeaderTemplate("<input type='checkbox' id= 'checkboxcheckAll'  onClick='checkAllHeader(this)' />")
+                           .ClientTemplate("<input class='checkrowid' type='checkbox' id='#=id#' />")
+                           .HtmlAttributes(new { style = "text-align:center" })
+                           .HeaderHtmlAttributes(new { style = "text-align:center" })
+                           .Width(20).Filterable(false).Sortable(false);
+                        //columns.ForeignKey(p => p.TypeId, (System.Collections.IEnumerable)ViewBag.listTypeId, "Value", "Text").EditorTemplateName("GridForeignKey_Dropdownlist").Title("Loại cần thêm mới").Width(110).HtmlAttributes(new { style = "background-color:rgb(198, 239, 206);" });
+                        columns.ForeignKey(p => p.TypeId, (System.Collections.IEnumerable)ViewBag.listTypeId, "Value", "Text").Title("Loại cần thêm mới").Width(110).HtmlAttributes(new { style = "background-color:rgb(198, 239, 206);" });
+                        columns.Bound(p => p.Value).Title("Giá trị thêm mới").Width(110).HtmlAttributes(new { style = "background-color:rgb(198, 239, 206);" });
+                    })
+                    .ToolBar(toolBar =>
+                        {
+                            toolBar.Template(@<text>
+                                <div class="pull-left">
+                                    @if (asset.ContainsKey("Insert") && asset["Insert"])
+                                    {
+                                        <a class="btn btn-sm btn-success" href="javascript:AddNewRowGrid()" id="btnInsert">
+                                            <i class="fa fa-plus"></i> Thêm dòng
+                                        </a>
+                                    }
+                                    @if (asset.ContainsKey("Update") && asset["Update"])
+                                    {
+                                        <a class="btn btn-sm btn-info" href="javascript:update()" id="btnInsertHeader">
+                                            <i class="fa fa-save"></i> Gửi mail
+                                        </a>
+                                        <a class="btn btn-sm btn-default" href="javascript:Cancel()" id="btnCancel">
+                                            <i class="fa fa-refresh"></i> Hủy thay đổi
+                                        </a>
+                                    }
+                                    @if (asset.ContainsKey("Delete") && asset["Delete"])
+                                    {
+                                        <a class="btn btn-sm btn-danger" href="javascript:Delete()" id="btnDelete">
+                                            <i class="fa fa-times"></i> Xóa dòng
+                                        </a>
+                                    }
+                                </div>
+
+                            </text>);
+                        })
+                        .Events(events => { events.DataBound("onDatabound"); events.Edit("onEdit"); })
+                        .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                        .Resizable(r => r.Columns(true))
+                        .Navigatable()
+                        .Scrollable()
+                        //.Sortable()
+                        .Editable(editable => editable.Mode(GridEditMode.InCell))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .Batch(true)
+                            .PageSize(100)
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+                                model.Field(p => p.TypeId).Editable(true);
+                                model.Field(p => p.Value).Editable(true);
+                            })
+                            .Events(e => { e.RequestEnd("onRequestEnd"); e.Error("error_handler"); e.RequestStart("onRequestStart"); })
+                            //.Read(read => read.Action("Read", "RequestProduct"))
+                                                    .Create(read => read.Action("Create", "RequestProduct").Data("onDataDetail"))
+                                                    .Update(read => read.Action("Create", "RequestProduct").Data("onDataDetail"))
+                        )
+                    )
+                </div>
+            </article>
+        </div>
+    </div>
+
+</section>
+
+<script>
+
+    $(document).ready(function () {
+        //active menu
+        $("ul#menuLeft").find('#ul_root_5').addClass('open');
+        $("ul#menuLeft").find('#ul_root_5').css('display', 'block');
+        $("ul#menuLeft").find('#ul_root_5 ul#ul_item_5').css('display', 'block');
+        $("#menu_RequestProduct").parent().addClass('active');
+
+        $("#ProductType").select2();
+        $("#s2id_lProductType").css('width', '240px');
+
+        //fillter & form popup
+        setTimeout(function () {
+        }, 500);
+        
+    });
+
+
+    function AddNewRowGrid() {
+        debugger;
+        var ProductType = $("#ProductType").val();
+        if (ProductType == "") {
+            alertBox("Báo lỗi! ", "Vui lòng chọn loại sản phẩm.", false, 3000);
+        }
+        else {
+            var ds = $("#grid").data("kendoGrid").dataSource;
+            ds.insert(0, {
+                Id: ds.view().length + 1,
+                TypeId: "",
+                Value: ""
+            });
+        }
+    }
+
+    function checkAllHeader(e) {
+        var x = $(e).prop('checked');
+        $('#grid').find(".checkrowid").each(function () {
+            $(this).prop('checked', x);
+        });
+    }
+
+    function resizeGrid() {
+        var offsetbottom = parseInt($(window).height()) - parseInt($('#grid').offset().top);
+        var gridElement = $("#grid"),
+        dataArea = gridElement.find(".k-grid-content"),
+        otherElements = gridElement.children().not(".k-grid-content"),
+        otherElementsHeight = 0;
+        otherElements.each(function () {
+            otherElementsHeight += $(this).outerHeight();
+        });
+        dataArea.height(offsetbottom - otherElementsHeight - 1);
+    }
+
+    //grid 
+    function onDatabound(e) {
+        resizeGrid();
+        var grid = $("#grid").data("kendoGrid");
+        var requestObject = (new kendo.data.transports["aspnetmvc-server"]({ prefix: "" }))
+        .options.parameterMap({
+            page: grid.dataSource.page(),
+            sort: grid.dataSource.sort(),
+            filter: grid.dataSource.filter()
+        });
+        var $exportLink = grid.element.find('.export');
+        var href = $exportLink.attr('href');
+        if (href) {
+            href = href.replace(/sort=([^&]*)/, 'sort=' + requestObject.sort || '~');
+            href = href.replace(/filter=([^&]*)/, 'filter=' + (requestObject.filter || '~'));
+            $exportLink.attr('href', href);
+        }
+        $("#divLoading").hide();
+    }
+
+    function onEdit(e) {
+
+        var dataItem = $('#grid').data('kendoGrid').dataItem($(e.container).closest("tr"));
+        var b = $("[aria-owns=TypeId_listbox]");
+        if (b.length > 0) {
+            var ds_loai = new kendo.data.DataSource();
+            ds_loai.data(dataLoai);
+            $("#TypeId").data("kendoDropDownList").setDataSource(ds_loai);
+        }
+
+    }
+
+    function Delete() {
+        //var listrowid = "";
+        var listrowocm = "";
+        $("#grid").find(".checkrowid").each(function () {
+            if ($(this).prop('checked') == true) {
+                listrowocm = "Yes";
+                var dataSource = $("#grid").data("kendoGrid").dataSource;
+                var dataItem = $('#grid').data('kendoGrid').dataItem($(this).closest("tr"));
+                dataSource.remove(dataItem);
+            }
+        });
+        if (listrowocm == "") {
+            alertBox("Báo lỗi! ", "Vui lòng chọn dữ liệu để xóa.", false, 3000);
+        }
+    }
+
+    function changeProductType() {
+        var listproducttype = $("#ProductType").val();
+        if (listproducttype == null) listproducttype = "";
+
+        $.post(r + "/RequestProduct/getTypeID/", { listproducttype: listproducttype.toString() }
+                  , function (data) {
+                      if (!data.Errors) {
+                          dataLoai = data.data;
+                      }
+                  });
+    }
+
+    function onRequestEnd(e) {
+        debugger
+        if (e.type == "create" && !e.response.Errors) {
+            if (e.response.flag == 1)
+                return;
+            alertBox("Thành công! ", "Gửi yêu cầu thành công", true, 3000);
+        }
+    }
+    function error_handler(e) {
+        debugger
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alertBox("Báo lỗi! ", message, false, 3000);
+        }
+    }
+
+
+    function onRequestStart(e) {
+        blockUI(false);
+    }
+    function blockUI(isMark) {
+        if (isMark) {
+            $(document).ajaxStart($.blockUI({ message: '<i class="fa fa-spinner fa-3x fa-lg fa-spin txt-color-blueDark"></i>', theme: false })).ajaxStop($.unblockUI);
+        }
+        else {
+            $(document).ajaxStart($.blockUI({ message: '<i class="fa fa-spinner fa-3x fa-lg fa-spin txt-color-blueDark"></i>', theme: false, overlayCSS: { backgroundColor: 'transparent' } })).ajaxStop($.unblockUI);
+        }
+    }
+
+
+    function Cancel() {
+        $('#grid').data('kendoGrid').cancelChanges();
+    }
+
+    function update() {
+        var ProductType = $("#ProductType").val();
+        if (ProductType == "") {
+            alertBox("Báo lỗi! ", "Vui lòng chọn loại sản phẩm.", false, 3000);
+            return;
+        }
+
+        if ($('#grid').data('kendoGrid').dataSource.hasChanges() == true) {
+            $('#grid').data('kendoGrid').saveChanges();
+        }
+    }
+
+    function onDataDetail() {
+        var ProductType = $("#ProductType").val();
+        return {
+            ProductType: ProductType
+        };
+    }
+</script>

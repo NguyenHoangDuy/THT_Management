@@ -1,0 +1,425 @@
+﻿@using THT.Models;
+
+@{
+    ViewBag.Title = "Trụ đèn";
+}
+
+<script src="@Url.Content("~/Scripts/jquery.blockUI.js")"></script>
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+    var listTypeId = dict.ContainsKey("listTypeId") ? (List<DropListDown>)dict["listTypeId"] : new List<DropListDown>();
+}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+</style>
+
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+</style>
+<section>
+    @*<div class="bordered">*@
+    @if (Auth_Action.AssetResult(asset, "Search"))
+    {
+        <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+            <div>
+                <div class="widget-body no-padding">
+                    <form class="smart-form">
+                        <fieldset>
+                            <div class="row">
+                                <section class="col col-5">
+                                    @*<label class="label" style="float: left; width: 19% ; color: black;font-weight: bold;">Loại sản phẩm:</label>*@
+                                    <label class="select" style="margin-top: -4px">
+                                        @*@Html.DropDownList("listCatagory", new SelectList(ViewBag.listProductType, "ParamID", "Value"), new { style = "width: 81%", multiple = "multiple" })*@
+                                        @Html.DropDownList("searchTypeId", new SelectList(listTypeId, "Value", "Text", 1), new { style = "width: 100%" })
+
+                                    </label>
+                                </section>
+                            </div>
+                        </fieldset>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="jarviswidget bordered">
+        <div class="row">
+            <article class="col-sm-12">
+                <div class="widget-body">
+                    @(Html.Kendo().Grid<THT.Models.LightHeadOne>()
+                    .Name("grid")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.Id).Hidden();
+                        columns.Bound(p => p.TypeId).Title("Loại").Hidden();
+                        columns.Bound(p => p.Id).HeaderTemplate("<input type='checkbox' id= 'checkboxcheckAll'  onClick='checkAllHeader(this)' />")
+                           .ClientTemplate("<input class='checkrowid' type='checkbox' id='#=Id#' />")
+                           .HtmlAttributes(new { style = "text-align:center" })
+                           .HeaderHtmlAttributes(new { style = "text-align:center" })
+                           .Width(40).Filterable(false).Sortable(false);
+
+                        //if (asset.ContainsKey("Update") && asset["Update"])
+                        //{
+                        //    columns.Bound(p => p.Id).ClientTemplate("Sửa").HtmlAttributes(new { data_id = "#=Id#", onclick = "onOpenPopup(1,this)", @style = "color:\\#428bca;cursor:pointer;text-decoration:underline" }).Title("").Width(40);
+                        //}
+
+                        //columns.ForeignKey(p => p.TypeId, (System.Collections.IEnumerable)ViewBag.listTypeID, "Text", "Value").EditorTemplateName("GridForeignKey_Dropdownlist").Title("Loại").Width(110).HtmlAttributes(new { style = "background-color:rgb(198, 239, 206);" });
+                        //columns.ForeignKey(p => p.TypeId, (System.Collections.IEnumerable)ViewBag.listTypeID, "Value", "Text").EditorTemplateName("GridForeignKey_Dropdownlist").Title("Loại xe").Width(110).HtmlAttributes(new { style = "background-color:rgb(198, 239, 206);" });
+                        //columns.ForeignKey(p => p.TypeId, (System.Collections.IEnumerable)listTypeId, "Value", "Text").EditorTemplateName("GridForeignKey_Dropdownlist").Title("Loại cần thêm mới").Width(110).HtmlAttributes(new { style = "background-color:rgb(198, 239, 206);" });
+                        columns.Bound(p => p.Code).Title("Giá trị thêm mới").Width(300).HtmlAttributes(new { style = "background-color:rgb(198, 239, 206);" });
+                        columns.Bound(p => p.Name).Title("Giá trị thêm mới").HtmlAttributes(new { style = "Width:100%;background-color:rgb(198, 239, 206); " });
+                        columns.Bound(p => p.Weight).Title("Trọng lượng").Width(300).HtmlAttributes(new { style = "background-color:rgb(198, 239, 206);", @type = "number" });
+                        //columns.Bound(p => p.Weight).Title("Giá trị thêm mới").Width(110);
+                    })
+                    .ToolBar(toolBar =>
+                        {
+                            toolBar.Template(@<text>
+                                <div class="pull-left">
+                                    @if (asset.ContainsKey("Insert") && asset["Insert"])
+                                    {
+                                        <a class="btn btn-sm btn-success" href="javascript:AddNewRowGrid()" id="btnInsert">
+                                            <i class="fa fa-plus"></i> Thêm dòng
+                                        </a>
+                                    }
+                                    @if (asset.ContainsKey("Update") && asset["Update"])
+                                    {
+                                        <a class="btn btn-sm btn-info" href="javascript:update()" id="btnInsertHeader">
+                                            <i class="fa fa-save"></i> Lưu
+                                        </a>
+                                        <a class="btn btn-sm btn-default" href="javascript:Cancel()" id="btnCancel">
+                                            <i class="fa fa-refresh"></i> Hủy thay đổi
+                                        </a>
+                                    }
+                                    @if (asset.ContainsKey("Delete") && asset["Delete"])
+                                    {
+                                        <a class="btn btn-sm btn-danger" href="javascript:Delete()" id="btnDelete">
+                                            <i class="fa fa-times"></i> Xóa dòng
+                                        </a>
+                                    }
+                                </div>
+
+                            </text>);
+                        })
+                                                .Events(events => { events.DataBound("onDatabound"); })
+                                                .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                                                .Resizable(r => r.Columns(true))
+                                                .Navigatable()
+                                                .Scrollable()
+                            //.Sortable()
+                                                .Editable(editable => editable.Mode(GridEditMode.InCell))
+                                                .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .Batch(true)
+                                                    .PageSize(100)
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+                                                        model.Field(p => p.Id).Editable(false);
+                                                        model.Field(p => p.TypeId).Editable(true);
+                                                    })
+                                                    .Events(e => { e.RequestEnd("onRequestEnd"); e.Error("error_handler"); e.RequestStart("onRequestStart"); })
+                                                    .Read(read => read.Action("Read", "LightHeadOne"))
+                                                    .Create(read => read.Action("Create", "LightHeadOne").Data("onDataDetail"))
+                                                    .Update(read => read.Action("Update", "LightHeadOne").Data("onDataDetail"))
+                                                                        )
+                    )
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <div id="popupDelete" style="display:none">
+        <div>
+            <form class="smart-form">
+                <fieldset>
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-14px">Bạn có chắc chắn xóa bỏ thông tin này ?</label>
+                    </div>
+                </fieldset>
+                <footer style="border:none">
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnApprove" style="float: left; margin-left: 86px; height: 24px; background-color: \\#6fb3e0" onclick="ConfirmDelele(0, this)">Đồng ý</button>
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancel" style="float: left; margin-left: 10px; height: 24px; background-color: \\#abbac3; " onclick="ConfirmDelele(1, this)">Hủy bỏ</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+
+</section>
+
+<script>
+
+    $(document).ready(function () {
+        //active menu
+        $("ul#menuLeft").find('#ul_root_5').addClass('open');
+        $("ul#menuLeft").find('#ul_root_5').css('display', 'block');
+        $("ul#menuLeft").find('#ul_root_5 ul#ul_item_5').css('display', 'block');
+        $("#menu_LightHeadOne").parent().addClass('active');
+
+        $("#searchTypeId").select2();
+        $("#s2id_searchTypeId").css('width', '240px');
+
+        $('#searchTypeId').val('A').trigger('change');
+
+        //fillter & form popup
+        setTimeout(function () {
+            doSearch();
+        }, 500);
+
+        $('#searchTypeId').bind('change', function () {
+            doSearch();
+        })
+
+        $('#popupDelete').kendoWindow({
+            width: "300px",
+            actions: ["Close"],
+            title: "Cảnh báo",
+            visible: false,
+            resizable: false,
+            close: function (e) {
+                $("#divMaskPopup").hide();
+            }
+        });
+    });
+
+    $(".allownumericwithdecimal").on("keypress keyup blur", function (event) {
+        $(this).val($(this).val().replace(/[^0-9\.]/g, ''));
+        if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
+            event.preventDefault();
+        }
+    });
+
+    function checkAllHeader(e) {
+        var x = $(e).prop('checked');
+        $('#grid').find(".checkrowid").each(function () {
+            $(this).prop('checked', x);
+        });
+    }
+
+    function resizeGrid() {
+        var offsetbottom = parseInt($(window).height()) - parseInt($('#grid').offset().top);
+        var gridElement = $("#grid"),
+        dataArea = gridElement.find(".k-grid-content"),
+        otherElements = gridElement.children().not(".k-grid-content"),
+        otherElementsHeight = 0;
+        otherElements.each(function () {
+            otherElementsHeight += $(this).outerHeight();
+        });
+        dataArea.height(offsetbottom - otherElementsHeight - 1);
+    }
+
+    //grid
+    function onDatabound(e) {
+        resizeGrid();
+        var grid = $("#grid").data("kendoGrid");
+        var requestObject = (new kendo.data.transports["aspnetmvc-server"]({ prefix: "" }))
+        .options.parameterMap({
+            page: grid.dataSource.page(),
+            sort: grid.dataSource.sort(),
+            filter: grid.dataSource.filter()
+        });
+        var $exportLink = grid.element.find('.export');
+        var href = $exportLink.attr('href');
+        if (href) {
+            href = href.replace(/sort=([^&]*)/, 'sort=' + requestObject.sort || '~');
+            href = href.replace(/filter=([^&]*)/, 'filter=' + (requestObject.filter || '~'));
+            $exportLink.attr('href', href);
+        }
+        $("#divLoading").hide();
+    }
+
+    function onRequestEnd(e) {
+        debugger
+        if (e.type == "create" && !e.response.Errors) {
+            $("#grid").data("kendoGrid").dataSource.read();
+            alertBox("Thành công! ", "Tạo mới thành công", true, 3000);
+        }
+        else
+            if (e.type == "update" && !e.response.Errors) {
+                $("#grid").data("kendoGrid").dataSource.read();
+                alertBox("Thành công! ", "Cập nhật thành công", true, 3000);
+            }
+        //$("#gridpopup").data("kendoGrid").dataSource.read();
+    }
+
+    function error_handler(e) {
+        debugger
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alertBox("Báo lỗi! ", message, false, 3000);
+        }
+    }
+
+    function onRequestStart(e) {
+        blockUI(false);
+
+    }
+
+    function blockUI(isMark) {
+        if (isMark) {
+            $(document).ajaxStart($.blockUI({ message: '<i class="fa fa-spinner fa-3x fa-lg fa-spin txt-color-blueDark"></i>', theme: false })).ajaxStop($.unblockUI);
+        }
+        else {
+            $(document).ajaxStart($.blockUI({ message: '<i class="fa fa-spinner fa-3x fa-lg fa-spin txt-color-blueDark"></i>', theme: false, overlayCSS: { backgroundColor: 'transparent' } })).ajaxStop($.unblockUI);
+        }
+    }
+
+    function Cancel() {
+        $('#grid').data('kendoGrid').cancelChanges();
+    }
+
+    function update() {
+        var ProductType = $("#searchTypeId").val();
+        if (ProductType == "") {
+            alertBox("Báo lỗi! ", "Vui lòng chọn loại.", false, 3000);
+            return;
+        }
+
+        if ($('#grid').data('kendoGrid').dataSource.hasChanges() == true) {
+            $('#grid').data('kendoGrid').saveChanges();
+        }
+    }
+
+    function onDataDetail() {
+        var TypeId = $("#searchTypeId").val();
+        return {
+            TypeId: TypeId
+        };
+    }
+
+    function doSearch() {
+        var grid = $("#grid").data("kendoGrid");
+        var filter = { logic: "and", filters: [] };
+        var text = $("#searchTypeId").val();
+        if (text) {
+            var filterOr = { logic: "or", filters: [] };
+            filterOr.filters.push({ field: "TypeId", operator: "eq", value: text });
+            filter.filters.push(filterOr);
+        }
+        grid.dataSource.filter(filter);
+        GetLightHeadHeader();
+    }
+
+    function AddNewRowGrid() {
+        debugger;
+        var TypeId = $("#searchTypeId").val();
+        if (TypeId == "") {
+            alertBox("Báo lỗi! ", "Vui lòng chọn loại.", false, 3000);
+        }
+        else {
+            var ds = $("#grid").data("kendoGrid").dataSource;
+            ds.insert(0, {
+                Id: 0,
+                Code: "",
+                Name: "",
+                Weight: "0",
+            });
+        }
+    }
+
+
+
+    function GetLightHeadHeader() {
+        if ($("#searchTypeId").val() != "" && $("#searchTypeId").val() != null) {
+            $.post(r + "/LightHeadOne/GetLightHeadHeader", { TypeId: $("#searchTypeId").val() }, function (data) {
+                if (data.success) {
+
+                    $("#grid thead [data-field=Code] .k-link").html(data.data.HeaderCode)
+                    $("#grid thead [data-field=Name] .k-link").html(data.data.HeaderName)
+
+                    var grid = $("#grid").data("kendoGrid");
+
+                    grid.showColumn("Code");
+                    if (data.data.HaveCode == false) {
+                        grid.hideColumn("Code");
+                    }
+
+                    grid.showColumn("Weight");
+                    if (data.data.HaveWeight == false) {
+                        grid.hideColumn("Weight");
+                    }
+                }
+            });
+        }
+        else {
+
+        }
+    }
+
+    function ConfirmDelele(key, obj) {
+        if (listrowid != null && listrowid != "") {
+            //var c = confirm("Bạn có chắc chắn muốn ngưng hoạt động?.");
+            if (key == 0) {
+                $('#popupDelete').data("kendoWindow").close();
+                $.post(r + "/LightHeadOne/Delete", { data: listrowid, }, function (data) {
+                    if (data.success) {
+                        alertBox("Thành công!", " Xóa thành công", true, 3000);
+                        $("#grid").data("kendoGrid").dataSource.read();
+                        $('#checkboxcheckAll').prop('checked', false);
+                    }
+                    else {
+                        alertBox("Báo lỗi! ", data.message, false, 3000);
+                        $("#grid").data("kendoGrid").dataSource.read();
+                    }
+                });
+            }
+            else {
+                $('#popupDelete').data("kendoWindow").close();
+                return false;
+            }
+        }
+    }
+
+
+    var listrowid = "";
+    function Delete() {
+        listrowid = "";
+        var flagfail = 0;
+        $("#grid").find(".checkrowid").each(function () {
+            if ($(this).prop('checked') == true) {
+                var currentRow = $(this).closest("tr");
+                var dataItem = $("#grid").data("kendoGrid").dataItem(currentRow);
+                listrowid += $(this).attr("id") + '@@@@';
+
+                //var dataSource = $("#grid").data("kendoGrid").dataSource;
+                //dataSource.remove(dataItem);
+            }
+        });
+        if (listrowid != null && listrowid != "") {
+            debugger
+            $("#divMaskPopup").show();
+            var popupDelete = $('#popupDelete').data("kendoWindow");
+            popupDelete.center().open();
+            $(".k-window span.k-i-close").click(function () {
+                eventHotKey = false;
+                $("#divMaskPopup").hide();
+            });
+        }
+        else {
+            alertBox("Báo lỗi! ", "Vui lòng chọn dữ liệu.", false, 3000);
+            flagfail = 0;
+            return;
+        }
+    }
+
+</script>

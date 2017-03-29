@@ -1,0 +1,51 @@
+﻿@model THT.Models.ChangePasswordModel
+<div class="row" id="popupChangePass" style="margin: 0 auto;">
+    <div class="bordered">
+        @using (Html.BeginForm("ChangePassword", "Account", FormMethod.Post, new { @class = "smart-form", id = "formPopupChangePass" }))
+        {
+            @Html.HiddenFor(m => m.UserIDChange, new { Value = User.Identity.Name })
+            <fieldset id="popupContent">
+                <section style="float:left;">
+                    <div style="float: left; width: 130px; margin-left:0;">
+                        <label class="label" style="float:right;">Mật khẩu cũ : </label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.PasswordFor(m => m.OldPass, new { @class = "input-xs popup_text_right", placeholder = "Mật khẩu củ" })
+                            @*<b class="tooltip tooltip-top-right">Mật khẩu cũ</b>*@
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+                <section style="float:left;">
+                    <div style="float: left; width: 130px; margin-left:0;">
+                        <label class="label" style="float:right;">Mật khẩu mới :</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.PasswordFor(m => m.NewPass, new { @class = "input-xs popup_text_right", placeholder = "Mật khẩu mới" })
+                            @*<b class="tooltip tooltip-top-right">Mật khẩu mới</b>*@
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+                <section style="float:left;">
+                    <div style="float: left; width: 130px; margin-left:0;">
+                        <label class="label" style="float:right;">Xác nhận mật khẩu mới :</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.PasswordFor(m => m.RepeatNewPass, new { @class = "input-sm", placeholder = "Xác nhận mật khẩu mới" })
+                            @*<b class="tooltip tooltip-top-right">Xác nhận mật khẩu mới</b>*@
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+            </fieldset>
+            <footer>
+                <button type="submit" class="k-button k-button-icontext btn_custom" style="float: right;">Lưu</button>
+                <img src="@Url.Content("~/Content/Bootstrap/loading.gif")" class="hide" id="loadingChangePass" />
+            </footer>
+        }
+    </div>
+</div>

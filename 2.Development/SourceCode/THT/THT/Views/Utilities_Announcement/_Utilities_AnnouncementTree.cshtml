@@ -1,0 +1,619 @@
+﻿@using THT.Models;
+@{
+    ViewBag.Title = "Bản tin nội bộ";
+    <script src="~/js/plugin/ckeditor/ckeditor.js"></script>
+}
+
+<script src="@Url.Content("~/Scripts/app/app.js")"></script>
+<script src="@Url.Content("~/Scripts/app/Utilities_Announcement.js")"></script>
+
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+
+    var listType = new List<SelectListItem>();
+    listType.Add(new SelectListItem() { Value = "HOT", Text = "Hot" });
+    listType.Add(new SelectListItem() { Value = "KHONGHOT", Text = "Không hot" });
+
+}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+<section>
+    <div>
+        @if (Auth_Action.AssetResult(asset, "Search"))
+        {
+
+                    <!-- Widget ID (each widget will need unique ID)-->
+            <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+                <!-- widget options:
+                usage: <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false">
+
+                data-widget-colorbutton="false"
+                data-widget-editbutton="false"
+                data-widget-togglebutton="false"
+                data-widget-deletebutton="false"
+                data-widget-fullscreenbutton="false"
+                data-widget-custombutton="false"
+                data-widget-collapsed="true"
+                data-widget-sortable="false"
+
+                -->
+                @*<header>
+                        <h2 style="color:#6fb3e0">Tìm kiếm</h2>
+
+                    </header>*@
+
+                <!-- widget div-->
+                <div>
+                    <!-- widget content -->
+                    <div class="widget-body no-padding">
+                        <form class="smart-form">
+                            <fieldset>
+                                <div class="row">
+                                    @if (Auth_Action.AssetResult(asset, "AnnouncementID"))
+                                    {
+                                        <section class="col col-3">
+                                            <label class="input" style="margin-top: -4px">
+                                                <input type="text" class="input-xs" id="txtAnnouncementID" placeholder="Mã, tên tiêu đề">
+                                            </label>
+                                        </section>
+                                    }
+                                    @*@if (Auth_Action.AssetResult(asset, "AppliedFor"))
+                                        {
+                                            <section class="col col-3">
+                                                <label class="input">
+                                                    <input type="text" class="input-xs" id="AppliedFor_search" placeholder="Đối tượng áp dụng">
+                                                </label>
+                                            </section>
+                                        }*@
+                                    @if (Auth_Action.AssetResult(asset, "IsActive"))
+                                    {
+                                        <section class="col col-3">
+                                            <label class="select" style="margin-top: -4px">
+                                                @Html.DropDownList("selectIsActive_search", new SelectList(listActiveStatus, "StatusValue", "StatusName"), "-- Chọn trạng thái --")
+                                            </label>
+                                        </section>
+                                    }
+                                    <section class="col col-3search" style="margin-top: -4px">
+                                        <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="doSearch()">
+                                            <i class="fa fa-search"></i> Tìm kiếm
+                                        </a>
+                                        @*<a class="k-button k-button-icontext btn_customSearch" href="javascript:void(0);" onclick="doSearch()">Tìm kiếm</a>*@
+                                    </section>
+                                </div>
+                            </fieldset>
+                        </form>
+
+                    </div>
+                    <!-- end widget content -->
+
+                </div>
+                <!-- end widget div -->
+
+            </div>
+                <!-- end widget -->
+
+        }
+        <div class="jarviswidget bordered">
+            @*<header>
+                    <h2 style="color:#6fb3e0">Danh sách thông báo</h2>
+                </header>*@
+            <div class="row">
+                <!-- NEW COL START -->
+                <article class="col-sm-12">
+                    <div class="widget-body">
+                        @(Html.Kendo().Grid<THT.Models.Master_Announcement>()
+                    .Name("grid")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.AnnouncementID).HeaderTemplate("<input style='text-align:center;opacity:1;' type='checkbox' id= 'checkAll'  onclick='checkAllHeader(this);' />")
+                            .ClientTemplate("<input style='text-align:center' onClick='checkBox(this)' class='checkrowid' type='checkbox' data-id= '#=AnnouncementID#' id= '#=AnnouncementID#' />").Width(25).Filterable(false).Sortable(false).Groupable(false);
+
+                        if (asset.ContainsKey("Update") && asset["Update"])
+                        {
+                            columns.Bound(p => p.AnnouncementID).HtmlAttributes(new { data_id = "#=AnnouncementID#", onclick = "onOpenPopup(1,#=AnnouncementID#)", @style = "text-align:right; color:\\#428bca;cursor:pointer;text-decoration:underline" }).Title("Mã thông báo").Width(80);
+                        }
+                        else
+                        {
+                            columns.Bound(p => p.AnnouncementID).Title("Mã thông báo").Width(70);
+                        }
+                        if (Auth_Action.AssetResult(asset, "Title"))
+                        {
+                            columns.Bound(p => p.Title).Title("Tiêu đề").Width(200);
+                            columns.Bound(p => p.Description).Title("Mô tả").HtmlAttributes(new { data_column = "Description" }).Width(150);
+                            columns.ForeignKey(p => p.Type, (System.Collections.IEnumerable)listType, "Value", "Text").Title("Loại tin").Width(100);
+                            columns.Bound(p => p.Orders).Title("Thứ tự").HtmlAttributes(new { data_column = "Orders" }).Width(70);
+                            columns.Bound(p => p.StartDate).Format("{0:dd/MM/yyyy}").Title("Ngày bắt đầu").HtmlAttributes(new { @style = "text-align:right" }).Width(100);
+                            columns.Bound(p => p.EndDate).Format("{0:dd/MM/yyyy}").Title("Ngày kết thúc").HtmlAttributes(new { @style = "text-align:right" }).Width(100);
+                        }
+                        if (Auth_Action.AssetResult(asset, "Status"))
+                        {
+                            columns.Bound(p => p.Status).Title("Trạng thái").HtmlAttributes(new { data_column = "IsActive" }).Width(100);
+                        }
+                        columns.Bound(p => p.CreatedBy).Title("Người tạo").Width(100);
+
+                        columns.Bound(p => p.CreatedAt).Format("{0:dd/MM/yyyy}").Title("Ngày tạo").HtmlAttributes(new { @style = "text-align:right" }).Width(100);
+
+                    })
+                    .ToolBar(toolBar =>
+                    {
+                    toolBar.Template(@<text>
+                            <div class="pull-left">
+                                @if (asset.ContainsKey("Insert") && asset["Insert"])
+                                {
+                                    <a class="btn btn-sm btn-success" href="javascript:onOpenPopup(0,this)" id="btnGridAdd">
+                                        <i class="fa fa-plus"></i> Thêm
+                                    </a>
+                                }
+                                @if (asset.ContainsKey("Update") && asset["Update"])
+                                {
+                                    <a class="btn btn-sm btn-warning" href="javascript:showPopupActive()" id="btnGridActive">
+                                        <i class="fa fa-play-circle-o"></i> Hoạt động
+                                    </a>
+                                    <a class="btn btn-sm btn-warning" href="javascript:showPopupInActive()" id="btnGriInActive">
+                                        <i class="fa fa-pause-circle-o"></i> Ngưng hoạt động
+                                    </a>
+                                    <a class="btn btn-sm btn-danger" id="btnGridDelete" onclick="showPopupDelete()">
+                                        <i class="fa fa-times"></i> Xóa
+                                    </a>
+                                }
+
+                                @*@if (asset.ContainsKey("Update") && asset["Update"])
+                                    {
+                                        <a class="btn btn-sm btn-warning" href="javascript:UpdateStatus()" id="btnGridActive">
+                                            <i class="fa fa-pause-circle-o"></i> Ngưng hoạt động
+                                        </a>
+                                    }
+                                    @if (asset.ContainsKey("Export") && asset["Export"])
+                                    {
+                                        <a class="btn btn-sm bg-color-blueLight txt-color-white export" href="@Url.Action("Export", "Auth_Role", new { filter = "~", sort = "~" })" id="btnGridExport">
+                                            <i class="fa fa-file-excel-o"></i> Xuất Excel
+                                        </a>
+                                    }*@
+
+                            </div>
+                    </text>);
+                        //if (asset.ContainsKey("Insert") && asset["Insert"])
+                        //{
+                        //    toolBar.Custom()
+                        //            .Text("Thêm mới")
+                        //            .HtmlAttributes(new { id = "btnInsert", @class = "Addbtn", onclick = "onOpenPopup(0,this)", @href = "javascript:void(0)" });
+                        //}
+
+                    })
+                    .Events(events => { events.DataBound("onDatabound"); })
+                    .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                    .Resizable(r => r.Columns(true))
+                    .Navigatable()
+                    .Scrollable()
+                    .Sortable()
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Batch(true)
+                        .PageSize(100)
+                        .Sort(sort =>
+                        {
+                            sort.Add("CreatedAt").Descending();
+                            sort.Add("Status").Descending();
+                        })
+                        .Model(model =>
+                        {
+                            model.Id(p => p.AnnouncementID);
+                        })
+                        .Events(e => { e.RequestEnd("onRequestEnd"); e.RequestStart("onRequestStart"); })
+                                .Read(read => read.Action("Read", "Utilities_Announcement"))
+                    )
+                        )
+                    </div>
+                </article>
+                <!-- END COL -->
+
+            </div>
+        </div>
+
+
+
+    </div>
+
+    <div class="row">
+        <div id="popupImport" style="display:none">
+            <div style="float:left;">
+                <form id="importform" action="@Url.Content("~/Utilities_Announcement/Import")" method="post" enctype="multipart/form-data" style="margin-bottom:0px;">
+                    <input type="file" name="FileUpload" />
+                </form>
+            </div>
+            <div style="float:right;">
+                <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="beginImport()">Import</a>
+            </div>
+            <div style="clear:both"></div>
+            <div id="divImport" hidden>
+                <label>Success : <strong id="totalImport">0</strong></label>
+                <label>Error : <strong id="totalImportError">0</strong></label>
+                <div>
+                    <a class="btn btn-primary btn-sm" id="btnDownloadError" href="javascript:void(0);">Download Error</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="popup" class="row" style="margin:0 auto;display:none">
+        @*<div class="bordered">*@
+        @using (Html.BeginForm("Create", "Utilities_Announcement", FormMethod.Post, new { @class = "smart-form", id = "formCreate", enctype = "multipart/form-data" }))
+        {
+            @Html.Hidden("AnnouncementID");
+            @Html.Hidden("CreatedAt");
+            @Html.Hidden("CreatedBy");
+            @Html.Hidden("HTMLBody");
+            <fieldset style="float: left;padding: 0px; padding-top:10px; " id="div1">
+                <div>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;"> Tiêu đề</label>
+                        </div>
+                        <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                                @Html.TextBox("Title", "", new { @class = "input-xs popup_text_right" })
+                            </label>
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+                </div>
+                <div>
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="Type" style="float:right;"> Loại tin</label>
+                        </div>
+                        <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                                @Html.DropDownList("Type", new SelectList(listType, "Value", "Text"))
+                            </label>
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;"> Ngày bắt đầu</label>
+                        </div>
+                        <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                                @Html.TextBox("StartDate", "", new { @class = "input-xs popup_text_left datepicker", data_dateformat = "dd/mm/yy", placeholder = "Ngày bắt đầu" })
+
+                            </label>
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right;"> Ngày kết thúc</label>
+                        </div>
+                        <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                                @Html.TextBox("EndDate", "", new { @class = "input-xs popup_text_left datepicker", data_dateformat = "dd/mm/yy", placeholder = "Ngày kết thúc" })
+                            </label>
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right">Thứ tự tin (*)</label>
+                        </div>
+                        <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                                @*<input type="number" id="Orders" name="Orders" />*@
+                                @Html.TextBox("Orders", "", new { @class = "input-xs popup_text_right" })
+                            </label>
+                        </div>
+                    </section>
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right">Trạng thái (*)</label>
+                        </div>
+                        <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                            <label class="input" style="float: right; background: #fff0f0; width:240px;">
+                                @Html.DropDownList("Status", new SelectList(listActiveStatus, "StatusValue", "StatusName", 1))
+
+                            </label>
+                        </div>
+                    </section>
+
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right">Mô tả ngắn (*)</label>
+                        </div>
+                        <div style="float: left; width: 610px; margin-right: 0; margin-left: 10px;">
+                            <label class="textarea textarea-resizable" style="float:right;width:100%;">
+                                @Html.TextArea("Description", "", new { @class = "input-xs popup_text_left" }) @*, placeholder = "Ghi chú" })*@
+                            </label>
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+                    <section style="float:left;">
+                        <div style="float: left; width: 120px; margin-left:0;">
+                            <label class="label" style="float:right"> Image</label>
+                        </div>
+                        <div style="float: left; width: 610px; margin-right: 0; margin-left: 10px;">
+                            <label class="textarea textarea-resizable" style="float:right;width:100%;">
+                                <input type="file" id="file" name="file" />
+
+                            </label>
+                            <div style="clear:both"></div>
+                        </div>
+                    </section>
+                    <section style="float:left;">
+
+                        <div style="float: right; width: 100%;">
+                            <textarea id="HTMLContentView" name="HTMLContentView" rows="10" cols="80"></textarea>
+                        </div>
+                        <div style="clear:both"></div>
+                    </section>
+                </div>
+            </fieldset>
+
+            <div class="my-footer-popup">
+                <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="ResetForm()">
+                    <i class="fa fa-refresh">
+                    </i>  Hủy
+                </button>
+                <button type="submit" id="btnSubmit" class="btn btn-sm btn-info" style="float: right;margin-top:5px;">
+                    <i class="fa fa-save"></i>  Lưu
+                </button>
+                <img src="@Url.Content("~/Content/Bootstrap/loading.gif")" class="hide" id="loading" style="margin-top: 17px;" />
+            </div>
+
+        }
+    </div>
+   
+    <div id="popupConfirmDelete" style="display:none">
+        <div>
+            <form class="smart-form">
+                <fieldset>
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-5px">Bạn có chắc chắn xóa dữ liệu?</label>
+                    </div>
+                    <input type="hidden" id="username" />
+                </fieldset>
+                <div class="my-footer-popup">
+                    <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="onDelete(0)">
+                        <i class="fa fa-refresh"></i>  Hủy
+                    </button>
+                    <button type="button" id="btnOK" class="btn btn-sm btn-info" style="float: right;margin-top:5px;" onclick="onDelete(1)">
+                        <i class="fa fa-check"></i>  Đồng ý
+                    </button>
+                </div>
+                @*<footer style="border:none">
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnConfirm" style="float:left;margin-left:86px;height:24px; background-color:#6fb3e0" onclick="onDelete(1)"><i class="fa fa-check"></i> Đồng ý</button>
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancle" style="float: left; margin-left: 10px; height: 24px; background-color: #abbac3; " onclick="onDelete(0)"> <i class="fa fa-refresh"></i> Hủy bỏ</button>
+                </footer>*@
+            </form>
+        </div>
+    </div>
+    <div id="popupActive" style="display:none">
+        <div>
+            <form class="smart-form">
+                <fieldset>
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-5px">Bạn có chắc chắn cập nhật trạng thái hoạt động ?</label>
+                    </div>
+                    <input type="hidden" id="username" />
+                </fieldset>
+                <div class="my-footer-popup">
+                    <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="onUpdateActive(0)">
+                        <i class="fa fa-refresh"></i>  Hủy
+                    </button>
+                    <button type="button" id="btnOK" class="btn btn-sm btn-info" style="float: right;margin-top:5px;" onclick="onUpdateActive(1)">
+                        <i class="fa fa-check"></i>  Đồng ý
+                    </button>
+                </div>
+                @*<footer style="border:none">
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnInActive" style="float:left;margin-left:86px;height:24px; background-color:#6fb3e0" onclick="onUpdateActive(1)"><i class="fa fa-check"></i> Đồng ý</button>
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancle" style="float: left; margin-left: 10px; height: 24px; background-color: #abbac3; " onclick="onUpdateActive(0)"><i class="fa fa-refresh"></i> Hủy bỏ</button>
+                </footer>*@
+            </form>
+        </div>
+    </div>
+    <div id="popupInActive" style="display:none">
+        <div>
+            <form class="smart-form">
+                <fieldset>
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-5px">Bạn có chắc chắn cập nhật trạng thái hoạt động ?</label>
+                    </div>
+                    <input type="hidden" id="username" />
+                </fieldset>
+                <div class="my-footer-popup">
+                    <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="onUpdateInActive(0)">
+                        <i class="fa fa-refresh"></i>  Hủy
+                    </button>
+                    <button type="button" id="btnOK" class="btn btn-sm btn-info" style="float: right;margin-top:5px;" onclick="onUpdateInActive(1)">
+                        <i class="fa fa-check"></i>  Đồng ý
+                    </button>
+                </div>
+                @*<footer style="border:none">
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnInActive" style="float:left;margin-left:86px;height:24px; background-color:#6fb3e0" onclick="onUpdateInActive(1)"><i class="fa fa-check"></i> Đồng ý</button>
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancle" style="float: left; margin-left: 10px; height: 24px; background-color: #abbac3; " onclick="onUpdateInActive(0)"><i class="fa fa-refresh"></i> Hủy bỏ</button>
+                </footer>*@
+            </form>
+        </div>
+    </div>
+</section>
+<script>
+    function checkAllHeader(e) {
+        var x = $(e).prop('checked');
+        $('#grid').find(".checkrowid").each(function () {
+            $(this).prop('checked', x);
+        });
+    }
+    function showPopupDelete() {
+        var listrowid = "";
+        $("#grid").find(".checkrowid").each(function () {
+            if ($(this).prop('checked') == true) {
+                listrowid += $(this).attr("id") + '@@@@';
+            }
+        });
+        if (listrowid != "") {
+            $("#divMaskPopup").show();
+            var popup = $('#popupConfirmDelete').data("kendoWindow");
+            popup.center().open();
+            $(".k-window span.k-i-close").click(function () {
+                eventHotKey = false;
+                $("#divMaskPopup").hide();
+            });
+        }
+        else {
+            alertBox("Báo lỗi", "Vui lòng chọn dữ liệu", false, 3000);
+        }
+
+    }
+    function onDelete(e) {
+        if (e == 1) {
+            var listrowid = "";
+            $("#grid").find(".checkrowid").each(function () {
+                if ($(this).prop('checked') == true) {
+                    listrowid += $(this).attr("id") + '@@@@';
+                }
+            });
+
+            $.post(r + "/Utilities_Announcement/DeleteItem", { data: listrowid }, function (data) {
+                if (data.success) {
+                    alertBox("Thành công! ", "Xóa thành công", true, 3000);
+                    $('#checkboxcheckAll').prop('checked', false);
+                    $("#grid").data("kendoGrid").dataSource.read();
+                    $('#popupConfirmDelete').data("kendoWindow").close();
+                }
+                else {
+                    alertBox("Báo lỗi! ", data.message, false, 3000);
+                    $("#loading").addClass('hide');
+                    console.log(data.message);
+                }
+            });
+        }
+        else {
+            $('#popupConfirmDelete').data("kendoWindow").close();
+        }
+               
+       
+       
+    }
+
+    function showPopupActive(e) {
+        var listrowid = "";
+        $("#grid").find(".checkrowid").each(function () {
+            if ($(this).prop('checked') == true) {
+                listrowid += $(this).attr("id") + '@@@@';
+            }
+        });
+        if (listrowid != "") {
+            $("#divMaskPopup").show();
+            var popup = $('#popupActive').data("kendoWindow");
+            popup.center().open();
+            $(".k-window span.k-i-close").click(function () {
+                eventHotKey = false;
+                $("#divMaskPopup").hide();
+            });
+        }
+        else {
+            alertBox("Báo lỗi", "Vui lòng chọn dữ liệu", false, 3000);
+        }
+
+    }
+    function showPopupInActive(e) {
+        var listrowid = "";
+        $("#grid").find(".checkrowid").each(function () {
+            if ($(this).prop('checked') == true) {
+                listrowid += $(this).attr("id") + '@@@@';
+            }
+        });
+        if (listrowid != "") {
+            $("#divMaskPopup").show();
+            var popup = $('#popupInActive').data("kendoWindow");
+            popup.center().open();
+            $(".k-window span.k-i-close").click(function () {
+                eventHotKey = false;
+                $("#divMaskPopup").hide();
+            });
+        }
+        else {
+            alertBox("Báo lỗi", "Vui lòng chọn dữ liệu", false, 3000);
+        }
+
+    }
+
+    function onUpdateActive(i) {
+        if (i == 1) {
+            var listrowid = "";
+            $("#grid").find(".checkrowid").each(function () {
+                if ($(this).prop('checked') == true) {
+                    listrowid += $(this).attr("id") + '@@@@';
+                }
+            });
+            $('#popupActive').data("kendoWindow").close();
+            $.post(r + "/Utilities_Announcement/UpdateStatusActive", { listUserID: listrowid, action: i }, function (data) {
+                if (data.success) {
+                    alertBox("Thông báo!", "Cập nhật dữ liệu thành công.", true, 3000);
+                    $("#grid").data("kendoGrid").dataSource.read();
+                }
+                else {
+                    alertBox("Báo lỗi!", data.message, false, 3000);
+                }
+            });
+        }
+        else {
+            $('#popupActive').data("kendoWindow").close();
+        }
+
+
+    }
+    function onUpdateInActive(i) {
+        if (i == 1) {
+            var listrowid = "";
+            $("#grid").find(".checkrowid").each(function () {
+                if ($(this).prop('checked') == true) {
+                    listrowid += $(this).attr("id") + '@@@@';
+                }
+            });
+            $('#popupInActive').data("kendoWindow").close();
+            $.post(r + "/Utilities_Announcement/UpdateStatusInActive", { listUserID: listrowid, action: i }, function (data) {
+                if (data.success) {
+                    alertBox("Thông báo!", "Cập nhật dữ liệu thành công.", true, 3000);
+                    $("#grid").data("kendoGrid").dataSource.read();
+                }
+                else {
+                    alertBox("Báo lỗi!", data.message, false, 3000);
+                }
+            });
+        }
+        else {
+            $('#popupInActive').data("kendoWindow").close();
+        }
+
+
+    }
+    function CloseForm() {
+        $("#popup").data("kendoWindow").close();
+    }
+
+    function readURLCreateFomr(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#formPopup .AvatarPathUser')
+                    .attr('src', e.target.result)
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+        else {
+            $('#formPopup .AvatarPathUser')
+                .attr('src', r + "/img/avatars/5.png");
+        }
+    }
+    function checkAllHeader(e) {
+        debugger
+        var x = $(e).prop('checked');
+        $('#grid').find(".checkrowid").each(function () {
+            $(this).prop('checked', x);
+        });
+    }
+    
+</script>

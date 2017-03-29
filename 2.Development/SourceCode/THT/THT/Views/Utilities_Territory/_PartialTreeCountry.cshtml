@@ -1,0 +1,122 @@
+﻿@using THT.Models;
+@{
+
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+
+}
+<script src="@Url.Content("~/Scripts/app/Utilities_Territory.js")"></script>
+<script src="@Url.Content("~/Scripts/app/app.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.blockUI.js")"></script>
+<div class="bordertab">
+    @if (Auth_Action.AssetResult(asset, "Search"))
+    {
+        <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+
+            <header>
+                @*<span class="widget-icon"> <i class="fa fa-search"></i> </span>*@
+                <h2 style="color:#6fb3e0">Tìm kiếm</h2>
+
+            </header>
+            <!-- widget content -->
+            <div class="widget-body no-padding" style="margin: 0">
+                <form class="smart-form">
+                    <fieldset>
+                        <div class="row">
+
+                            @if (Auth_Action.AssetResult(asset, "TerritoryID"))
+                                {
+                                <section class="col col-3">
+                                    <label class="input">
+                                        <input type="text" class="input-xs" id="txtTerritoryIDCountry" placeholder="Mã, tên quốc gia">
+                                    </label>
+                                </section>
+                                }
+
+                            <section class="col col-3search">
+                                <a class="k-button k-button-icontext btn_customSearch" href="javascript:void(0);" onclick="doSearchCountry()">Tìm kiếm</a>
+                            </section>
+                        </div>
+                    </fieldset>
+                </form>
+
+            </div>
+            <!-- end widget content -->
+        </div>
+    }
+    <div class="jarviswidget">
+        @*<header>
+                <h2 style="color:#6fb3e0">Danh sách quốc gia</h2>
+            </header>*@
+
+        <div class="row">
+            <!-- NEW COL START -->
+            <article class="col-sm-12">
+                <div class="widget-body">
+                    @(Html.Kendo().Grid<THT.Models.Master_Territory>()
+                        .Name("gridCountry")
+                    .Columns(columns =>
+                    {
+                        if (Auth_Action.AssetResult(asset, "TerritoryID"))
+                        {
+                            columns.Bound(p => p.TerritoryID).Title("Mã quốc gia").Width(150);
+                        }
+                        if (Auth_Action.AssetResult(asset, "TerritoryName"))
+                        {
+                            columns.Bound(p => p.TerritoryName).Title("Tên").Width(150);
+                        }
+                        if (Auth_Action.AssetResult(asset, "Title"))
+                        {
+                            columns.Bound(p => p.Title).Title("Loại").Width(150);
+                        }
+                        if (Auth_Action.AssetResult(asset, "Note"))
+                        {
+                            columns.Bound(p => p.Note).Title("Ghi chú").Width(200);
+                        }
+                        //if (Auth_Action.AssetResult(asset, "Latitude"))
+                        //{
+                        //    columns.Bound(p => p.Latitude).Title("Kinh độ").HtmlAttributes(new { @style = "text-align:right" }).Width(150);
+                        //}
+                        //if (Auth_Action.AssetResult(asset, "Longitude"))
+                        //{
+                        //    columns.Bound(p => p.Longitude).Title("Vĩ độ").HtmlAttributes(new { @style = "text-align:right" }).Width(150);
+                        //}
+                    })
+                    .ToolBar(toolBar =>
+                        {
+
+                            if (asset.ContainsKey("Export") && asset["Export"])
+                            {
+                                toolBar.Custom()
+                                        .Text("Xuất Excel")
+                                        .HtmlAttributes(new { @class = "export", @style = "background-color:#6FB3e0; color:white;" }).Url(Url.Action("Export_Country", "Utilities_Territory", new { filter = "~", sort = "~" }));
+                            }
+
+                        })
+                    .Events(events => { events.DataBound("onDataboundCountry"); })
+                    .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                    .Resizable(r => r.Columns(true))
+                    .Navigatable()
+                    .Scrollable()
+                    .Sortable()
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Batch(true)
+                        .PageSize(100)
+                        .Model(model =>
+                        {
+                            model.Id(p => p.TerritoryID);
+                        })
+                        .Events(e => { e.RequestEnd("onRequestEnd"); e.RequestStart("onRequestStart"); })
+                                        .Read(read => read.Action("Read_Country", "Utilities_Territory"))
+                    )
+                    )
+                </div>
+            </article>
+            <!-- END COL -->
+
+        </div>
+    </div>
+</div>
+
