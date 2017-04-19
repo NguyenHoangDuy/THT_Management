@@ -150,6 +150,7 @@ namespace THT.Controllers
                     {
                         isExist.ten_nhan_vien = !string.IsNullOrEmpty(item.ten_nhan_vien) ? item.ten_nhan_vien : "";
                         isExist.loai_nhan_vien = !string.IsNullOrEmpty(item.loai_nhan_vien) ? item.loai_nhan_vien : "";
+                        isExist.mat_khau = !string.IsNullOrEmpty(item.mat_khau) ? item.mat_khau : "";
                         isExist.trang_thai = !string.IsNullOrEmpty(item.trang_thai) ? item.trang_thai : "A";
                         isExist.birthday = DateTime.ParseExact(item.strbirthday, "dd/MM/yyyy",
                                           System.Globalization.CultureInfo.InvariantCulture);

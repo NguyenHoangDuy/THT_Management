@@ -71,6 +71,7 @@
                     .Columns(columns =>
                     {
                         columns.Bound(p => p.id).Hidden();
+                        columns.Bound(p => p.mat_khau).Hidden();
                         columns.Bound(p => p.ma_nhan_vien).HeaderTemplate("<input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAll'  onClick='checkAllHeader(this)' />").ClientTemplate("<input style='text-align:center' class='checkrowid' type='checkbox' id='#=ma_nhan_vien#'  />").Width(30).Filterable(false).Sortable(false);
                         if (asset.ContainsKey("Update") && asset["Update"])
                         {
@@ -160,6 +161,17 @@
                     <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
                         <label class="input" style="float:right;width:240px;">
                             @Html.DropDownList("loai_nhan_vien", new SelectList(ViewBag.listEmployeeType, "ParamID", "Value"), "-- Chọn giá trị --")
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+                <section style="float:left;">
+                    <div style="float: left; width: 160px; margin-left:0;">
+                        <label class="label" style="float:right;">Mật khẩu</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.Password("mat_khau", "", new { @class = "input-xs popup_text_right"})
                         </label>
                         <div style="clear:both"></div>
                     </div>
@@ -330,6 +342,9 @@
                 loai_nhan_vien: {
                     required: true,
                 },
+                mat_khau: {
+                    required: true,
+                },
                 strbirthday: {
                     required: true,
                 },
@@ -348,8 +363,10 @@
                 loai_nhan_vien: {
                     required: "Thông tin bắt buộc"
                 },
-
-                strbirthday: {
+                loai_nhan_vien: {
+                    required: "Thông tin bắt buộc"
+                },
+                mat_khau: {
                     required: "Thông tin bắt buộc",
                 },
                 listJobs: {
@@ -635,6 +652,9 @@
             $("#trang_thai").val('A');
             $('#trang_thai').trigger('change');
 
+            $("#mat_khau").val('        ');
+            $("#mat_khau").prop("disabled", true);
+
             setTimeout(function () {
                 $("#ten_nhan_vien").focus();
             }, 500);
@@ -659,6 +679,10 @@
                     $("#listJobs").trigger("change");
                 }
             });
+
+            $("#mat_khau").prop("disabled", false);
+            $("#mat_khau").val(dataItem.mat_khau);
+            
 
             $("#loai_nhan_vien").val(dataItem.loai_nhan_vien);
             $('#loai_nhan_vien').trigger('change');
