@@ -179,23 +179,23 @@
 
                             </text>);
                         })
-                                                                                                                                                                                            .Events(events => { events.DataBound("onDatabound"); })
-                                                                                                                                                                                            .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
-                                                                                                                                                                                            .Resizable(r => r.Columns(true))
-                                                                                                                                                                                            .Navigatable()
-                                                                                                                                                                                            .Scrollable()
-                                                                                                                                                                                            .Sortable()
-                                                                                                                                                                                            .DataSource(dataSource => dataSource
-                                                                                                                                                                                                .Ajax()
-                                                                                                                                                                                                .Batch(true)
-                                                                                                                                                                                                .PageSize(100)
-                                                                                                                                                                                                .Model(model =>
-                                                                                                                                                                                                {
-                                                                                                                                                                                                    model.Id(p => p.DocumentID);
-                                                                                                                                                                                                })
-                                                                                                                                                                                                //.Events(e => { e.RequestEnd("onRequestEnd"); e.RequestStart("onRequestStart"); })
-                                                                                                                                                                                                .Read(read => read.Action("Read", "Document"))
-                                                                                                                                                                                            )
+                        .Events(events => { events.DataBound("onDatabound"); })
+                        .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                        .Resizable(r => r.Columns(true))
+                        .Navigatable()
+                        .Scrollable()
+                        .Sortable()
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .Batch(true)
+                            .PageSize(100)
+                            .Model(model =>
+                            {
+                                model.Id(p => p.DocumentID);
+                            })
+                            //.Events(e => { e.RequestEnd("onRequestEnd"); e.RequestStart("onRequestStart"); })
+                            .Read(read => read.Action("Read", "Document"))
+                        )
                     )
                 </div>
             </article>
