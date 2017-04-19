@@ -44,10 +44,17 @@ namespace THT.Controllers
 
         public ActionResult Read([DataSourceRequest]DataSourceRequest request)
         {
-            var dbConn = new OrmliteConnection().openConn();
-            string str = "SELECT * FROM Sideboard";
-            var data = dbConn.Select<Sideboard>(str).ToList();
-            return Json(data.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
+            using (var dbConn = new OrmliteConnection().openConn())
+            {
+                string whereCondition = "";
+                if (request.Filters.Count > 0)
+                {
+                    whereCondition = new KendoApplyFilter().ApplyFilter(request.Filters[0]);
+                }
+                request.Filters = null;
+                var data = dbConn.Select<Sideboard>(whereCondition).ToList();
+                return Json(data.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
+            }
         }
 
         public ActionResult Create([DataSourceRequest] DataSourceRequest request, [Bind(Prefix = "models")] IEnumerable<Sideboard> list)

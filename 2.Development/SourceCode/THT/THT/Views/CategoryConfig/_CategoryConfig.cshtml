@@ -6,7 +6,6 @@
 
 
 @Scripts.Render("~/Scripts/app/CategoryConfig.js")
-@*@Scripts.Render("~/Scripts/app/app.js")*@
 @{
     var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
     var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();

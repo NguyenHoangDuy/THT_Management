@@ -34,7 +34,32 @@
     @*<div class="bordered">*@
     @if (Auth_Action.AssetResult(asset, "Search"))
     {
-        
+        <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+            @*<header>
+                    <h2 style="color:#6fb3e0">Thông tin công ty</h2>
+                </header>*@
+            <div>
+                <div class="widget-body no-padding">
+                    <form class="smart-form">
+                        <fieldset>
+                            <div class="row">
+                                <section class="col col-3">
+                                    <label class="input" style="margin-top: -4px">
+                                        <input type="text" class="input-xs" id="txtSearch" placeholder="Tên bước công việc">
+                                    </label>
+                                </section>
+                                <section class="col col-3search" style="margin-top: -4px">
+                                    <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="doSearch()">
+                                        <i class="fa fa-search"></i> Tìm kiếm
+                                    </a>
+                                </section>
+                            </div>
+                        </fieldset>
+                    </form>
+
+                </div>
+            </div>
+        </div>
     }
 
     <div class="jarviswidget bordered">
@@ -242,20 +267,26 @@
             resizeGrid(numHeight);
         });
 
-        //Ctr + S luu form
-        $(document).bind('keydown', function (event) {
-            if (eventHotKey) {
-                if (event.ctrlKey || event.metaKey) {
-                    switch (String.fromCharCode(event.which).toLowerCase()) {
-                        case 's':
-                            event.preventDefault();
-                            var boolCreatedBy = $("#nguoi_tao").val() != "system";
-                            $("#formPopup").submit();
-                            break;
-                    }
-                }
+        $("#txtSearch").keypress(function (e) {
+            if (e.keyCode == 13) {
+                doSearch();
             }
         });
+
+        //Ctr + S luu form
+        //$(document).bind('keydown', function (event) {
+        //    if (eventHotKey) {
+        //        if (event.ctrlKey || event.metaKey) {
+        //            switch (String.fromCharCode(event.which).toLowerCase()) {
+        //                case 's':
+        //                    event.preventDefault();
+        //                    var boolCreatedBy = $("#nguoi_tao").val() != "system";
+        //                    $("#formPopup").submit();
+        //                    break;
+        //            }
+        //        }
+        //    }
+        //});
 
         //form trong popup
         $('#popup').kendoWindow({
@@ -333,6 +364,7 @@
                             $("#grid").data("kendoGrid").dataSource.read();
                             alertBox("Thành công!", " Lưu thành công", true, 3000);
                             $("#loading").addClass('hide');
+                            $('#popup').data("kendoWindow").close();
                         }
                         else {
                             alertBox("Báo lỗi! ", data.message, false, 3000);
@@ -345,6 +377,21 @@
             }
         });
     })
+
+
+    function doSearch() {
+        var grid = $("#grid").data("kendoGrid");
+        var filter = { logic: "and", filters: [] };
+        var text = $("#txtSearch").val();
+        if (text) {
+            var filterOr = { logic: "or", filters: [] };
+            filterOr.filters.push({ field: "ten_cong_viec", operator: "contains", value: text });
+            filterOr.filters.push({ field: "ma_cong_viec", operator: "contains", value: text });
+            filter.filters.push(filterOr);
+        }
+
+        grid.dataSource.filter(filter);
+    }
 
     //popup
     function onOpenPopup(key, obj) {
