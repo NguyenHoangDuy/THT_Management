@@ -55,7 +55,7 @@ namespace THT.Controllers
                 {
                     whereCondition = new KendoApplyFilter().ApplyFilter(request.Filters[0]);
                 }
-                request.Filters = null;
+                //request.Filters = null;
                 var data = dbConn.Select<Jobs>(whereCondition).ToList();
                 return Json(data.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
             }

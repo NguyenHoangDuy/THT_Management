@@ -38,7 +38,7 @@ namespace THT.Controllers
                 ViewBag.listIsExpirated = dbConn.Select<Utilities_Parameters>(p => p.Type == AllConstant.IsExpiratedTYPE);
                 ViewBag.listSideboard = dbConn.Select<Utilities_Parameters>("select ID,SideboardID as ParamID,SideboardName as Value from Sideboard");
                 ViewBag.listGroupDocument = dbConn.Select<Utilities_Parameters>("select ID,GroupID as ParamID,GroupName as Value from GroupDocument");
-                
+
                 dbConn.Close();
                 return View("_CategoryConfig", dict);
             }
@@ -60,10 +60,10 @@ namespace THT.Controllers
 
             var dbConn = new OrmliteConnection().openConn();
             var data = new List<CategoryConfig>();
-            if (request.Filters.Any())
+            if (request.Filters.Count > 0)
             {
                 var whereCondition = new KendoApplyFilter().ApplyFilter(request.Filters[0]);
-                data = dbConn.Query<CategoryConfig>("[p_Get_CategoryConfig]", new { WhereCondition = " And " + whereCondition }, commandType: System.Data.CommandType.StoredProcedure).ToList();
+                data = dbConn.Query<CategoryConfig>("[p_Get_CategoryConfig]", new { WhereCondition = " AND " + whereCondition }, commandType: System.Data.CommandType.StoredProcedure).ToList();
             }
             else
             {
@@ -131,7 +131,7 @@ namespace THT.Controllers
                     var listdata = Request["listGroupDocument"].Split(separators, StringSplitOptions.RemoveEmptyEntries);
                     db.Delete<GroupCategory>(s => s.CategoryID == item.CategoryID);
 
-                    foreach(var i in listdata)
+                    foreach (var i in listdata)
                     {
                         GroupCategory newdata = new GroupCategory();
                         newdata.CategoryID = item.CategoryID;
@@ -162,15 +162,15 @@ namespace THT.Controllers
                                             IsSaved = @IsSaved,IsExpirated = @IsExpirated,SideboardID = @SideboardID,Format = @Format,
                                             UpdatedAt = @UpdatedAt, UpdatedBy = @UpdatedBy
                                             WHERE CategoryID = '" + item.CategoryID + "'", new
-                                                          {
-                                                              CategoryName = !string.IsNullOrEmpty(item.CategoryName) ? item.CategoryName.Trim() : "",
-                                                              IsSaved = !string.IsNullOrEmpty(item.IsSaved) ? item.IsSaved.Trim() : "",
-                                                              IsExpirated = !string.IsNullOrEmpty(item.IsExpirated) ? item.IsExpirated.Trim() : "",
-                                                              SideboardID = !string.IsNullOrEmpty(item.SideboardID) ? item.SideboardID.Trim() : "",
-                                                              Format = !string.IsNullOrEmpty(item.Format) ? item.Format.Trim() : "",
-                                                              UpdatedAt = DateTime.Now,
-                                                              UpdatedBy = currentUser.UserID,
-                                                          }) == 1;
+                    {
+                        CategoryName = !string.IsNullOrEmpty(item.CategoryName) ? item.CategoryName.Trim() : "",
+                        IsSaved = !string.IsNullOrEmpty(item.IsSaved) ? item.IsSaved.Trim() : "",
+                        IsExpirated = !string.IsNullOrEmpty(item.IsExpirated) ? item.IsExpirated.Trim() : "",
+                        SideboardID = !string.IsNullOrEmpty(item.SideboardID) ? item.SideboardID.Trim() : "",
+                        Format = !string.IsNullOrEmpty(item.Format) ? item.Format.Trim() : "",
+                        UpdatedAt = DateTime.Now,
+                        UpdatedBy = currentUser.UserID,
+                    }) == 1;
 
                     //db.Update(item);
                     string[] separators = { "," };

@@ -289,7 +289,6 @@ function doSearch() {
     if (text) {
         var filterOr = { logic: "or", filters: [] };
         filterOr.filters.push({ field: "CategoryID", operator: "contains", value: text });
-        filterOr.filters.push({ field: "DocumentName", operator: "contains", value: text });
         filter.filters.push(filterOr);
     }
 

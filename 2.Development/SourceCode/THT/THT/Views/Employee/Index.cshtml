@@ -10,3 +10,672 @@
     var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
 
 }
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+</style>
+
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+</style>
+
+
+<section>
+    @*<div class="bordered">*@
+    @if (Auth_Action.AssetResult(asset, "Search"))
+    {
+        <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+            @*<header>
+                    <h2 style="color:#6fb3e0">Thông tin công ty</h2>
+                </header>*@
+            <div>
+                <div class="widget-body no-padding">
+                    <form class="smart-form">
+                        <fieldset>
+                            <div class="row">
+                                <section class="col col-3">
+                                    <label class="input" style="margin-top: -4px">
+                                        <input type="text" class="input-xs" id="txtSearch" placeholder="Tên nhân viên">
+                                    </label>
+                                </section>
+                                <section class="col col-3search" style="margin-top: -4px">
+                                    <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="doSearch()">
+                                        <i class="fa fa-search"></i> Tìm kiếm
+                                    </a>
+                                </section>
+                            </div>
+                        </fieldset>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="jarviswidget bordered">
+        <div class="row">
+            <article class="col-sm-12">
+                <div class="widget-body">
+                    @(Html.Kendo().Grid<THT.Models.Employee>()
+                    .Name("grid")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.id).Hidden();
+                        columns.Bound(p => p.ma_nhan_vien).HeaderTemplate("<input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAll'  onClick='checkAllHeader(this)' />").ClientTemplate("<input style='text-align:center' class='checkrowid' type='checkbox' id='#=ma_nhan_vien#'  />").Width(30).Filterable(false).Sortable(false);
+                        if (asset.ContainsKey("Update") && asset["Update"])
+                        {
+                            columns.Bound(p => p.ma_nhan_vien).HtmlAttributes(new { data_id = "#=ma_nhan_vien#", onclick = "onOpenPopup(1,this)", @style = "color:\\#428bca;cursor:pointer;text-decoration:underline" }).Title("Mã nhân viên").Width(80);
+                        }
+                        else
+                        {
+                            columns.Bound(p => p.ma_nhan_vien).Title("Mã nhân viên").Width(80);
+                        }
+                        columns.Bound(p => p.ten_nhan_vien).Title("Tên nhân viên").Width(300);
+                        columns.Bound(p => p.birthday).Format("{0:dd/MM/yyyy}").HtmlAttributes(new { style = "text-align:right" }).Title("Ngày sinh");
+                        columns.ForeignKey(p => p.loai_nhan_vien, (System.Collections.IEnumerable)ViewBag.listEmployeeType, "ParamID", "Value").Title("Loại nhân viên").Width(120);
+                        columns.ForeignKey(p => p.trang_thai, (System.Collections.IEnumerable)ViewBag.listStatus, "ParamID", "Value").Title("Trạng thái").HtmlAttributes(new { data_column = "Status" }).Width(120);
+                        columns.Bound(p => p.nguoi_tao).Title("Người tạo").Width(130);
+                        columns.Bound(p => p.ngay_tao).Format("{0:dd/MM/yyyy}").HtmlAttributes(new { style = "text-align:right" }).Title("Ngày tạo");
+                        columns.Bound(p => p.nguoi_cap_nhat).Title("Người cập nhật").Width(130);
+                        columns.Bound(p => p.ngay_cap_nhat).Format("{0:dd/MM/yyyy}").HtmlAttributes(new { style = "text-align:right" }).Title("Ngày cập nhật");
+                        columns.Bound(p => p.ListJobs).Title("Nhóm công việc").Width(150);
+                    })
+                    .ToolBar(toolBar =>
+                    {
+                    toolBar.Template(@<text>
+                        <div class="pull-left">
+                            @if (asset.ContainsKey("Insert") && asset["Insert"])
+                            {
+                                <a class="btn btn-sm btn-success" href="javascript:onOpenPopup(0,this)" id="btnInsert">
+                                    <i class="fa fa-plus"></i> Thêm
+                                </a>
+                            }
+
+                            @if (asset.ContainsKey("Delete") && asset["Delete"])
+                            {
+                                <a class="btn btn-sm btn-danger" href="javascript:Delete()" id="btnDelete">
+                                    <i class="fa fa-times"></i> Xóa
+                                </a>
+                            }
+                        </div>
+
+                    </text>);
+                    })
+                        .Events(events => { events.DataBound("onDatabound"); })
+                        .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                        .Resizable(r => r.Columns(true))
+                        .Navigatable()
+                        .Scrollable()
+                        .Sortable()
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .Batch(true)
+                            .PageSize(100)
+                            .Model(model =>
+                            {
+                                model.Id(p => p.id);
+                            })
+                            .Read(read => read.Action("Read", "Employee"))
+                        )
+                    )
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <div id="popup" class="row" style="margin:0 auto;display:none">
+        @*<div class="bordered">*@
+        @using (Html.BeginForm("Create", "Employee", FormMethod.Post, new { @class = "smart-form", id = "formPopup", enctype = "multipart/form-data" }))
+        {
+            @Html.Hidden("ngay_tao");
+            @Html.Hidden("nguoi_tao");
+            <fieldset style="float: left; width: 370px; padding-left: 0px; padding-right: 0px;">
+                <section style="display:none; float:left;"></section>
+
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right;">Tên nhân viên (*)</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.TextBox("ten_nhan_vien", "", new { @class = "input-xs popup_text_right", placeholder = "Tên nhân viên" })
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right;">Loại nhân viên (*)</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.DropDownList("loai_nhan_vien", new SelectList(ViewBag.listEmployeeType, "ParamID", "Value"), "-- Chọn giá trị --")
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right;">Ngày sinh</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <input name="strbirthday" id="birthday" type="date" style="float: right; width: 100%" onkeydown="return KeyCodeDate(event);" />
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right;">Công việc có thể thực hiện (*)</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.DropDownList("listJobs", new SelectList(ViewBag.listJobs, "ma_cong_viec", "ten_cong_viec"), new { multiple = "multiple" })
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+                <section style="float:left;">
+                    <div style="float: left; width: 120px; margin-left:0;">
+                        <label class="label" style="float:right;">Trạng thái</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.DropDownList("trang_thai", new SelectList(ViewBag.listStatus, "ParamID", "Value"), "-- Chọn giá trị --")
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+            </fieldset>
+
+            <div class="my-footer-popup">
+                <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="ResetForm()">
+                    <i class="fa fa-refresh"></i>  Hủy
+                </button>
+                <button type="submit" id="btnSubmit" class="btn btn-sm btn-info" style="float: right;margin-top:5px;">
+                    <i class="fa fa-save"></i>  Lưu
+                </button>
+                <img src="@Url.Content("~/Content/Bootstrap/loading.gif")" class="hide" id="loading" style="margin-top: 17px;" />
+            </div>
+        }
+    </div>
+
+    <div id="popupConfirm" style="display:none">
+        <div>
+            <form class="smart-form">
+                <fieldset>
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-5px">Bạn có chắc chắn muốn <span id="txtLabel"></span>?</span></label>
+                    </div>
+                </fieldset>
+
+                <div class="my-footer-popup">
+                    <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="onUpdateStatus(0, this)">
+                        <i class="fa fa-refresh"></i>  Hủy
+                    </button>
+                    <button type="button" id="btnOK" class="btn btn-sm btn-info" style="float: right;margin-top:5px;" onclick="onUpdateStatus(1, this)">
+                        <i class="fa fa-check"></i>  Đồng ý
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="popupDelete" style="display:none">
+        <div>
+            <form class="smart-form">
+                <fieldset>
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-14px">Bạn có chắc chắn xóa bỏ thông tin này ?</label>
+                    </div>
+                </fieldset>
+                <fieldset style="border:none">
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-5px; color:red" id="txtWarning"></label>
+                    </div>
+                </fieldset>
+                <footer style="border:none">
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnApprove" style="float: left; margin-left: 86px; height: 24px; background-color: \\#6fb3e0" onclick="ConfirmDelele(0, this)">Đồng ý</button>
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancel" style="float: left; margin-left: 10px; height: 24px; background-color: \\#abbac3; " onclick="ConfirmDelele(1, this)">Hủy bỏ</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+    var numHeight = 230;
+    var keyAction;
+    var indexTabstripActive = -1;
+    var contentTab;
+    $(document).ready(function () {
+        //("ul#menuLeft").find('#ul_root_2').addClass('open');
+        //$("ul#menuLeft").find('#ul_root_2').css('display', 'block');
+        $("#menu_Employee").parent().addClass('active');
+
+        resetMenu();
+        $("#menu_Employee").parent().addClass('active');
+
+        $("#loai_nhan_vien").select2();
+        $("#s2id_loai_nhan_vien").css('width', '240px');
+
+        $("#listJobs").select2();
+        $("#s2id_listJobs").css('width', '240px');
+
+        $("#trang_thai").select2();
+        $("#s2id_trang_thai").css('width', '240px');
+
+        $(window).resize(function () {
+            resizeGrid(numHeight);
+        });
+
+        $("#txtSearch").keypress(function (e) {
+            if (e.keyCode == 13) {
+                doSearch();
+            }
+        });
+
+        //Ctr + S luu form
+        //$(document).bind('keydown', function (event) {
+        //    if (eventHotKey) {
+        //        if (event.ctrlKey || event.metaKey) {
+        //            switch (String.fromCharCode(event.which).toLowerCase()) {
+        //                case 's':
+        //                    event.preventDefault();
+        //                    var boolCreatedBy = $("#nguoi_tao").val() != "system";
+        //                    $("#formPopup").submit();
+        //                    break;
+        //            }
+        //        }
+        //    }
+        //});
+
+        //form trong popup
+        $('#popup').kendoWindow({
+            width: "400px",
+            actions: ["Close"],
+            visible: false,
+            resizable: false,
+            close: function (e) {
+                $("#divMaskPopup").hide();
+            }
+        });
+
+        $('#popupDelete').kendoWindow({
+            width: "350px",
+            actions: ["Close"],
+            title: "Cảnh báo",
+            visible: false,
+            resizable: false,
+            close: function (e) {
+                $("#divMaskPopup").hide();
+            }
+        });
+
+        $("#formPopup").validate({
+            // Rules for form validation
+            rules: {
+                ten_nhan_vien: {
+                    required: true,
+                },
+                loai_nhan_vien: {
+                    required: true,
+                },
+                strbirthday: {
+                    required: true,
+                },
+                listJobs: {
+                    required: true,
+                },
+                trang_thai: {
+                    required: true,
+                },
+            },
+
+            messages: {
+                ten_nhan_vien: {
+                    required: "Thông tin bắt buộc"
+                },
+                loai_nhan_vien: {
+                    required: "Thông tin bắt buộc"
+                },
+
+                strbirthday: {
+                    required: "Thông tin bắt buộc",
+                },
+                listJobs: {
+                    required: true,
+                },
+                trang_thai: {
+                    required: "Thông tin bắt buộc",
+                },
+            },
+            errorPlacement: function (error, element) {
+                error.insertAfter(element);
+            },
+            submitHandler: function (form) {
+                $(form).ajaxSubmit({
+                    //clearForm: true,//To clear form after ajax submitting
+                    beforeSend: function () { $("#loading").removeClass('hide'); },
+                    success: function (data) {
+                        if (data.success) {
+                            if (keyAction == 0) {
+                                // Create
+                                $("#formPopup").find('fieldset:eq(0) section:eq(0)').empty().append('<div style="float: left; width: 120px; margin-left:0;"><label class="label" style="float: right;">Mã công việc (*) </label></div><div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;"><label style="float: right;text-align: left;width: 240px;height: 19px;padding-top: 2px;"><strong style="color:red;">' + data.ma_nhan_vien + '</strong><input type="hidden" id="ma_nhan_vien" name="ma_nhan_vien" value="' + data.ma_nhan_vien + '" /></label> <div style="clear:both"></div></div>');
+                                $("#formPopup").find('fieldset:eq(0) section:eq(0)').show();
+                                $("#ngay_tao").val(dateToString(data.ngay_tao));
+                                $("#nguoi_tao").val(data.nguoi_tao);
+                                keyAction = -1;
+                            }
+                            $("#grid").data("kendoGrid").dataSource.read();
+                            alertBox("Thành công!", " Lưu thành công", true, 3000);
+                            $("#loading").addClass('hide');
+                            $('#popup').data("kendoWindow").close();
+                        }
+                        else {
+                            alertBox("Báo lỗi! ", data.message, false, 3000);
+                            $("#loading").addClass('hide');
+                            console.log(data.message);
+                        }
+                    }
+                });
+                return false;
+            }
+        });
+    })
+
+
+    function doSearch() {
+        var grid = $("#grid").data("kendoGrid");
+        var filter = { logic: "and", filters: [] };
+        var text = $("#txtSearch").val();
+        if (text) {
+            var filterOr = { logic: "or", filters: [] };
+            filterOr.filters.push({ field: "ten_nhan_vien", operator: "contains", value: text });
+            filterOr.filters.push({ field: "ma_nhan_vien", operator: "contains", value: text });
+            filter.filters.push(filterOr);
+        }
+
+        grid.dataSource.filter(filter);
+    }
+
+    //popup
+    function onOpenPopup(key, obj) {
+        eventHotKey = true;
+        $("#formPopup").find('section em').remove();
+        $("#formPopup").find('section label').removeClass('state-error').removeClass('state-success');
+        idPopup = ".k-window";
+        $("#divMaskPopup").show();
+        var popup = $('#popup').data("kendoWindow");
+        popup.center().open();
+        $("#formPopup").find('fieldset:eq(0) section:eq(0)').empty();
+        $(".k-window span.k-i-close").click(function () {
+            eventHotKey = false;
+            $("#divMaskPopup").hide();
+        });
+        //Tạo mới
+        if (key == 0) {
+            keyAction = key;
+            popup.title('Thêm');
+            LoadDataPopup();
+        }
+            // Cập nhậpS
+        else {
+            keyAction = -1;
+            popup.title('Cập nhật thông tin nhân viên');
+            Obj = obj;
+            id = $(Obj).data('id');
+            $("#formPopup").find('fieldset:eq(0) section:eq(0)').show();
+            $("#formPopup").find('fieldset:eq(0) section:eq(0)').empty().append('<div style="float: left; width: 120px; margin-left:0;"><label class="label" style="float: right;">Mã công việc (*)</label></div><div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;"> <label style="float: right;text-align: left;width: 240px;height: 19px;padding-top: 2px;"><strong style="color:red;">' + id + '</strong><input type="hidden" id="ma_nhan_vien" name="ma_nhan_vien" value="' + id + '"/></label> <div style="clear:both"></div></di>');
+            LoadDataPopup();
+        }
+    }
+
+    // Load lại data khi tạo mới hoặc cập nhật
+    function onBindDataToForm(dataItem) {
+        for (var propName in dataItem) {
+            if (dataItem[propName] != null && dataItem[propName].constructor.toString().indexOf("Date") > -1) {
+                var d = kendo.toString(kendo.parseDate(dataItem[propName]), 'dd/MM/yyyy')
+                if (d != '01/01/1900') {
+                    $("#" + propName).val(d);
+                }
+            }
+            else {
+                $("#" + propName).val(dataItem[propName]);
+            }
+        }
+    }
+
+    function checkAllHeader(e) {
+        var x = $(e).prop('checked');
+        $('#grid').find(".checkrowid").each(function () {
+            $(this).prop('checked', x);
+        });
+    }
+
+
+    function onDatabound(e) {
+        resizeGrid();
+        var grid = $("#grid").data("kendoGrid");
+        var requestObject = (new kendo.data.transports["aspnetmvc-server"]({ prefix: "" }))
+        .options.parameterMap({
+            page: grid.dataSource.page(),
+            sort: grid.dataSource.sort(),
+            filter: grid.dataSource.filter()
+        });
+        var $exportLink = grid.element.find('.export');
+        var href = $exportLink.attr('href');
+        if (href) {
+            href = href.replace(/sort=([^&]*)/, 'sort=' + requestObject.sort || '~');
+            href = href.replace(/filter=([^&]*)/, 'filter=' + (requestObject.filter || '~'));
+            $exportLink.attr('href', href);
+        }
+        //changeStatusGrid('grid', 6);
+        $("#divLoading").hide();
+    }
+
+
+    function changeStatusGrid(idGrid) {
+        var arrRow = $("#" + idGrid).find(".k-grid-content table tbody tr");
+        for (var i = 0; i < arrRow.length; i++) {
+            var arrCol = arrRow[i].cells;
+            if (arrCol.length == 0) {
+                continue;
+            }
+            changeIsActive(arrCol);
+        }
+
+        $("#divLoading").hide();
+    }
+
+    function changeIsActive(arrCol) {
+        for (var j = 0; j < arrCol.length; j++) {
+            var tr;
+            var columnName = '';
+            tr = arrCol[j];
+            var attr = $(tr).attr('data-column');
+            if (typeof attr === typeof undefined || attr === false) {
+                continue;
+            }
+            if (attr == 'IsActive') {
+                if (tr.textContent == "true") {
+                    $(tr).empty().append('<span class="label-success" style="font-size:12px">Đang hoạt động</span>');
+                }
+                else if (tr.textContent == "false") {
+                    $(tr).empty().append('<span class="label-success" style="font-size:12px">Ngưng hoạt động</span>');
+                }
+            }
+        }
+    }
+
+    function resizeGrid() {
+        var offsetbottom = parseInt($(window).height()) - parseInt($('#grid').offset().top);
+        var gridElement = $("#grid"),
+        dataArea = gridElement.find(".k-grid-content"),
+        otherElements = gridElement.children().not(".k-grid-content"),
+        otherElementsHeight = 0;
+        otherElements.each(function () {
+            otherElementsHeight += $(this).outerHeight();
+        });
+        dataArea.height(offsetbottom - otherElementsHeight - 1);
+    }
+
+    function dateToString(date) {
+
+        if (date != null) {
+            date = new Date(date.match(/\d+/)[0] * 1);
+            var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+            var month = (date.getMonth() + 1) < 10 ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1);
+            return day + '/' + month + '/' + date.getFullYear();
+        }
+        else {
+            return "";
+        }
+    }
+
+    function alertBox(title, content, flag, timeout) {
+        //var icon = flag ? "fa-thumbs-up" : "fa-thumbs-down";
+        $.smallBox({
+            title: title,
+            content: content,
+            color: flag ? "#e0efd8" : "#f2dedf",
+            //iconSmall: "fa " + icon + " bounce animated",
+            timeout: timeout
+        });
+    }
+
+    function ResetForm() {
+        LoadDataPopup();
+    }
+
+    function ConfirmDelele(key, obj) {
+        debugger;
+        var listrowid = "";
+
+        $("#grid").find(".checkrowid").each(function () {
+            if ($(this).prop('checked') == true) {
+                listrowid += $(this).attr("id") + '@@@@';
+            }
+        });
+        if (listrowid != null && listrowid != "") {
+            //var c = confirm("Bạn có chắc chắn muốn ngưng hoạt động?.");
+            if (key == 0) {
+                $('#popupDelete').data("kendoWindow").close();
+                $.post(r + "/Jobs/Delete", { data: listrowid, }, function (data) {
+                    if (data.success) {
+                        alertBox("Thành công!", " Xóa thành công", true, 3000);
+                        $("#grid").data("kendoGrid").dataSource.read();
+                        $('#checkboxcheckAll').prop('checked', false);
+                    }
+                    else {
+                        alertBox("Báo lỗi! ", data.message, false, 3000);
+                        //$("#grid").data("kendoGrid").dataSource.read();
+                    }
+                });
+            }
+            else {
+                $('#popupDelete').data("kendoWindow").close();
+                return false;
+            }
+        }
+        else {
+            alertBox("", "Vui lòng chọn danh mục cần xóa.", false, 3000);
+        }
+    }
+
+    var listrowid = "";
+    function Delete() {
+        var listrowid = "";
+        $("#grid").find(".checkrowid").each(function () {
+            if ($(this).prop('checked') == true) {
+                listrowid += $(this).attr("id") + '@@@@';
+            }
+        });
+        if (listrowid != null && listrowid != "") {
+            debugger
+            $("#divMaskPopup").show();
+            var popupDelete = $('#popupDelete').data("kendoWindow");
+            popupDelete.center().open();
+            $(".k-window span.k-i-close").click(function () {
+                eventHotKey = false;
+                $("#divMaskPopup").hide();
+            });
+        }
+        else {
+            alertBox("Báo lỗi!", "Chọn dữ liệu để xóa.", false, 3000);
+            return;
+        }
+    }
+
+    function LoadDataPopup() {
+        if (keyAction == 0) {
+            $('#formPopup')[0].reset();
+            $("#nguoi_tao").val('');
+            $("#ngay_tao").val('');
+
+            $("#ma_nhan_vien").val('');
+
+            $("#loai_nhan_vien").val('');
+            $('#loai_nhan_vien').trigger('change');
+
+            var todayDate = kendo.toString(kendo.parseDate(new Date()), 'dd/MM/yyyy');
+            $("#birthday").kendoDatePicker({
+                format: 'dd/MM/yyyy'
+            });;
+
+            $("#trang_thai").val('A');
+            $('#trang_thai').trigger('change');
+
+            setTimeout(function () {
+                $("#ten_nhan_vien").focus();
+            }, 500);
+        }
+        else {
+            var currentRow = $(Obj).closest("tr");
+            var dataItem = $("#grid").data("kendoGrid").dataItem(currentRow);
+
+            onBindDataToForm(dataItem);
+
+
+            $.post(r + "/Employee/GetJobs", { ma_nhan_vien: dataItem.ma_nhan_vien }, function (data) {
+                if (data.success) {
+                    debugger;
+                    $("#listJobs option:selected").removeAttr('selected');
+                    $("#listJobs").trigger("change");
+                    for (var i = 0; i < data.data.length; i++) {
+                        $("#listJobs option[value='" + data.data[i].ma_cong_viec + "']").prop('selected', true);
+                    }
+                    setTimeout(function () {
+                    }, 100);
+                    $("#listJobs").trigger("change");
+                }
+            });
+
+            $("#loai_nhan_vien").val(dataItem.loai_nhan_vien);
+            $('#loai_nhan_vien').trigger('change');
+
+            var todayDate = kendo.toString(dataItem.birthday, 'dd/MM/yyyy');
+            $("#birthday").kendoDatePicker({
+                format: 'dd/MM/yyyy'
+            });;
+            $('#birthday').val(todayDate);
+
+            $("#trang_thai").val(dataItem.trang_thai);
+            $('#trang_thai').trigger('change');
+
+            setTimeout(function () {
+                $("#ten_nhan_vien").focus();
+            }, 500);
+        }
+    }
+</script>
