@@ -45,7 +45,7 @@
                         <fieldset>
                             <div class="row">
                                 <section class="col col-3">
-                                    <label class="input" style="margin-top: -4px">
+                                    <label class="input" type="text" style="margin-top: -4px">
                                         <input type="text" class="input-xs" id="txtSearch" placeholder="Tên nhân viên">
                                     </label>
                                 </section>
@@ -139,11 +139,11 @@
         {
             @Html.Hidden("ngay_tao");
             @Html.Hidden("nguoi_tao");
-            <fieldset style="float: left; width: 370px; padding-left: 0px; padding-right: 0px;">
+            <fieldset style="float: left; width: 450px; padding-left: 0px; padding-right: 0px;">
                 <section style="display:none; float:left;"></section>
 
                 <section style="float:left;">
-                    <div style="float: left; width: 120px; margin-left:0;">
+                    <div style="float: left; width: 160px; margin-left:0;">
                         <label class="label" style="float:right;">Tên nhân viên (*)</label>
                     </div>
                     <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
@@ -154,7 +154,7 @@
                     </div>
                 </section>
                 <section style="float:left;">
-                    <div style="float: left; width: 120px; margin-left:0;">
+                    <div style="float: left; width: 160px; margin-left:0;">
                         <label class="label" style="float:right;">Loại nhân viên (*)</label>
                     </div>
                     <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
@@ -165,7 +165,7 @@
                     </div>
                 </section>
                 <section style="float:left;">
-                    <div style="float: left; width: 120px; margin-left:0;">
+                    <div style="float: left; width: 160px; margin-left:0;">
                         <label class="label" style="float:right;">Ngày sinh</label>
                     </div>
                     <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
@@ -174,7 +174,7 @@
                     </div>
                 </section>
                 <section style="float:left;">
-                    <div style="float: left; width: 120px; margin-left:0;">
+                    <div style="float: left; width: 160px; margin-left:0;">
                         <label class="label" style="float:right;">Công việc có thể thực hiện (*)</label>
                     </div>
                     <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
@@ -185,7 +185,7 @@
                     </div>
                 </section>
                 <section style="float:left;">
-                    <div style="float: left; width: 120px; margin-left:0;">
+                    <div style="float: left; width: 160px; margin-left:0;">
                         <label class="label" style="float:right;">Trạng thái</label>
                     </div>
                     <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
@@ -214,7 +214,7 @@
             <form class="smart-form">
                 <fieldset>
                     <div class="divlabel" style="width:100px;">
-                        <label class="label" style="float:left;margin-top:-5px">Bạn có chắc chắn muốn <span id="txtLabel"></span>?</span></label>
+                        <label class="label" style="float:left;margin-top:-5px">Bạn có chắc chắn muốn <span id="txtLabel"></span>?</label>
                     </div>
                 </fieldset>
 
@@ -301,7 +301,7 @@
 
         //form trong popup
         $('#popup').kendoWindow({
-            width: "400px",
+            width: "500px",
             actions: ["Close"],
             visible: false,
             resizable: false,
