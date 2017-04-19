@@ -17,7 +17,7 @@ namespace THT
         public static string ProductTYPE_CanDen = "P003";
         public static string JobTYPE = "JobType";
         public static string Status = "Status";
+        public static string EmployeeTYPE = "EmployeeType";
 
-        
     }
 }

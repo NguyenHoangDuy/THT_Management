@@ -57,7 +57,6 @@
                             </div>
                         </fieldset>
                     </form>
-
                 </div>
             </div>
         </div>
@@ -202,7 +201,7 @@
                 <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="ResetForm()">
                     <i class="fa fa-refresh"></i>  Hủy
                 </button>
-                <button type="submit" id="btnSubmit" class="btn btn-sm btn-info" style="float: right;margin-top:5px;">
+                <button type="button" id="btnSubmit" onclick="SaveChange()" class="btn btn-sm btn-info" style="float: right;margin-top:5px;">
                     <i class="fa fa-save"></i>  Lưu
                 </button>
                 <img src="@Url.Content("~/Content/Bootstrap/loading.gif")" class="hide" id="loading" style="margin-top: 17px;" />
@@ -677,5 +676,9 @@
                 $("#ten_nhan_vien").focus();
             }, 500);
         }
+    }
+
+    function SaveChange() {
+        $('#formPopup').submit();
     }
 </script>
