@@ -20,6 +20,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -206,23 +207,32 @@
     <Compile Include="Controllers\Auth_UserController.cs" />
     <Compile Include="Controllers\CategoryConfigController.cs" />
     <Compile Include="Controllers\DocumentController.cs" />
+    <Compile Include="Controllers\EmployeeController.cs" />
     <Compile Include="Controllers\FoundationBoltOneController.cs" />
     <Compile Include="Controllers\FoundationBoltTwoController.cs" />
     <Compile Include="Controllers\GeneralNotificationController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\GroupDocumentController.cs" />
+    <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LightHeadOneController.cs" />
     <Compile Include="Controllers\LightHeadTwoController.cs" />
+    <Compile Include="Controllers\Process_ProductionController.cs" />
     <Compile Include="Controllers\RodOneController.cs" />
     <Compile Include="Controllers\RodTwoController.cs" />
     <Compile Include="Controllers\SearchFoundationBoltController.cs" />
     <Compile Include="Controllers\SearchRodController.cs" />
+    <Compile Include="Helpers\RandomString.cs" />
+    <Compile Include="Models\Employee.cs" />
+    <Compile Include="Models\Employee_Job.cs" />
     <Compile Include="Models\FoundationBoltHeader.cs" />
     <Compile Include="Models\FoundationBoltModel.cs" />
     <Compile Include="Models\FoundationBoltOne.cs" />
     <Compile Include="Models\FoundationBoltTwo.cs" />
     <Compile Include="Models\GroupCategory.cs" />
     <Compile Include="Models\GroupDocument.cs" />
+    <Compile Include="Models\Jobs.cs" />
+    <Compile Include="Models\Process_Production.cs" />
+    <Compile Include="Models\Process_Production_Job.cs" />
     <Compile Include="Models\RequestModel.cs" />
     <Compile Include="Controllers\RequestProductController.cs" />
     <Compile Include="Controllers\SearchLightHeadController.cs" />
@@ -1907,6 +1917,9 @@
     <Content Include="Views\RodOne\_RodOne.cshtml" />
     <Content Include="Views\SearchRod\_SearchRod.cshtml" />
     <Content Include="Views\GroupDocument\_GroupDocument.cshtml" />
+    <Content Include="Views\Jobs\Index.cshtml" />
+    <Content Include="Views\Employee\Index.cshtml" />
+    <Content Include="Views\Process_Production\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Reports\" />
