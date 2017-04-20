@@ -62,19 +62,19 @@ namespace THT.Controllers
                     item.nguoi_cap_nhat = item.ma_nhan_vien;
 
 
-                    var success = db.Execute(@"INSERT INTO Check_In (ma_nhan_vien, ngay, trang_thai, ngay_tao, nguoi_tao, ngay_cap_nhat, nguoi_cap_nhat)
-                                            VALUES(@ma_nhan_vien, @ngay, @trang_thai, @ngay_tao, @nguoi_tao, @ngay_cap_nhat, @nguoi_cap_nhat)", 
-                                        new
-                                        {
-                                            ma_nhan_vien = item.ma_nhan_vien,
-                                            ngay = item.ngay,
-                                            trang_thai = item.trang_thai,
-                                            ngay_tao = item.ngay_tao,
-                                            nguoi_tao = item.nguoi_tao,
-                                            ngay_cap_nhat = item.ngay_cap_nhat,
-                                            nguoi_cap_nhat = item.nguoi_cap_nhat,
-                                        }) == 1;
-                    //db.Insert<Check_In>(item);
+                    //var success = db.Execute(@"INSERT INTO Check_In (ma_nhan_vien, ngay, trang_thai, ngay_tao, nguoi_tao, ngay_cap_nhat, nguoi_cap_nhat)
+                    //                        VALUES(@ma_nhan_vien, @ngay, @trang_thai, @ngay_tao, @nguoi_tao, @ngay_cap_nhat, @nguoi_cap_nhat)", 
+                    //                    new
+                    //                    {
+                    //                        ma_nhan_vien = item.ma_nhan_vien,
+                    //                        ngay = item.ngay,
+                    //                        trang_thai = item.trang_thai,
+                    //                        ngay_tao = item.ngay_tao,
+                    //                        nguoi_tao = item.nguoi_tao,
+                    //                        ngay_cap_nhat = item.ngay_cap_nhat,
+                    //                        nguoi_cap_nhat = item.nguoi_cap_nhat,
+                    //                    }) == 1;
+                    db.Insert<Check_In>(item);
 
                     return Json(new { success = true });
                 }

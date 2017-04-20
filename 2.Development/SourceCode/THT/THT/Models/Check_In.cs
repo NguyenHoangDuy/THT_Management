@@ -5,6 +5,8 @@ namespace THT.Models
 {
     public class Check_In
     {
+        [AutoIncrement]
+        [PrimaryKey]
         public int id { get; set; }
         public string ma_nhan_vien { get; set; }
         [Ignore]
