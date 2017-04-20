@@ -1,0 +1,864 @@
+﻿@using THT.Models;
+
+@{
+    ViewBag.Title = "Danh mục quy trình sản xuất";
+}
+
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+
+}
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+</style>
+
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+</style>
+
+<section>
+    @*<div class="bordered">*@
+    @if (Auth_Action.AssetResult(asset, "Search"))
+    {
+        <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+            @*<header>
+                    <h2 style="color:#6fb3e0">Thông tin công ty</h2>
+                </header>*@
+            <div>
+                <div class="widget-body no-padding">
+                    <form class="smart-form">
+                        <fieldset>
+                            <div class="row">
+                                <section class="col col-3">
+                                    <label class="input" type="text" style="margin-top: -4px">
+                                        <input type="text" class="input-xs" id="txtSearch" placeholder="Tên quy trình sx">
+                                    </label>
+                                </section>
+                                <section class="col col-3search" style="margin-top: -4px">
+                                    <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="doSearch()">
+                                        <i class="fa fa-search"></i> Tìm kiếm
+                                    </a>
+                                </section>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="jarviswidget bordered">
+        <div class="row">
+            <article class="col-sm-12">
+                <div class="widget-body">
+                    @(Html.Kendo().Grid<THT.Models.Process_Production>()
+                    .Name("grid")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.id).Hidden();
+                        columns.Bound(p => p.ma_quy_trinh_sx).HeaderTemplate("<input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAll'  onClick='checkAllHeader(this)' />").ClientTemplate("<input style='text-align:center' class='checkrowid' type='checkbox' id='#=ma_quy_trinh_sx#'  />").Width(30).Filterable(false).Sortable(false);
+                        if (asset.ContainsKey("Update") && asset["Update"])
+                        {
+                            columns.Bound(p => p.ma_quy_trinh_sx).HtmlAttributes(new { data_id = "#=ma_quy_trinh_sx#", onclick = "onOpenPopup(1,this)", @style = "color:\\#428bca;cursor:pointer;text-decoration:underline" }).Title("Mã quy trình sx").Width(110);
+                        }
+                        else
+                        {
+                            columns.Bound(p => p.ma_quy_trinh_sx).Title("Mã quy trình sx").Width(110);
+                        }
+                        columns.Bound(p => p.ten_quy_trinh_sx).Title("Tên quy trình sx").Width(300);
+                        columns.ForeignKey(p => p.trang_thai, (System.Collections.IEnumerable)ViewBag.listStatus, "ParamID", "Value").Title("Trạng thái").HtmlAttributes(new { data_column = "Status" }).Width(120);
+                        columns.Bound(p => p.nguoi_tao).Title("Người tạo").Width(130);
+                        columns.Bound(p => p.ngay_tao).Format("{0:dd/MM/yyyy}").HtmlAttributes(new { style = "text-align:right" }).Title("Ngày tạo");
+                        columns.Bound(p => p.nguoi_cap_nhat).Title("Người cập nhật").Width(130);
+                        columns.Bound(p => p.ngay_cap_nhat).Format("{0:dd/MM/yyyy}").HtmlAttributes(new { style = "text-align:right" }).Title("Ngày cập nhật");
+                    })
+                    .ToolBar(toolBar =>
+                    {
+                    toolBar.Template(@<text>
+                        <div class="pull-left">
+                            @if (asset.ContainsKey("Insert") && asset["Insert"])
+                            {
+                                <a class="btn btn-sm btn-success" href="javascript:onOpenPopup(0,this)" id="btnInsert">
+                                    <i class="fa fa-plus"></i> Thêm
+                                </a>
+                            }
+
+                            @if (asset.ContainsKey("Delete") && asset["Delete"])
+                            {
+                                <a class="btn btn-sm btn-danger" href="javascript:Delete()" id="btnDelete">
+                                    <i class="fa fa-times"></i> Xóa
+                                </a>
+                            }
+                        </div>
+
+                    </text>);
+                    })
+                        .Events(events => { events.DataBound("onDatabound"); })
+                        .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                        .Resizable(r => r.Columns(true))
+                        .Navigatable()
+                        .Scrollable()
+                        .Sortable()
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .Batch(true)
+                            .PageSize(100)
+                            .Model(model =>
+                            {
+                                model.Id(p => p.id);
+                            })
+                            .Read(read => read.Action("Read", "Process_Production"))
+                        )
+                    )
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <div id="popup" class="row" style="margin:0 auto;display:none">
+        @*<div class="bordered">*@
+        @using (Html.BeginForm("Create", "Process_Production", FormMethod.Post, new { @class = "smart-form", id = "formPopup", enctype = "multipart/form-data" }))
+        {
+            @Html.Hidden("ngay_tao");
+            @Html.Hidden("nguoi_tao");
+            <fieldset style="float: left; width: 450px; padding-left: 0px; padding-right: 0px;">
+                <section style="display:none; float:left;"></section>
+
+                <section style="float:left;">
+                    <div style="float: left; width: 160px; margin-left:0;">
+                        <label class="label" style="float:right;">Tên quy trình sx (*)</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.TextBox("ten_quy_trinh_sx", "", new { @class = "input-xs popup_text_right", placeholder = "Tên quy trình sx" })
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+                <section style="float:left;">
+                    <div style="float: left; width: 160px; margin-left:0;">
+                        <label class="label" style="float:right;">Trạng thái</label>
+                    </div>
+                    <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                        <label class="input" style="float:right;width:240px;">
+                            @Html.DropDownList("trang_thai", new SelectList(ViewBag.listStatus, "ParamID", "Value"), "-- Chọn giá trị --")
+                        </label>
+                        <div style="clear:both"></div>
+                    </div>
+                </section>
+            </fieldset>
+
+            <div class="my-footer-popup">
+                <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="ResetForm()">
+                    <i class="fa fa-refresh"></i>  Hủy
+                </button>
+                <button type="button" id="btnSubmit" onclick="SaveChange()" class="btn btn-sm btn-info" style="float: right;margin-top:5px;">
+                    <i class="fa fa-save"></i>  Lưu
+                </button>
+                <img src="@Url.Content("~/Content/Bootstrap/loading.gif")" class="hide" id="loading" style="margin-top: 17px;" />
+            </div>
+
+            <fieldset style="background: none" id="fsgridpopup">
+                <div id="templatecondittion" style="margin-left :-12px;">
+                </div>
+            </fieldset>
+        }
+    </div>
+
+    <div id="popupConfirm" style="display:none">
+        <div>
+            <form class="smart-form">
+                <fieldset>
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-5px">Bạn có chắc chắn muốn <span id="txtLabel"></span>?</label>
+                    </div>
+                </fieldset>
+
+                <div class="my-footer-popup">
+                    <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="onUpdateStatus(0, this)">
+                        <i class="fa fa-refresh"></i>  Hủy
+                    </button>
+                    <button type="button" id="btnOK" class="btn btn-sm btn-info" style="float: right;margin-top:5px;" onclick="onUpdateStatus(1, this)">
+                        <i class="fa fa-check"></i>  Đồng ý
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="popupDelete" style="display:none">
+        <div>
+            <form class="smart-form">
+                <fieldset>
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-14px">Bạn có chắc chắn xóa bỏ thông tin này ?</label>
+                    </div>
+                </fieldset>
+                <fieldset style="border:none">
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-5px; color:red" id="txtWarning"></label>
+                    </div>
+                </fieldset>
+                <footer style="border:none">
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnApprove" style="float: left; margin-left: 86px; height: 24px; background-color: \\#6fb3e0" onclick="ConfirmDelele(0, this)">Đồng ý</button>
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancel" style="float: left; margin-left: 10px; height: 24px; background-color: \\#abbac3; " onclick="ConfirmDelele(1, this)">Hủy bỏ</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+
+    <div id="popupDeleteJob" style="display:none">
+        <div>
+            <form class="smart-form">
+                <fieldset>
+                    <div class="divlabel" style="width:100px;">
+                        <label class="label" style="float:left;margin-top:-14px">Bạn có chắc chắn xóa bỏ công việc này ?</label>
+                    </div>
+                </fieldset>
+                <footer style="border:none">
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnApprove" style="float: left; margin-left: 86px; height: 24px; background-color: \\#6fb3e0" onclick="ConfirmDeleleJob(0, this)">Đồng ý</button>
+                    <button type="button" class="k-button k-button-icontext btn_custom" id="btnCancel" style="float: left; margin-left: 10px; height: 24px; background-color: \\#abbac3; " onclick="ConfirmDeleleJob(1, this)">Hủy bỏ</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script type="text/kendo-tmpl" id="templategrid">
+
+    <div style=" margin-top 12px; margin-bottom 5px;">
+        <h6 style="color:\\#6fb3e0">Thông tin các bước công việc</h6>
+    </div>
+
+    @(Html.Kendo().Grid<THT.Models.Process_Production_Job>()
+        .Name("gridpopup")
+        .HtmlAttributes(new { style = "width:760px;border: 1px solid \\#ccc !important;" })
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.id).Hidden();
+            columns.Bound(p => p.ma_cong_viec).HeaderTemplate("<input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAllJob'  onClick='checkAllHeaderJob(this)' />").ClientTemplate("<input style='text-align:center' class='checkrowid' type='checkbox' id='\\#=ma_cong_viec\\#'  />").Width(20).Filterable(false).Sortable(false);
+            columns.ForeignKey(p => p.ma_cong_viec, (System.Collections.IEnumerable)ViewBag.listJobs, "Value", "Text").Title("Tên công việc").Width(120).HtmlAttributes(new { style = "background-color:rgb(198, 239, 206);height: 20px" });
+            columns.Bound(p => p.so_thu_tu).Title("Số thứ tự").Width(130).HtmlAttributes(new { style = "background-color:rgb(198, 239, 206);height: 20px" }); ;
+            columns.Bound(p => p.nguoi_tao).Title("Người tạo").Width(130);
+            columns.Bound(p => p.ngay_tao).Format("{0:dd/MM/yyyy}").HtmlAttributes(new { style = "text-align:right" }).Title("Ngày tạo");
+            columns.Bound(p => p.nguoi_cap_nhat).Title("Người cập nhật").Width(130);
+            columns.Bound(p => p.ngay_cap_nhat).Format("{0:dd/MM/yyyy}").HtmlAttributes(new { style = "text-align:right" }).Title("Ngày cập nhật");
+        })
+        .ToolBar(toolBar =>
+        {
+        toolBar.Template(@<text>
+                <div class="pull-left">
+                    @if (asset.ContainsKey("Insert") && asset["Insert"])
+                    {
+                        <a class="btn btn-sm btn-success" href="javascript:InsertJob()" id="btnInsert">
+                            <i class="fa fa-plus"></i> Thêm mới
+                        </a>
+                    }
+                    @if (asset.ContainsKey("Update") && asset["Update"])
+                    {
+                        <a class="btn btn-sm btn-info" href="javascript:Update()" id="btnGridActive">
+                            <i class="fa fa-save"></i> Lưu lại
+                        </a>
+                        <a class="btn btn-sm btn-default" href="javascript:Cancel()" id="btnGridActive">
+                            <i class="fa fa-refresh"></i> Hủy thay đổi
+                        </a>
+                    }
+                    @if (asset.ContainsKey("Delete") && asset["Delete"])
+                    {
+                        <a class="btn btn-sm btn-danger" href="javascript:DeleteJob()" id="btnDelete">
+                            <i class="fa fa-times"></i> Xóa
+                        </a>
+                    }
+                </div>
+
+            </text>);
+
+        })
+        .Events(events =>
+        {
+            events.DataBound("onDataboundCondition"); events.Edit("onEdit");
+
+        })
+        .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+        .Editable(editable => editable.Mode(GridEditMode.InCell))
+        .Resizable(r => r.Columns(true))
+        .Navigatable()
+        .Scrollable()
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .Batch(true)
+        .PageSize(100)
+        .Model(model =>
+        {
+            model.Id(p => p.id);
+            model.Field(p => p.ma_cong_viectmp).Editable(false);
+            model.Field(p => p.ma_cong_viec).Editable(true);
+            model.Field(p => p.so_thu_tu).Editable(true);
+            model.Field(p => p.ngay_tao).Editable(false);
+            model.Field(p => p.nguoi_tao).Editable(false);
+            model.Field(p => p.ngay_cap_nhat).Editable(false);
+            model.Field(p => p.nguoi_cap_nhat).Editable(false);
+        }
+        )
+
+        .Events(e =>
+        {
+            e.RequestEnd("onRequestEndDetail"); e.Error("error_handler");
+        })
+        .Read(read => read.Action("ReadJob", "Process_Production").Data("get_ma_quy_trinh_sx"))
+        .Create(create => create.Action("UpdateJob", "Process_Production").Data("get_ma_quy_trinh_sx"))
+        .Update(read => read.Action("Updatejob", "Process_Production").Data("get_ma_quy_trinh_sx"))
+        ).ToClientTemplate()
+    )
+
+</script>
+
+<script>
+    var numHeight = 230;
+    var keyAction;
+    var indexTabstripActive = -1;
+    var contentTab;
+    $(document).ready(function () {
+        //("ul#menuLeft").find('#ul_root_2').addClass('open');
+        //$("ul#menuLeft").find('#ul_root_2').css('display', 'block');
+        $("#menu_Process_Production").parent().addClass('active');
+
+        resetMenu();
+        $("#menu_Process_Production").parent().addClass('active');
+
+        $("#trang_thai").select2();
+        $("#s2id_trang_thai").css('width', '240px');
+
+        $(window).resize(function () {
+            resizeGrid(numHeight);
+        });
+
+        $("#txtSearch").keypress(function (e) {
+            if (e.keyCode == 13) {
+                doSearch();
+            }
+        });
+
+        //Ctr + S luu form
+        //$(document).bind('keydown', function (event) {
+        //    if (eventHotKey) {
+        //        if (event.ctrlKey || event.metaKey) {
+        //            switch (String.fromCharCode(event.which).toLowerCase()) {
+        //                case 's':
+        //                    event.preventDefault();
+        //                    var boolCreatedBy = $("#nguoi_tao").val() != "system";
+        //                    $("#formPopup").submit();
+        //                    break;
+        //            }
+        //        }
+        //    }
+        //});
+
+        //form trong popup
+        $('#popup').kendoWindow({
+            width: "780px",
+            position: { top: 0 },
+            actions: ["Close"],
+            visible: false,
+            resizable: false,
+            close: function (e) {
+                $("#divMaskPopup").hide();
+            }
+        });
+
+        $('#popupDeleteJob').kendoWindow({
+            width: "350px",
+            actions: ["Close"],
+            title: "Cảnh báo",
+            visible: false,
+            resizable: false,
+            close: function (e) {
+                $("#divMaskPopup").hide();
+            }
+        });
+
+        $("#formPopup").validate({
+            // Rules for form validation
+            rules: {
+                ten_quy_trinh_sx: {
+                    required: true,
+                },
+                trang_thai: {
+                    required: true,
+                },
+            },
+
+            messages: {
+                ten_quy_trinh_sx: {
+                    required: "Thông tin bắt buộc"
+                },
+                trang_thai: {
+                    required: "Thông tin bắt buộc",
+                },
+            },
+            errorPlacement: function (error, element) {
+                error.insertAfter(element);
+            },
+            submitHandler: function (form) {
+                $(form).ajaxSubmit({
+                    //clearForm: true,//To clear form after ajax submitting
+                    beforeSend: function () { $("#loading").removeClass('hide'); },
+                    success: function (data) {
+                        if (data.success) {
+                            if (keyAction == 0) {
+                                // Create
+                                $("#formPopup").find('fieldset:eq(0) section:eq(0)').empty().append('<div style="float: left; width: 160px; margin-left:0;"><label class="label" style="float: right;">Mã công việc (*) </label></div><div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;"><label style="float: right;text-align: left;width: 240px;height: 19px;padding-top: 2px;"><strong style="color:red;">' + data.ma_quy_trinh_sx + '</strong><input type="hidden" id="ma_quy_trinh_sx" name="ma_quy_trinh_sx" value="' + data.ma_quy_trinh_sx + '" /></label> <div style="clear:both"></div></div>');
+                                $("#formPopup").find('fieldset:eq(0) section:eq(0)').show();
+                                $("#ngay_tao").val(dateToString(data.ngay_tao));
+                                $("#nguoi_tao").val(data.nguoi_tao);
+                                $("#fsgridpopup").show();
+                                loadgridpopup();
+                                keyAction = -1;
+                            }
+                            $("#grid").data("kendoGrid").dataSource.read();
+                            alertBox("Thành công!", " Lưu thành công", true, 3000);
+                            $("#loading").addClass('hide');
+                        }
+                        else {
+                            alertBox("Báo lỗi! ", data.message, false, 3000);
+                            $("#loading").addClass('hide');
+                            console.log(data.message);
+                        }
+                    }
+                });
+                return false;
+            }
+        });
+    })
+    
+    function resizeGridpopup() {
+        var offsetbottom = parseInt($(window).height()) - parseInt($('#gridpopup').offset().top);
+        var gridElement = $("#gridpopup"),
+        dataArea = gridElement.find(".k-grid-content"),
+        otherElements = gridElement.children().not(".k-grid-content"),
+        otherElementsHeight = 0;
+        otherElements.each(function () {
+            otherElementsHeight += $(this).outerHeight();
+        });
+        dataArea.height(offsetbottom - otherElementsHeight - 50);
+    }
+
+    function loadgridpopup() {
+        var obj = {};
+        //blockUIFromUser(true);
+        var tempp = $('#formPopup #ma_cong_viec').val();
+        obj = { "ma_cong_viec": tempp };
+        var detailTemplate = kendo.template($('#templategrid').html());
+        $("#templatecondittion").html(detailTemplate(obj));
+        // $("#templatecondittion").css({ 'clear': 'both' });
+        $("#templatecondittion").css({ 'font-size': '11px' });
+
+    }
+
+    function DeleteJob() {
+        var listrowid = "";
+        $("#gridpopup").find(".checkrowid").each(function () {
+            if ($(this).prop('checked') == true) {
+                listrowid += $(this).attr("id") + '@@@@';
+            }
+        });
+        if (listrowid != null && listrowid != "") {
+            $("#divMaskPopup").show();
+            var popupDelete = $('#popupDeleteJob').data("kendoWindow");
+            popupDelete.center().open();
+            $(".k-window span.k-i-close").click(function () {
+                eventHotKey = false;
+                $("#divMaskPopup").hide();
+            });
+        }
+        else {
+            alertBox("Báo lỗi!", "Chọn dữ liệu để xóa.", false, 3000);
+            return;
+        }
+    }
+
+    function checkAllHeaderJob(e) {
+        var x = $(e).prop('checked');
+        $('#gridpopup').find(".checkrowid").each(function () {
+            $(this).prop('checked', x);
+        });
+    }
+
+    function InsertJob() {
+        $("#gridpopup").data("kendoGrid").dataSource.insert();
+    }
+
+    function Cancel() {
+        $('#gridpopup').data('kendoGrid').cancelChanges();
+    }
+
+    function Update() {
+        if ($('#gridpopup').data('kendoGrid').dataSource.hasChanges() == true) {
+            $('#gridpopup').data('kendoGrid').saveChanges();
+        }
+    }
+
+    function get_ma_quy_trinh_sx() {
+        if (typeof $("#ma_quy_trinh_sx").val() == 'undefined' || $("#ma_quy_trinh_sx").val() == null)
+            return {
+                ma_quy_trinh_sx: ""
+            }
+        else {
+            return {
+                ma_quy_trinh_sx: $("#ma_quy_trinh_sx").val()
+            };
+        }
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alertBox("Báo lỗi! ", message, false, 3000);
+        }
+    }
+
+    function onRequestEndDetail(e) {
+        if (e.type == "update" && !e.response.Errors) {
+            alertBox("Thành công! ", "Cập nhật thành công", true, 3000);
+            $("#gridpopup").data("kendoGrid").dataSource.read();
+        }
+        if (e.type == "create" && !e.response.Errors) {
+            alertBox("Thành công! ", "Lưu thành công", true, 3000);
+            $("#gridpopup").data("kendoGrid").dataSource.read();
+
+        }
+    }
+
+    function onDataboundCondition(e) {
+        resizeGridpopup();
+        var grid = $("#gridpopup").data("kendoGrid");
+        var content = $("#gridpopup").find(".k-grid-content");
+        //content.height(265);
+        var requestObject = (new kendo.data.transports["aspnetmvc-server"]({ prefix: "" }))
+        .options.parameterMap({
+            page: grid.dataSource.page(),
+            sort: grid.dataSource.sort(),
+            filter: grid.dataSource.filter()
+        });
+        var $exportLink = grid.element.find('.export');
+        var href = $exportLink.attr('href');
+        if (href) {
+            href = href.replace(/sort=([^&]*)/, 'sort=' + requestObject.sort || '~');
+            href = href.replace(/filter=([^&]*)/, 'filter=' + (requestObject.filter || '~'));
+            $exportLink.attr('href', href);
+        }
+        //$("#divLoading").hide();
+        var dataSource = $("#gridpopup").data("kendoGrid").dataSource.data();
+        for (item in dataSource) {
+            dataSource[item].dirty = true;
+        }
+    }
+
+    function onEdit(e) {
+        dataJobs = [@Html.Raw(Json.Encode(ViewBag.listJobs))][0];
+        var dataItem = $('#gridpopup').data('kendoGrid').dataItem($(e.container).closest("tr"));
+        var b = $("[aria-owns=ma_cong_viec_listbox]");
+        if (b.length > 0) {
+            var dataSource = $("#gridpopup").data("kendoGrid").dataSource.data();
+            for (var j = 0; j < dataSource.length; j++) {
+                if (dataSource[j].ma_cong_viec != "") {
+                    for (var i = 0; i < dataJobs.length; i++) {
+                        if (dataJobs[i].Value == dataSource[j].ma_cong_viec && dataItem.ma_cong_viec != dataSource[j].ma_cong_viec) {
+                            dataJobs.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+            var ds_jobs = new kendo.data.DataSource();
+            ds_jobs.data(dataJobs);
+            $("#ma_cong_viec").data("kendoDropDownList").setDataSource(ds_jobs);
+        }
+
+    }
+
+    function doSearch() {
+        var grid = $("#grid").data("kendoGrid");
+        var filter = { logic: "and", filters: [] };
+        var text = $("#txtSearch").val();
+        if (text) {
+            var filterOr = { logic: "or", filters: [] };
+            filterOr.filters.push({ field: "ten_quy_trinh_sx", operator: "contains", value: text });
+            filterOr.filters.push({ field: "ma_quy_trinh_sx", operator: "contains", value: text });
+            filter.filters.push(filterOr);
+        }
+
+        grid.dataSource.filter(filter);
+    }
+
+    //popup
+    function onOpenPopup(key, obj) {
+        eventHotKey = true;
+        $("#formPopup").find('section em').remove();
+        $("#formPopup").find('section label').removeClass('state-error').removeClass('state-success');
+        idPopup = ".k-window";
+        $("#divMaskPopup").show();
+        
+        var popup = $('#popup').data("kendoWindow");
+        $("#fsgridpopup").hide();
+        //popup.center().open();
+        $("#formPopup").find('fieldset:eq(0) section:eq(0)').empty();
+        $(".k-window span.k-i-close").click(function () {
+            eventHotKey = false;
+            $("#divMaskPopup").hide();
+        });
+        //Tạo mới
+        if (key == 0) {
+            keyAction = key;
+            popup.title('Thêm');
+            LoadDataPopup();
+        }
+            // Cập nhậpS
+        else {
+            keyAction = -1;
+            popup.title('Cập nhật thông tin nhân viên');
+            Obj = obj;
+            id = $(Obj).data('id');
+            $("#formPopup").find('fieldset:eq(0) section:eq(0)').show();
+            $("#formPopup").find('fieldset:eq(0) section:eq(0)').empty().append('<div style="float: left; width: 160px; margin-left:0;"><label class="label" style="float: right;">Mã công việc (*)</label></div><div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;"> <label style="float: right;text-align: left;width: 240px;height: 19px;padding-top: 2px;"><strong style="color:red;">' + id + '</strong><input type="hidden" id="ma_quy_trinh_sx" name="ma_quy_trinh_sx" value="' + id + '"/></label> <div style="clear:both"></div></di>');
+            $("#fsgridpopup").show();
+            LoadDataPopup();
+        }
+        popup.center().open();
+    }
+
+    // Load lại data khi tạo mới hoặc cập nhật
+    function onBindDataToForm(dataItem) {
+        for (var propName in dataItem) {
+            if (dataItem[propName] != null && dataItem[propName].constructor.toString().indexOf("Date") > -1) {
+                var d = kendo.toString(kendo.parseDate(dataItem[propName]), 'dd/MM/yyyy')
+                if (d != '01/01/1900') {
+                    $("#" + propName).val(d);
+                }
+            }
+            else {
+                $("#" + propName).val(dataItem[propName]);
+            }
+        }
+    }
+
+    function checkAllHeader(e) {
+        var x = $(e).prop('checked');
+        $('#grid').find(".checkrowid").each(function () {
+            $(this).prop('checked', x);
+        });
+    }
+
+
+    function onDatabound(e) {
+        resizeGrid();
+        var grid = $("#grid").data("kendoGrid");
+        var requestObject = (new kendo.data.transports["aspnetmvc-server"]({ prefix: "" }))
+        .options.parameterMap({
+            page: grid.dataSource.page(),
+            sort: grid.dataSource.sort(),
+            filter: grid.dataSource.filter()
+        });
+        var $exportLink = grid.element.find('.export');
+        var href = $exportLink.attr('href');
+        if (href) {
+            href = href.replace(/sort=([^&]*)/, 'sort=' + requestObject.sort || '~');
+            href = href.replace(/filter=([^&]*)/, 'filter=' + (requestObject.filter || '~'));
+            $exportLink.attr('href', href);
+        }
+        //changeStatusGrid('grid', 6);
+        $("#divLoading").hide();
+    }
+
+
+    function resizeGrid() {
+        var offsetbottom = parseInt($(window).height()) - parseInt($('#grid').offset().top);
+        var gridElement = $("#grid"),
+        dataArea = gridElement.find(".k-grid-content"),
+        otherElements = gridElement.children().not(".k-grid-content"),
+        otherElementsHeight = 0;
+        otherElements.each(function () {
+            otherElementsHeight += $(this).outerHeight();
+        });
+        dataArea.height(offsetbottom - otherElementsHeight - 1);
+    }
+
+    function dateToString(date) {
+
+        if (date != null) {
+            date = new Date(date.match(/\d+/)[0] * 1);
+            var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+            var month = (date.getMonth() + 1) < 10 ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1);
+            return day + '/' + month + '/' + date.getFullYear();
+        }
+        else {
+            return "";
+        }
+    }
+
+    function alertBox(title, content, flag, timeout) {
+        //var icon = flag ? "fa-thumbs-up" : "fa-thumbs-down";
+        $.smallBox({
+            title: title,
+            content: content,
+            color: flag ? "#e0efd8" : "#f2dedf",
+            //iconSmall: "fa " + icon + " bounce animated",
+            timeout: timeout
+        });
+    }
+
+    function ResetForm() {
+        LoadDataPopup();
+    }
+
+    function ConfirmDelele(key, obj) {
+        debugger;
+        var listrowid = "";
+
+        $("#grid").find(".checkrowid").each(function () {
+            if ($(this).prop('checked') == true) {
+                listrowid += $(this).attr("id") + '@@@@';
+            }
+        });
+        if (listrowid != null && listrowid != "") {
+            //var c = confirm("Bạn có chắc chắn muốn ngưng hoạt động?.");
+            if (key == 0) {
+                $('#popupDelete').data("kendoWindow").close();
+                $.post(r + "/Process_Production/Delete", { data: listrowid, }, function (data) {
+                    if (data.success) {
+                        alertBox("Thành công!", " Xóa thành công", true, 3000);
+                        $("#grid").data("kendoGrid").dataSource.read();
+                        $('#checkboxcheckAll').prop('checked', false);
+                    }
+                    else {
+                        alertBox("Báo lỗi! ", data.message, false, 3000);
+                        //$("#grid").data("kendoGrid").dataSource.read();
+                    }
+                });
+            }
+            else {
+                $('#popupDelete').data("kendoWindow").close();
+                return false;
+            }
+        }
+        else {
+            alertBox("", "Vui lòng chọn danh mục cần xóa.", false, 3000);
+        }
+    }
+
+    var listrowid = "";
+    function Delete() {
+        var listrowid = "";
+        $("#grid").find(".checkrowid").each(function () {
+            if ($(this).prop('checked') == true) {
+                listrowid += $(this).attr("id") + '@@@@';
+            }
+        });
+        if (listrowid != null && listrowid != "") {
+            debugger
+            $("#divMaskPopup").show();
+            var popupDelete = $('#popupDelete').data("kendoWindow");
+            popupDelete.center().open();
+            $(".k-window span.k-i-close").click(function () {
+                eventHotKey = false;
+                $("#divMaskPopup").hide();
+            });
+        }
+        else {
+            alertBox("Báo lỗi!", "Chọn dữ liệu để xóa.", false, 3000);
+            return;
+        }
+    }
+
+    function LoadDataPopup() {
+        if (keyAction == 0) {
+            $('#formPopup')[0].reset();
+            $("#nguoi_tao").val('');
+            $("#ngay_tao").val('');
+
+            $("#ten_quy_trinh_sx").val('');
+
+            $("#trang_thai").val('A');
+            $('#trang_thai').trigger('change');
+
+            setTimeout(function () {
+                $("#ten_quy_trinh_sx").focus();
+            }, 500);
+        }
+        else {
+            var currentRow = $(Obj).closest("tr");
+            var dataItem = $("#grid").data("kendoGrid").dataItem(currentRow);
+
+            onBindDataToForm(dataItem);
+
+            $("#trang_thai").val(dataItem.trang_thai);
+            $('#trang_thai').trigger('change');
+
+            loadgridpopup();
+
+            setTimeout(function () {
+                $("#ten_quy_trinh_sx").focus();
+            }, 500);
+        }
+    }
+
+    function SaveChange() {
+        $('#formPopup').submit();
+    }
+
+    function ConfirmDeleleJob(key, obj) {
+        debugger;
+        var listrowid = "";
+
+        $("#gridpopup").find(".checkrowid").each(function () {
+            if ($(this).prop('checked') == true) {
+                listrowid += $(this).attr("id") + '@@@@';
+            }
+        });
+        if (listrowid != null && listrowid != "") {
+            if (key == 0) {
+                $('#popupDeleteJob').data("kendoWindow").close();
+                $.post(r + "/Process_Production/DeleteJob", { data: listrowid, ma_quy_trinh_sx: $("#ma_quy_trinh_sx").val() }, function (data) {
+                    if (data.success) {
+                        alertBox("Thành công!", " Xóa thành công", true, 3000);
+                        $("#gridpopup").data("kendoGrid").dataSource.read();
+                        $('#checkboxcheckAllJob').prop('checked', false);
+                    }
+                    else {
+                        alertBox("Báo lỗi! ", data.message, false, 3000);
+                        //$("#grid").data("kendoGrid").dataSource.read();
+                    }
+                });
+            }
+            else {
+                $('#popupDeleteJob').data("kendoWindow").close();
+                return false;
+            }
+        }
+        else {
+            alertBox("", "Vui lòng chọn khách hàng.", false, 3000);
+        }
+    }
+
+</script>

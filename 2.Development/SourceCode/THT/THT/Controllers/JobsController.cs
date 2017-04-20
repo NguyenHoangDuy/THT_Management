@@ -135,6 +135,7 @@ namespace THT.Controllers
                     {
                         foreach (var item in listdata)
                         {
+                            dbConn.Delete<Process_Production_Job>(s => s.ma_cong_viec == item);
                             dbConn.Delete<Jobs>(s => s.ma_cong_viec == item);
                         }
                         dbTrans.Commit();
