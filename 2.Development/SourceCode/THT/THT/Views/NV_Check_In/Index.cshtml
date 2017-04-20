@@ -1,0 +1,156 @@
+﻿@using THT.Models;
+
+@{
+    ViewBag.Title = "Ghi nhận hoàn thành kiểm tra thiết bị";
+}
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+</style>
+
+<style>
+    .ace-file-input {
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        margin-bottom: 9px;
+    }
+</style>
+
+
+<section>
+    @using (Html.BeginForm("Create", "NV_Check_In", FormMethod.Post, new { @class = "smart-form", id = "formPopup", enctype = "multipart/form-data" }))
+    {
+        @Html.Hidden("ngay_tao");
+        @Html.Hidden("nguoi_tao");
+        <fieldset style="float: left; width: 450px; padding-left: 0px; padding-right: 0px;">
+            <section style="display:none; float:left;"></section>
+
+            <section style="float:left;">
+                <div style="float: left; width: 160px; margin-left:0;">
+                    <label class="label" style="float:right;">Tên nhân viên (*)</label>
+                </div>
+                <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                    <label class="input" style="float:right;width:240px;">
+                        @Html.TextBox("ma_nhan_vien", "", new { @class = "input-xs popup_text_right", placeholder = "Mã nhân viên" })
+                    </label>
+                    <div style="clear:both"></div>
+                </div>
+            </section>
+            <section style="float:left;">
+                <div style="float: left; width: 160px; margin-left:0;">
+                    <label class="label" style="float:right;">Mật khẩu</label>
+                </div>
+                <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                    <label class="input" style="float:right;width:240px;">
+                        @Html.Password("mat_khau", "", new { @class = "input-xs popup_text_right" })
+                    </label>
+                    <div style="clear:both"></div>
+                </div>
+            </section>
+
+            <section style="float:left;">
+                <div style="float: left; width: 160px; margin-left:0;">
+                    <label class="label" style="float:right;">Tình trạng thiết bị</label>
+                </div>
+                <div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;">
+                    <label class="input" style="float:right;width:240px;">
+                        @Html.DropDownList("trang_thai", new SelectList(ViewBag.listStatus, "ParamID", "Value"), "-- Chọn giá trị --")
+                    </label>
+                    <div style="clear:both"></div>
+                </div>
+            </section>
+            <section style="float:left;">
+                <button type="button" id="btnCancel" class="btn btn-sm btn-default" style="float: right;margin-top:5px;margin-left:5px" onclick="ResetForm()">
+                    <i class="fa fa-refresh"></i>  Hủy
+                </button>
+                <button type="submit" id="btnSubmit" class="btn btn-sm btn-info" style="float: right;margin-top:5px;">
+                    <i class="fa fa-save"></i>  Lưu
+                </button>
+                <img src="@Url.Content("~/Content/Bootstrap/loading.gif")" class="hide" id="loading" style="margin-top: 17px;" />
+            </section>
+        </fieldset>
+
+        
+    }
+</section>
+
+<script>
+    var numHeight = 230;
+    var keyAction;
+    var indexTabstripActive = -1;
+    var contentTab;
+    $(document).ready(function () {
+        $("#menu_NV_Check_In").parent().addClass('active');
+
+        resetMenu();
+        $("#menu_NV_Check_In").parent().addClass('active');
+
+        $("#trang_thai").select2();
+        $("#s2id_trang_thai").css('width', '240px');
+
+        $("#trang_thai").val('A');
+        $('#trang_thai').trigger('change');
+
+        $("#ma_nhan_vien").focus();
+
+        $("#formPopup").validate({
+            // Rules for form validation
+            rules: {
+                ma_nhan_vien: {
+                    required: true,
+                },
+                mat_khau: {
+                    required: true,
+                },
+                trang_thai: {
+                    required: true,
+                },
+            },
+
+            messages: {
+                ma_nhan_vien: {
+                    required: "Thông tin bắt buộc"
+                },
+                trang_thai: {
+                    required: "Thông tin bắt buộc",
+                },
+            },
+            errorPlacement: function (error, element) {
+                error.insertAfter(element);
+            },
+            submitHandler: function (form) {
+                $(form).ajaxSubmit({
+                    //clearForm: true,//To clear form after ajax submitting
+                    beforeSend: function () { $("#loading").removeClass('hide'); },
+                    success: function (data) {
+                        if (data.success) {
+                            if (keyAction == 0) {
+                                // Create
+                                //$("#formPopup").find('fieldset:eq(0) section:eq(0)').empty().append('<div style="float: left; width: 120px; margin-left:0;"><label class="label" style="float: right;">Mã công việc (*) </label></div><div style="float: left; width: 240px; margin-right: 0; margin-left: 10px;"><label style="float: right;text-align: left;width: 240px;height: 19px;padding-top: 2px;"><strong style="color:red;">' + data.ma_nhan_vien + '</strong><input type="hidden" id="ma_nhan_vien" name="ma_nhan_vien" value="' + data.ma_nhan_vien + '" /></label> <div style="clear:both"></div></div>');
+                                //$("#formPopup").find('fieldset:eq(0) section:eq(0)').show();
+                                $("#ngay_tao").val(dateToString(data.ngay_tao));
+                                $("#nguoi_tao").val(data.nguoi_tao);
+                                keyAction = -1;
+                            }
+                            alertBox("Thành công!", " Kiểm tra thiết bị hoàn tất", true, 3000);
+                            $("#loading").addClass('hide');
+                        }
+                        else {
+                            alertBox("Báo lỗi! ", data.message, false, 3000);
+                            $("#loading").addClass('hide');
+                            console.log(data.message);
+                        }
+                    }
+                });
+                return false;
+            }
+        });
+    });
+</script>
