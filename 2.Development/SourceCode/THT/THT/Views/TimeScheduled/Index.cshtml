@@ -1,0 +1,324 @@
+﻿@using THT.Models
+@{
+    ViewBag.Title = "Thiết lập thời gian";
+}
+@{
+    var dict = Model != null ? (Dictionary<string, object>)Model : new Dictionary<string, object>();
+    var asset = dict.ContainsKey("asset") ? (Dictionary<string, bool>)dict["asset"] : new Dictionary<string, bool>();
+    var listActiveStatus = dict.ContainsKey("activestatus") ? (List<ActiveStatus>)dict["activestatus"] : new List<ActiveStatus>();
+}
+<script src="@Url.Content("~/Scripts/app/app.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.blockUI.js")"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<div>
+    <div class="jarviswidget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-deletebutton="false">
+        <div>
+            <div class="widget-body no-padding">
+                <form class="smart-form">
+                    <fieldset>
+                        <section class="row">
+                            <section class="col col-lg-4">
+                                <label class="input" style="margin-top: -4px">
+                                    <input type="text" class="input-xs" id="txtSearch" placeholder="Nhập loại hoặc giá trị đê tìm kiếm">
+                                </label>
+                            </section>
+                            <section class="col col-3search" style="margin-top: -4px">
+                                <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="doSearch()">
+                                    <i class="fa fa-search"></i> Tìm kiếm
+                                </a>
+                            </section>
+                        </section>
+                    </fieldset>
+                </form>
+
+            </div>
+        </div>
+    </div>
+    <div class="jarviswidget bordered">      
+        <div class="row">
+            <!-- NEW COL START -->
+            <article class="col-sm-12">
+                <div class="widget-body">
+                    @(Html.Kendo().Grid<THT.Models.TimeScheduled>()
+                    .Name("grid")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.ID).HeaderTemplate("<input style='text-align:center;opacity:1;' type='checkbox' id= 'checkboxcheckAll'  onClick='checkAll(this)' />")
+                        .ClientTemplate("<input style='text-align:center' class='checkrowid' type='checkbox' id='#=ID#'  />").Width(30).Filterable(false).Sortable(false);
+                        columns.Bound(p => p.TimeSheetName).Title("Ca làm việc").HtmlAttributes(new { data_column = "TimeSheetName", style = "text-align:left; background-color: rgb(198, 239, 206);" }).Width(80);
+                        columns.Bound(p => p.HousedHours).Title("Thời gian/1 ca").HtmlAttributes(new { data_column = "HousedHours", style = "text-align:left; background-color: rgb(198, 239, 206);" }).Width(180);
+                        columns.Bound(p => p.Descr).Title("Mô tả").HtmlAttributes(new { required = true, @validationMessage = "", data_column = "Descr", style = "text-align:left; background-color: rgb(198, 239, 206);" }).Width(280);
+                        columns.Bound(p => p.StartDate).Width(120).Title("Ngày bắt đầu").Format("{0:HH:mm}").EditorTemplateName("Time")
+                          .HtmlAttributes(new { style = "text-align:right;", @class = "editable", columnname = "StartDate" });
+                          //.ClientTemplate("#if(kendo.toString(StartDate,'dd/MM/yyyy') != '01/01/1900'){#" + "#= kendo.toString(StartDate,'HH:mm') #" + "#}# ");
+                        columns.Bound(p => p.EndDate).Width(120).Title("Ngày kết thúc").Format("{0:HH:mm}").
+                            HtmlAttributes(new { style = "text-align:right", @class = "editable", columnname = "EndDate" }).EditorTemplateName("Time");
+                            //.ClientTemplate("#if(kendo.toString(EndDate,'dd/MM/yyyy') != '01/01/1900'){#" + "#= kendo.toString(EndDate,'HH:mm') #" + "#}# ");
+                        columns.Bound(p => p.Active).Title("Trạng thái").Width(100).HtmlAttributes(new { @class = "editable" })
+                            .ClientTemplate("#if(Active == 1){#Hoạt động#}else{#Ngưng hoạt động#}#").HtmlAttributes(new { @class = "editable" });
+                        columns.Bound(p => p.CreatedBy).Title("Người tạo").Width(110);
+                        columns.Bound(p => p.CreatedAt).Width(110).Format("{0:dd/MM/yyyy}").HtmlAttributes(new { style = "text-align:right;" }).Title("Ngày tạo").Width(110);
+                        columns.Bound(p => p.UpdatedBy).Title("Người cập nhật").Width(110);
+                        columns.Bound(o => o.UpdatedAt).Title("Ngày cập nhật").Format("{0:dd/MM/yyyy}").Width(110).ClientTemplate("#if(kendo.toString(UpdatedAt,'dd/MM/yyyy') != '01/01/1900'){#" + "#= kendo.toString(UpdatedAt,'dd/MM/yyyy') #" + "#}#");
+                    })
+                    .ToolBar(toolBar =>
+                    {
+                    toolBar.Template(@<text>
+                        <div class="pull-left">
+                            <div class="pull-left">
+                                @if (asset.ContainsKey("Insert") && asset["Insert"])
+                                {
+                                    <a class="btn btn-sm btn-success" id="btnGridAdd">
+                                        <i class="fa fa-plus"></i> Thêm
+                                    </a>
+                                }
+                                @if (asset.ContainsKey("Update") && asset["Update"])
+                                {
+                                    <a class="btn btn-sm btn-info" onclick="Update()">
+                                        @*id="btnGridSave"*@
+                                        <i class="fa fa-save"></i> Lưu lại
+                                    </a>
+                                    <a class="btn btn-sm btn-default" id="btnGridCancel">
+                                        <i class="fa fa-refresh"></i> Hủy
+                                    </a>
+                                    <a class="btn btn-sm btn-danger" id="btnGridDelete" onclick="DeleteItem()">
+                                        <i class="fa fa-times"></i> Xóa
+                                    </a>
+                                }
+                                @*@if (asset.ContainsKey("Export") && asset["Export"])
+                                {
+                                    <a class="btn btn-sm bg-color-blueLight txt-color-white export" href="@Url.Action("Export", "Auth_Role", new { filter = "~", sort = "~" })" id="btnGridExport">
+                                        <i class="fa fa-file-excel-o"></i> Xuất Excel
+                                    </a>
+                                }*@
+
+                            </div>
+                        </div>
+                    </text>);
+                    })
+                    .Events(events => { events.DataBound("onDatabound"); events.Change("onChange");events.Save("onSave"); })
+                    .Pageable(pager => pager.PageSizes(new[] { 20, 100, 200, 300 }))
+                    .Editable(e => e.Mode(GridEditMode.InCell))
+                    .Resizable(r => r.Columns(true))
+                    .Navigatable()
+                    .Scrollable()
+                    .Sortable()
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Batch(true)
+                        .PageSize(20)
+                        .Sort(sort =>
+                        {
+                            sort.Add("ID").Descending();
+                        })
+                        .Model(model =>
+                        {
+                            model.Id(p => p.ID);
+                            model.Field(p => p.ID).Editable(false);
+                            model.Field(p => p.Active).DefaultValue(true);
+                            model.Field(p => p.CreatedBy).Editable(false);
+                            model.Field(p => p.CreatedAt).Editable(false);
+                            model.Field(p => p.UpdatedBy).Editable(false);
+                            model.Field(p => p.UpdatedAt).Editable(false);
+                        })
+                    .Events(e => { e.RequestStart("onRequestStart"); e.RequestEnd("onRequestEnd"); e.Error("error_handler"); })
+                    .Read(read => read.Action("Read", "TimeScheduled"))
+                    .Create(read => read.Action("UpdateDetail", "TimeScheduled"))
+                    .Update(read => read.Action("UpdateDetail", "TimeScheduled"))
+                        )
+                    )
+                </div>
+            </article>
+            <!-- END COL -->
+        </div>
+    </div>
+</div>
+<script>
+    var numHeight = 230;
+    var keyAction;
+    var indexTabstripActive = -1;
+    var contentTab;
+    $(document).ready(function () {
+        $("#menu_TimeScheduled").parent().addClass('active');
+        resetMenu();
+        $("#menu_TimeScheduled").parent().addClass('active');
+        $(window).resize(function () {
+            resizeGrid(numHeight);
+        });
+        $("#txtSearch").keypress(function (e) {
+            if (e.keyCode == 13) {
+                doSearch();
+            }
+        });
+    })
+    function onChange(e) {
+        var selectedRows = this.select();
+    }
+    function onSave(e) {
+        if (e.container.attr('columnname') == 'EndDate') {
+            var enddate = e.values.EndDate;
+            if (new Date(e.model.StartDate) > new Date(enddate)) {
+                $.gritter.add({
+                    title: '',
+                    text: 'Ngày kết thúc phải lớn hơn ngày bắt đầu',
+                    class_name: 'gritter-error',
+                    time: 3000
+                });
+                e.preventDefault();
+                return;
+            }
+        }
+        if (e.container.attr('columnname') == 'StartDate') {
+            var startDate = e.values.StartDate;
+            if (new Date(startDate) > new Date(e.model.EndDate)) {
+                $.gritter.add({
+                    title: '',
+                    text: 'Ngày kết thúc phải lớn hơn ngày bắt đầu',
+                    class_name: 'gritter-error',
+                    time: 3000
+                });
+                e.preventDefault();
+                return;
+            }
+        }
+    }
+    function resizeGrid() {
+        var offsetbottom = parseInt($(window).height()) - parseInt($('#grid').offset().top);
+        var gridElement = $("#grid"),
+        dataArea = gridElement.find(".k-grid-content"),
+        otherElements = gridElement.children().not(".k-grid-content"),
+        otherElementsHeight = 0;
+        otherElements.each(function () {
+            otherElementsHeight += $(this).outerHeight();
+        });
+        dataArea.height(offsetbottom - otherElementsHeight - 1);
+    }
+
+    function onRequestEnd(e) {
+        if (e.type == "update" || e.type == "create" || e.type == "delete") {
+            if (!e.response.Errors) {
+                alertBox("Thành công!", "Lưu thành công", true, 3000);   
+            }
+        }
+        $("#divLoading").hide();
+    }
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alertBox("Báo lỗi! ", message, false, 3000);
+        }
+    }
+    $('#btnGridAdd').click(function () {
+        $("#grid").data("kendoGrid").dataSource.insert();
+    })
+    function Update() {
+        if ($('#grid').data('kendoGrid').dataSource.hasChanges() == true) {
+            $('#grid').data('kendoGrid').saveChanges();
+        }
+    }
+    function Cancel() {
+
+        $('#grid').data('kendoGrid').cancelChanges();
+    }
+
+    $('#btnGridSave').bind('click', function () {
+        if ($('#grid').data('kendoGrid').dataSource.hasChanges() == true) {
+            $('#grid').data('kendoGrid').saveChanges();
+        }
+    })
+
+    $('#btnGridCancel').bind('click', function () {
+        $('#grid').data('kendoGrid').cancelChanges();
+    })
+    //search
+    function doSearch() {
+        var grid = $("#grid").data("kendoGrid");
+        var filter = { logic: "and", filters: [] };
+        var text = $("#txtSearch").val();
+        if (text) {
+            var filterOr = { logic: "or", filters: [] };
+            filterOr.filters.push({ field: "TimeSheetName", operator: "contains", value: text });
+            filterOr.filters.push({ field: "Descr", operator: "contains", value: text });
+            filter.filters.push(filterOr);
+        }
+        //text = $("#selectIsActive_search").val();
+        //if (text) {
+        //    filter.filters.push({ field: "IsActive", operator: "eq", value: text });
+        //}
+        grid.dataSource.filter(filter);
+    }
+    //grid 
+    function onRequestStart(e) {
+        $("#divLoading").show();
+    }
+
+   
+    function onDatabound(e) {
+        resizeGrid();
+        var grid = $("#grid").data("kendoGrid");
+        // ask the parameterMap to create the request object for you
+        var requestObject = (new kendo.data.transports["aspnetmvc-server"]({ prefix: "" }))
+        .options.parameterMap({
+            page: grid.dataSource.page(),
+            sort: grid.dataSource.sort(),
+            filter: grid.dataSource.filter()
+        });
+        var $exportLink = grid.element.find('.export');
+
+        var href = $exportLink.attr('href');
+        if (href) {
+            href = href.replace(/sort=([^&]*)/, 'sort=' + requestObject.sort || '~');
+            href = href.replace(/filter=([^&]*)/, 'filter=' + (requestObject.filter || '~'));
+            $exportLink.attr('href', href);
+        }
+    }
+    function DeleteItem() {
+        var listrowid = "";
+        // var NumberID = $("#NumberID").val();
+        $("#grid").find(".checkrowid").each(function () {
+            if ($(this).prop('checked') == true) {
+                listrowid += $(this).attr("id") + '@@@@';
+            }
+        });
+        if (listrowid != null && listrowid != "") {
+            var c = confirm("Bạn có chắc chắn muốn xóa?.");
+            if (c == true) {
+                $.post(r + "/TimeScheduled/DeleteItem", { data: listrowid }, function (data) {
+                    if (data.success) {
+                        alertBox("Thành công! ", "Xóa thành công", true, 3000);
+                        $('#checkboxcheckAll').prop('checked', false);
+                        $("#grid").data("kendoGrid").dataSource.read();
+                    }
+                    else {
+                        alertBox("Báo lỗi! ", data.message, false, 3000);
+                        $("#loading").addClass('hide');
+                        console.log(data.message);
+                    }
+                });
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            alertBox("Báo lỗi!", "Vui lòng mã tham số cầ xóa!", false, 3000);
+        }
+    }
+    function checkAll(e) {
+        var x = $(e).prop('checked');
+        $('#grid').find(".checkrowid").each(function () {
+            $(this).prop('checked', x);
+        });
+    }
+</script>
+
+
+
+
