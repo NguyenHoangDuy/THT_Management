@@ -18,6 +18,6 @@ namespace THT
         public static string JobTYPE = "JobType";
         public static string Status = "Status";
         public static string EmployeeTYPE = "EmployeeType";
-
+        public static string StatusLSX = "StatusLSX";
     }
 }
