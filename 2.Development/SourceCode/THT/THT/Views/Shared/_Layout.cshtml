@@ -153,25 +153,29 @@
         <!-- end pulled right: nav area -->
         <div class="pull-right" style="display: inline-flex; padding: 7px 10px 0px 0px; margin-right: 10px; border-right: 1px white dotted;">
             @{
-                    var dataUser = Auth_User.GetUserNameById(User.Identity.Name);
+                var dataUser = Auth_User.GetUserNameById(User.Identity.Name);
+                if (dataUser == null)
+                {
+                    dataUser = new Auth_User();
                 }
+            }
 
-                @if (!string.IsNullOrEmpty(dataUser.AvatarPath))
-                {
-                    <div style="margin-right: 10px;">
-                        <span id="btnEditInfor">
-                            <img style="height:36px;width:36px;border: 2px solid #FFF;cursor:pointer" src="@Url.Content("~/Upload/Images/Avatar/" + dataUser.AvatarPath)" alt="@dataUser.DisplayName" class="img-circle AvatarPathUser" />
-                        </span>
-                    </div>
-                }
-                else
-                {
-                    <div style="margin-right: 10px;">
-                        <span id="btnEditInfor">
-                            <img style="height:36px;width:36px;border: 2px solid #FFF;cursor:pointer" src="@Url.Content("~/img/avatars/5.png")" alt="@dataUser.DisplayName" class="img-circle AvatarPathUser" />
-                        </span>
-                    </div>
-                }
+            @if (!string.IsNullOrEmpty(dataUser.AvatarPath))
+            {
+                <div style="margin-right: 10px;">
+                    <span id="btnEditInfor">
+                        <img style="height:36px;width:36px;border: 2px solid #FFF;cursor:pointer" src="@Url.Content("~/Upload/Images/Avatar/" + dataUser.AvatarPath)" alt="@dataUser.DisplayName" class="img-circle AvatarPathUser" />
+                    </span>
+                </div>
+            }
+            else
+            {
+                <div style="margin-right: 10px;">
+                    <span id="btnEditInfor">
+                        <img style="height:36px;width:36px;border: 2px solid #FFF;cursor:pointer" src="@Url.Content("~/img/avatars/5.png")" alt="@dataUser.DisplayName" class="img-circle AvatarPathUser" />
+                    </span>
+                </div>
+            }
 
             <div style="color:white;">
                 Xin chào,<b> @dataUser.DisplayName </b><br />
@@ -195,7 +199,7 @@
                     {
                         <li>
                             @{
-                        var listItem = listAllMenu.Where(p => p.ParentMenuID == root.MenuID).OrderBy(p => p.MenuIndex).ToList();
+                                var listItem = listAllMenu.Where(p => p.ParentMenuID == root.MenuID).OrderBy(p => p.MenuIndex).ToList();
                             }
                             @if (listItem.Count > 0)
                             {
@@ -220,10 +224,11 @@
                                 {
                                     <a href="#"><i class="fa fa-university  fa-1"></i> <span class="menu-item-parent">@root.MenuName</span></a>
                                 }
-                                else if (root.MenuIndex == 9)
+                                else if (root.MenuIndex == 8)
                                 {
                                     <a href="#"><i class="fa fa-lg fa-fw fa-bar-chart-o"></i> <span class="menu-item-parent">@root.MenuName</span></a>
                                 }
+                                
                                 <ul id="ul_root_@root.MenuIndex">
                                     @foreach (var item in listItem)
                                     {
@@ -231,7 +236,7 @@
                                         {
                                             <li>
                                                 @{
-                                            listItem = listAllMenu.Where(p => p.ParentMenuID == item.MenuID).OrderBy(p => p.MenuIndex).ToList();
+                                                    listItem = listAllMenu.Where(p => p.ParentMenuID == item.MenuID).OrderBy(p => p.MenuIndex).ToList();
                                                 }
                                                 @if (listItem.Count > 0)
                                                 {
@@ -243,7 +248,7 @@
                                                             {
                                                                 <li>
                                                                     @{
-                                                                listItem = listAllMenu.Where(p => p.ParentMenuID == item2.MenuID).OrderBy(p => p.MenuIndex).ToList();
+                                                                        listItem = listAllMenu.Where(p => p.ParentMenuID == item2.MenuID).OrderBy(p => p.MenuIndex).ToList();
                                                                     }
                                                                     @if (listItem.Count > 0)
                                                                     {
@@ -265,28 +270,28 @@
                                                                         <a href="@Url.Content("~/" + item2.ControllerName)" id="menu_@item2.ControllerName">@item2.MenuName</a>
                                                                     }
                                                                 </li>
-                                                            }
-                                                        }
+                                                                            }
+                                                                        }
                                                     </ul>
-                                                }
-                                                else
-                                                {
-                                                    <a href="@Url.Content("~/" + item.ControllerName)" id="menu_@item.ControllerName">@item.MenuName</a>
-                                                }
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a href="@Url.Content("~/" + item.ControllerName)" id="menu_@item.ControllerName">@item.MenuName</a>
+                                                                        }
                                             </li>
-                                        }
-                                    }
+                                                                            }
+                                                                        }
                                 </ul>
-                            }
-                            else
-                            {
-                                <a href="@Url.Content("~/.")" id="menu_@root.ControllerName">
-                                    <i class="fa fa-lg fa-fw fa-home"></i> <span class="menu-item-parent">@root.MenuName</span>
-                                </a>
-                            }
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a href="@Url.Content("~/.")" id="menu_@root.ControllerName">
+                                                                                <i class="fa fa-lg fa-fw fa-home"></i> <span class="menu-item-parent">@root.MenuName</span>
+                                                                            </a>
+                                                                        }
                         </li>
-                    }
-                }
+                                                                            }
+                                                                        }
             </ul>
         </nav>
         <span class="minifyme" data-action="minifyMenu">
@@ -1097,19 +1102,19 @@
     </script>
     <!-- Your GOOGLE ANALYTICS CODE Below -->
     @*<script type="text/javascript">
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', 'UA-XXXXXXXX-X']);
-        _gaq.push(['_trackPageview']);
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-XXXXXXXX-X']);
+            _gaq.push(['_trackPageview']);
 
-        (function () {
-            var ga = document.createElement('script');
-            ga.type = 'text/javascript';
-            ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(ga, s);
-        })();
-    </script>*@
+            (function () {
+                var ga = document.createElement('script');
+                ga.type = 'text/javascript';
+                ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+            })();
+        </script>*@
     <style>
         #logo {
             margin-left: -3px;

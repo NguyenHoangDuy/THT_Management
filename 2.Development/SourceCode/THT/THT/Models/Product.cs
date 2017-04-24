@@ -29,6 +29,5 @@ namespace THT.Models
         public string nguoi_tao { get; set; }
         public DateTime ngay_cap_nhat { get; set; }
         public string nguoi_cap_nhat { get; set; }
-
     }
 }
